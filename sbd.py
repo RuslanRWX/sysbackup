@@ -15,7 +15,7 @@ def MongoCon():
     global coll
     cl = MongoClient(MongoConnect)
     coll = cl[DBs][Collection]
-    
+
 def Backup(Server):
     from random import randint
     from time import sleep
@@ -34,8 +34,6 @@ def Backup(Server):
 #  for R in AllServers:
 #        Servers.append(R["Name"])
 #   return Servers
-
-
 
 class Worker(threading.Thread):
 
