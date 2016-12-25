@@ -16,6 +16,11 @@ def MongoCon():
     cl = MongoClient(MongoConnect)
     coll = cl[DBs][Collection]
     
+    
+    
+    
+    
+    
 def Backup(Server):
     from random import randint
     from time import sleep
