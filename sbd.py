@@ -9,7 +9,6 @@ DBs="ServersBackup"
 Collection="servers"
 Num_thread = 2
 
-
 def MongoCon():
     from pymongo import MongoClient
     global cl
