@@ -1,69 +1,83 @@
 #!/usr/bin/python
 import sys
-MongoConnect='localhost:27017'
+sys.path.insert(0, "lib")
+import  SB
+
 
 def MongoCon():
     from pymongo import MongoClient
     global cl
     global coll
-    cl = MongoClient(MongoConnect)
-    coll = cl["ServersBackup"]["servers"]
+    cl = MongoClient(SB.MongoConnect)
+    coll = cl[SB.DBs][SB.Collection]
 
-def MongoIn(Name,  ServerIP,  ServerPort,  RsyncOpt):
+def MongoIn(Name,  ServerIP,  ServerPort,  RsyncOpt, Priv,  Dirs,  DirsExclude ):
     MongoCon()
-    data = [{ "Name" :  Name ,  "ServerIP" : ServerIP,  "ServerPort" : ServerPort,  "RsyncOpt" : RsyncOpt } ]
+    data = [{ "Name" :  Name ,  "ServerIP" : ServerIP,  "ServerPort" : ServerPort,  "RsyncOpt" : RsyncOpt , "Priv":Priv,   "Dirs" : Dirs,   "DirsExclude" :   DirsExclude } ]
     coll.insert( data, True)
-    
+
+def List(allservers):   
+    from colorama import Fore, Back, Style
+    count=0
+    for R in allservers:
+        global ServerName; ServerName=R['Name']
+        global ServerIP; ServerIP=R['ServerIP']
+        global ServerPort;ServerPort=R['ServerPort']
+        global Priv; Priv=R['Priv']
+        global RsyncOpt; RsyncOpt=R['RsyncOpt']
+        global Dirs;Dirs=R['Dirs']
+        global DirsExclude;DirsExclude=R['DirsExclude']
+        global id;id=R['_id']
+        count=count+1
+        print "##########################\n"
+        print   (Fore.YELLOW + "Server name: "+ R['Name']  )
+        print   "Server IP: ",  R['ServerIP']
+        print(Style.RESET_ALL)
+        print  "Server port: ",  R['ServerPort']
+        print   "Priority: ",  R['Priv']
+        print  "Options of rsync: "+ R['RsyncOpt']
+        print   "Last date of started backup: " + R['DateStart']
+        print   "Last date of end backup: "  + R['DateEnd']
+        print    "Dirs of backup example[/home/,/var ] " + R['Dirs']
+        print    "Dirs exclude example[/home/Downloads/*,/var/log/*]: " + R['DirsExclude'] + "\n"
+    print "################    amount of servers ", count
+        
+
+
 def MongoList():
     MongoCon()
     allservers = list(coll.find())
-    count=0
-    for R in allservers:
-        count=count+1
-        print "##########################\n"
-        print  "Server name: "+ R['Name']
-        print  "Server IP: ",  R['ServerIP']
-        print  "Server port: ",  R['ServerPort']
-        print  "Options of rsync: "+ R['RsyncOpt'] +"\n"
-    print "################\namount of servers ", count
-    
+    List(allservers)
+
+ 
 def MongoFind(Name):
     MongoCon()
     allservers = list(coll.find({ "Name": {'$regex': Name}}))
-    count=0
-    for R in allservers:
-        count=count+1
-        print "##########################\n"
-        print  "Server name: "+ R['Name']
-        print  "Server IP: ",  R['ServerIP']
-        print  "Server port: ",  R['ServerPort']
-        print  "Options of rsync: "+ R['RsyncOpt'] +"\n"
-    print "################\namount of servers ", count
+    List(allservers)
+    
+def PrCheck(Name, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude):
+    print "Check information\n Name: "+ Name +"\n Server IP: ",  ServerIP ,"\n Server SSH port: ",  ServerPort  ,""" 
+    Rsync options: """+  RsyncOpt + "\nPriority: "+ Priv + "\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude  
 
 def MongoChange(Name):
     MongoCon()
     allservers = list(coll.find({ "Name": Name}))
-    count=0
-    for R in allservers:
-        count=count+1
-        print "##########################\n"
-        print  "Server name: "+ R['Name']
-        print  "Server IP: ",  R['ServerIP']
-        print  "Server port: ",  R['ServerPort']
-        print  "Options of rsync: "+ R['RsyncOpt'] +"\n"
-        Rport=R['ServerPort']
-    Name = raw_input('Enter name of server or client  [defaul:'+  R['Name'] +']: ') or R['Name']
-    ServerIP= raw_input('Enter server IP [defaul:'+ R['ServerIP'] +'] : ') or R['ServerIP']
-    ServerPort= raw_input('Enter server SSH port [default: '+  str(R['ServerPort'])  +' ] : ') or R['ServerPort']
-    RsyncOpt= raw_input('Enter options of rsync [default:'+ R['RsyncOpt'] +'] ') or R['RsyncOpt']
-    print "Check information\n Name: "+ Name +"\n Server IP: ",  ServerIP ,"\n Server SSH port: ",  ServerPort  ,"\n Rsync options: "+  RsyncOpt
+    List(allservers)
+    
+    ServerNameN = raw_input('Enter name of server or client  [default:'+  ServerName +']: ') or ServerName
+    ServerIPN= raw_input('Enter server IP [defaul:'+ ServerIP +'] : ') or  ServerIP
+    ServerPortN= raw_input('Enter server SSH port [default: '+  str(ServerPort)  +' ] : ') or ServerPort
+    RsyncOptN= raw_input('Enter options of rsync [default:'+ RsyncOpt +'] ') or RsyncOpt
+    PrivN=raw_input('Priority  now [ '+ str(Priv)  +' ] : ') or Priv
+    DirsN=raw_input('Dirs of backup now [ ' + Dirs + ' ] : ') or Dirs
+    DirsExcludeN=raw_input('Dirs exclude now [ ' + DirsExclude + '] : ') or DirsExclude
+    PrCheck(ServerNameN,ServerIPN,ServerPortN, RsyncOptN,PrivN,DirsN, DirsExcludeN )
     yes = set(['yes','y', 'ye', ''])
     no = set(['no','n'])
     choice = raw_input('Data are correct? ').lower()
     if choice in yes:
-        print R['_id']
-        id=R['_id']
-        data = { "Name" :  Name ,  "ServerIP" : ServerIP,  "ServerPort" : ServerPort,  "RsyncOpt" : RsyncOpt }
+        #print id
+        data = { "Name" :  ServerNameN ,  "ServerIP" : ServerIPN,  "ServerPort" : ServerPortN, "RsyncOpt" : RsyncOptN,  "Dirs" : DirsN, "DirsExclude" : DirsExcludeN,  "Priv" : PrivN    }
         #coll.update({'_id': R['_id']}, data, True)
         coll.update({'_id':id}, {"$set": data}, upsert=False)
         #coll.update({'Name': Name }, data})
@@ -76,17 +90,20 @@ def MongoChange(Name):
         sys.stdout.write("Please respond with 'yes' or 'no'")
 
     
-def ask():
+def add():
     Name = raw_input('Enter name of server or client: ')
     ServerIP = raw_input('Enter server IP: ')
     ServerPort = raw_input('Enter server SSH port [default:22] ') or 22
     RsyncOpt = raw_input('Enter options of rsync [default:-av] ') or '-av'
-    print "Check information\n Name: "+ Name +"\n Server IP: ",  ServerIP ,"\n Server SSH port: ",  ServerPort  ,"\n Rsync options: "+  RsyncOpt
+    Priv=raw_input('Priority default [ 20 ] : ') or 20
+    Dirs=raw_input('Dirs of backup example[/home/,/var ] : ') or '/home/,/var'
+    DirsExclude=raw_input('Dirs exclude example[/home/Downloads/*,/var/log/*] :') or '/home/Downloads/*,/var/log/*'
+    PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes','y', 'ye', ''])
     no = set(['no','n'])
     choice = raw_input('Data are correct? ').lower()
     if choice in yes:
-       MongoIn(Name,  ServerIP,  ServerPort,  RsyncOpt)
+       MongoIn(Name,  ServerIP,  ServerPort,  RsyncOpt, Priv,  Dirs,  DirsExclude )
     elif choice in no:
         print "Bye"
         exit (0)
@@ -99,7 +116,7 @@ def help():
 
 def main():
     if sys.argv[1] == 'addhost':
-        ask()
+        add()
     elif sys.argv[1] == 'list':
         MongoList()
     elif sys.argv[1] == 'search':
