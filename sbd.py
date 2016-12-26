@@ -1,14 +1,26 @@
 #!/usr/bin/python
-import os
+import ConfigParser,  os
 import threading
 import Queue
 import time, random
 
-MongoConnect='localhost:27017'
-DBs="ServersBackup"
-Collection="servers"
-Num_thread = 2
-DIR="/home/ruslan/ruslan/SB"
+Pathini="sbd.ini"
+
+def Conf():
+    config = ConfigParser.ConfigParser()
+    config.read(Pathini)
+    global MongoConnect
+    global DBs
+    global Collection
+    global Num_thread
+    global DIR
+    global DirBackup
+    MongoConnect = config.get('Main', 'MongoConnect')
+    DBs = config.get('Main',  'DBs')
+    Collection = config.get('Main', 'Collection')
+    Num_thread = int(config.get('Main',  'Num_thread'))
+    DIR = config.get('Main',  'DIR')
+    DirBackup = config.get('Main', 'DirBackup')
 
 def MongoCon():
     from pymongo import MongoClient
@@ -16,7 +28,7 @@ def MongoCon():
     global coll
     cl = MongoClient(MongoConnect)
     coll = cl[DBs][Collection]
-    
+
 def CreateTmpFiles(Name,  Dirs, DirsEx):
     Dirs=Dirs.replace(',', '\n')  + "\n"
     DirsEx=DirsEx.replace(',', '\n') + "\n"
@@ -28,76 +40,41 @@ def CreateTmpFiles(Name,  Dirs, DirsEx):
     FileEx=open(FileNameEx,  "w" )
     FileEx.write(DirsEx)
     FileEx.close()
+
+class Backup:
+    def __init__(self, S):
+        self.Server = S
+    def test(self):
+        print self.Server
+
     
-
-def Backup(Server):
-    import datetime
-    MongoCon()
-    Mq=coll.find()
-    from random import randint
-    from time import sleep
-    SL=(randint(1,20))
-    ServerData = list(coll.find({ "Name": Server}))
-    ts = time.time()
-    ISODateStart = datetime.datetime.now().isoformat()
-    for R in ServerData:
-        CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
-        id=R['_id']
-        print "##########################\n"
-        print  "Server name: "+ R['Name']
-        print  "Server IP: ",  R['ServerIP']
-        print  "Server port: ",  R['ServerPort']
-        print  "Options of rsync: "+ R['RsyncOpt'] +"\n"
-        print  " Sleep Start backup  "+ str(SL) +"\n"
-        DateUp={ "DateStart" : ISODateStart }
-        coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
-        time.sleep(SL)
-        ISODateEnd = datetime.datetime.now().isoformat()
-        DateUp={ "DateEnd" : ISODateEnd }
-        coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
-        
-        
-    
- #   dataUp = { "Name" :  Server ,  "DataStart" :  new ISODate() }
- #   coll.update({'_id':id}, {"$set": dataUp}, upsert=False)
- #   print Server +" Sleep Start backup"+ str(SL) +"\n"
- #   for R in ServersData:
- #       print "##########################\n"
-#        print  "Server name: "+ R['Name']
-#        print  "Server IP: ",  R['ServerIP']
-  #      print  "Server port: ",  R['ServerPort']
- #       print  "Options of rsync: "+ R['RsyncOpt'] +"\n"
-    #print Server
-    #time.sleep(5)
-    time.sleep(SL)
-
-
-#def CreateQ():
- #   MongoCon()
-  #  AllServers=list(coll.find())
-#    global Servers
-#    Servers=[]
-#  for R in AllServers:
-#        Servers.append(R["Name"])
-#   return Servers
-
-class Worker(threading.Thread):
-
-    def __init__(self, queue):
-        self.__queue = queue
-        threading.Thread.__init__(self)
-
     def run(self):
-        while 1:
-            item = self.__queue.get()
-            if item is None:
-                break # reached end of queue
-
-            # pretend we're doing something that takes 10-100 ms
-            #time.sleep(random.randint(10, 100) / 1000.0)
-            tc=threading.activeCount()
-            print "active threads "+ str(tc)
-            Backup(item)
+        import datetime
+        MongoCon()
+        Mq=coll.find()
+        Server=self.Server
+        from random import randint
+        from time import sleep
+        SL=(randint(1,20))
+        ServerData = list(coll.find({ "Name": Server}))
+        ts = time.time()
+        ISODateStart = datetime.datetime.now().isoformat()
+        for R in ServerData:
+            CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
+            id=R['_id']
+            print "###########Start Backup############\n"
+            print  "Server name: "+ R['Name']
+            print  "Server IP: ",  R['ServerIP']
+            print  "Server port: ",  R['ServerPort']
+            print  "Options of rsync: "+ R['RsyncOpt'] +"\n"
+            print  " Sleep Start backup  "+ str(SL) +"\n"
+            DateUp={ "DateStart" : ISODateStart }
+            coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
+            time.sleep(SL)
+            ISODateEnd = datetime.datetime.now().isoformat()
+            DateUp={ "DateEnd" : ISODateEnd }
+            coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
+        time.sleep(SL)
 
 def CreateQ():
     ServersQ={}
@@ -109,7 +86,8 @@ def CreateQ():
 def worker():
     while True:
         item = q.get()
-        Backup(item)
+        Back=Backup(item)
+        Back.run()
         q.task_done()
 
 def Q():
@@ -124,9 +102,9 @@ def Q():
     q.join()  
 
 
-
-
 def main ():
+    Conf()
+    #test()
     #while True:
     Q()
     #Name="Server"
