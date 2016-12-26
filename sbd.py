@@ -3,37 +3,22 @@ import ConfigParser,  os
 import threading
 import Queue
 import time, random
-
-Pathini="sbd.ini"
-
-def Conf():
-    config = ConfigParser.ConfigParser()
-    config.read(Pathini)
-    global MongoConnect
-    global DBs
-    global Collection
-    global Num_thread
-    global DIR
-    global DirBackup
-    MongoConnect = config.get('Main', 'MongoConnect')
-    DBs = config.get('Main',  'DBs')
-    Collection = config.get('Main', 'Collection')
-    Num_thread = int(config.get('Main',  'Num_thread'))
-    DIR = config.get('Main',  'DIR')
-    DirBackup = config.get('Main', 'DirBackup')
+import sys
+sys.path.insert(0, "lib")
+import  SB
 
 def MongoCon():
     from pymongo import MongoClient
     global cl
     global coll
-    cl = MongoClient(MongoConnect)
-    coll = cl[DBs][Collection]
+    cl = MongoClient(SB.MongoConnect)
+    coll = cl[SB.DBs][SB.Collection]
 
 def CreateTmpFiles(Name,  Dirs, DirsEx):
     Dirs=Dirs.replace(',', '\n')  + "\n"
     DirsEx=DirsEx.replace(',', '\n') + "\n"
-    FileNameIn=DIR  + "/tmp/" + Name +"_inc.txt"
-    FileNameEx=DIR +"/tmp/"+ Name +"_ex.txt"
+    FileNameIn=SB.DIR  + "/tmp/" + Name +"_inc.txt"
+    FileNameEx=SB.DIR +"/tmp/"+ Name +"_ex.txt"
     FileIn=open(FileNameIn,  "w" )
     FileIn.write(Dirs)
     FileIn.close()
@@ -44,10 +29,7 @@ def CreateTmpFiles(Name,  Dirs, DirsEx):
 class Backup:
     def __init__(self, S):
         self.Server = S
-    def test(self):
-        print self.Server
 
-    
     def run(self):
         import datetime
         MongoCon()
@@ -93,7 +75,7 @@ def worker():
 def Q():
     global q
     q = Queue.Queue(0)
-    for i in range(Num_thread):
+    for i in range(SB.Num_thread):
         t = threading.Thread(target=worker)
         t.daemon = True
         t.start()
@@ -103,10 +85,10 @@ def Q():
 
 
 def main ():
-    Conf()
+    #sbmain.Conf()
     #test()
     #while True:
-    Q()
+     Q()
     #Name="Server"
     #D="/home/,/Dowload"
     #E="/Log/,/var/*"
