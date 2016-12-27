@@ -62,7 +62,7 @@ class Backup:
             ISODateEnd = datetime.datetime.now().isoformat()
             DateUp={ "DateEnd" : ISODateEnd }
             coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
-            print "###########End Backup  ###  " +  R['Name']  +     " #########"
+            print "###########End Backup  ###  " +  R['Name']  +     " #########\n"
             print  "Server name: "+ R['Name']
             print  "DateEnd :" + R["DateEnd"]
         time.sleep(SL)

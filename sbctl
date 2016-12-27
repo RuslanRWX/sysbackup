@@ -60,7 +60,7 @@ def MongoFind(Name):
     List(allservers)
     
 def PrCheck(Name, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude):
-    print "Check information\n Name: "+ Name +"\n Server IP: ",  ServerIP ,"\n Server SSH port: ",  ServerPort  ,""" 
+    print "Check information\nName: "+ Name +"\nServer IP: ",  ServerIP ,"\nServer SSH port: ",  ServerPort  ,"""
     Rsync options: """+  RsyncOpt + "\nPriority: ",  Priv ,"\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude  
 
 def MongoUpdate(Name):
@@ -136,7 +136,7 @@ def help():
     print "\t\tlist    - List all hosts"
     print "\t\tsearch  - Search host name, example: search w1.host.com"
     print  "\t\tupdate  - Update data of host, example: update w1.host.com"
-    print  "\t\tdelete  - Delete host, example: delete w1.host.com "
+    print  "\t\tremove  - Remove host, example: delete w1.host.com "
     print "\n"
 
 def main():
@@ -149,7 +149,7 @@ def main():
             MongoFind(sys.argv[2])
         elif sys.argv[1] == 'update':
             MongoUpdate(sys.argv[2])
-        elif sys.argv[1] == 'delete':
+        elif sys.argv[1] == 'remove':
             Delete(sys.argv[2])
         else:
             help()
