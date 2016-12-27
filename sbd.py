@@ -49,13 +49,22 @@ class Backup:
             print  "Server IP: ",  R['ServerIP']
             print  "Server port: ",  R['ServerPort']
             print  "Options of rsync: "+ R['RsyncOpt'] +"\n"
+            print  "Dirs : " + R['Dirs']
+            print  "Dirs exclude: " + R['DirsExclude']
+            print  "DateStart :" + R['DateStart']
             print  " Sleep Start backup  "+ str(SL) +"\n"
             DateUp={ "DateStart" : ISODateStart }
             coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
+            Name = R['Name']
+            cmd="echo %s %s "%(Name, R['ServerIP'])
+            os.system(cmd)
             time.sleep(SL)
             ISODateEnd = datetime.datetime.now().isoformat()
             DateUp={ "DateEnd" : ISODateEnd }
             coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
+            print "###########End Backup  ###  " +  R['Name']  +     " #########"
+            print  "Server name: "+ R['Name']
+            print  "DateEnd :" + R["DateEnd"]
         time.sleep(SL)
 
 def CreateQ():

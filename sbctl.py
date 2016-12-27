@@ -43,7 +43,9 @@ def List(allservers):
         print    "Dirs of backup example[/home/,/var ] " + R['Dirs']
         print    "Dirs exclude example[/home/Downloads/*,/var/log/*]: " + R['DirsExclude'] + "\n"
     print "##########################    amount of servers ", count
-        
+    if count == 0:
+        print  "Haven't got any host with this name !\nBye "
+        exit(1)
 
 
 def MongoList():
@@ -61,11 +63,10 @@ def PrCheck(Name, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude):
     print "Check information\n Name: "+ Name +"\n Server IP: ",  ServerIP ,"\n Server SSH port: ",  ServerPort  ,""" 
     Rsync options: """+  RsyncOpt + "\nPriority: ",  Priv ,"\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude  
 
-def MongoChange(Name):
+def MongoUpdate(Name):
     MongoCon()
     allservers = list(coll.find({ "Name": Name}))
     List(allservers)
-    
     ServerNameN = raw_input('Enter name of server or client  [default:'+  ServerName +']: ') or ServerName
     ServerIPN= raw_input('Enter server IP [defaul:'+ ServerIP +'] : ') or  ServerIP
     ServerPortN= raw_input('Enter server SSH port [default: '+  str(ServerPort)  +' ] : ') or ServerPort
@@ -84,7 +85,6 @@ def MongoChange(Name):
         coll.update({'_id':id}, {"$set": data}, upsert=False)
         #coll.update({'Name': Name }, data})
         #db.servers.update({ "_id" : ObjectId("58533139399923269b261261")}, {$set: { "Name" : "Agnejka"  }}  )
-
     elif choice in no:
         print "Bye"
         exit (0)
@@ -111,6 +111,23 @@ def add():
         exit (0)
     else:
         sys.stdout.write("Please respond with 'yes' or 'no'")
+        
+def Delete(Name):
+    MongoCon()
+    allservers = list(coll.find({ "Name": Name}))
+    List(allservers)
+    
+    #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
+    yes = set(['yes','y', 'ye', ''])
+    no = set(['no','n'])
+    choice = raw_input('Do you really want to delete host? ').lower()
+    if choice in yes:
+        coll.remove({'_id':id})
+    elif choice in no:
+        print "Bye"
+        exit (0)
+    else:
+        sys.stdout.write("Please respond with 'yes' or 'no'")
  
  
 def help():
@@ -119,6 +136,7 @@ def help():
     print "\t\tlist    - List all hosts"
     print "\t\tsearch  - Search host name, example: search w1.host.com"
     print  "\t\tupdate  - Update data of host, example: update w1.host.com"
+    print  "\t\tdelete  - Delete host, example: delete w1.host.com "
     print "\n"
 
 def main():
@@ -130,7 +148,9 @@ def main():
         elif sys.argv[1] == 'search':
             MongoFind(sys.argv[2])
         elif sys.argv[1] == 'update':
-            MongoChange(sys.argv[2])
+            MongoUpdate(sys.argv[2])
+        elif sys.argv[1] == 'delete':
+            Delete(sys.argv[2])
         else:
             help()
     except IndexError:
