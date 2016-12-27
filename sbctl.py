@@ -11,15 +11,16 @@ def MongoCon():
     cl = MongoClient(SB.MongoConnect)
     coll = cl[SB.DBs][SB.Collection]
 
-def MongoIn(Name,  ServerIP,  ServerPort,  RsyncOpt, Priv,  Dirs,  DirsExclude ):
+def MongoIn(Name,ServerIP,ServerPort,RsyncOpt,Priv,Dirs,DirsExclude):
     MongoCon()
-    data = [{ "Name" :  Name ,  "ServerIP" : ServerIP,  "ServerPort" : ServerPort,  "RsyncOpt" : RsyncOpt , "Priv":Priv,   "Dirs" : Dirs,   "DirsExclude" :   DirsExclude } ]
+    data = [{ "Name" :  Name ,  "ServerIP" : ServerIP,  "ServerPort" : ServerPort,  "RsyncOpt" : RsyncOpt , "Priv":Priv,   "Dirs" : Dirs,   "DirsExclude" :   DirsExclude,  "DateStart": "",  "DateEnd": ""  } ]
     coll.insert( data, True)
 
 def List(allservers):   
     from colorama import Fore, Back, Style
     count=0
     for R in allservers:
+        count=count+1
         global ServerName; ServerName=R['Name']
         global ServerIP; ServerIP=R['ServerIP']
         global ServerPort;ServerPort=R['ServerPort']
@@ -28,7 +29,6 @@ def List(allservers):
         global Dirs;Dirs=R['Dirs']
         global DirsExclude;DirsExclude=R['DirsExclude']
         global id;id=R['_id']
-        count=count+1
         print "##########################\n"
         print   (Fore.YELLOW + "Server name: "+ R['Name']  )
         print   "Server IP: ",  R['ServerIP']
@@ -36,11 +36,13 @@ def List(allservers):
         print  "Server port: ",  R['ServerPort']
         print   "Priority: ",  R['Priv']
         print  "Options of rsync: "+ R['RsyncOpt']
-        print   "Last date of started backup: " + R['DateStart']
-        print   "Last date of end backup: "  + R['DateEnd']
+        if R['DateStart']:
+             print   "Last date of started backup: " + R['DateStart']
+        if R['DateEnd']:
+            print   "Last date of end backup: "  + R['DateEnd']
         print    "Dirs of backup example[/home/,/var ] " + R['Dirs']
         print    "Dirs exclude example[/home/Downloads/*,/var/log/*]: " + R['DirsExclude'] + "\n"
-    print "################    amount of servers ", count
+    print "##########################    amount of servers ", count
         
 
 
@@ -57,7 +59,7 @@ def MongoFind(Name):
     
 def PrCheck(Name, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude):
     print "Check information\n Name: "+ Name +"\n Server IP: ",  ServerIP ,"\n Server SSH port: ",  ServerPort  ,""" 
-    Rsync options: """+  RsyncOpt + "\nPriority: "+ Priv + "\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude  
+    Rsync options: """+  RsyncOpt + "\nPriority: ",  Priv ,"\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude  
 
 def MongoChange(Name):
     MongoCon()
@@ -91,19 +93,19 @@ def MongoChange(Name):
 
     
 def add():
-    Name = raw_input('Enter name of server or client: ')
+    ServerName = raw_input('Enter name of server or client: ')
     ServerIP = raw_input('Enter server IP: ')
     ServerPort = raw_input('Enter server SSH port [default:22] ') or 22
     RsyncOpt = raw_input('Enter options of rsync [default:-av] ') or '-av'
     Priv=raw_input('Priority default [ 20 ] : ') or 20
-    Dirs=raw_input('Dirs of backup example[/home/,/var ] : ') or '/home/,/var'
-    DirsExclude=raw_input('Dirs exclude example[/home/Downloads/*,/var/log/*] :') or '/home/Downloads/*,/var/log/*'
+    Dirs=raw_input('Dirs of backup example[/root/,/var ] : ') or '/root/,/var'
+    DirsExclude=raw_input('Dirs exclude example[/var/lib/*,/var/log/*] :') or '/var/lib/*,/var/log/*'
     PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes','y', 'ye', ''])
     no = set(['no','n'])
     choice = raw_input('Data are correct? ').lower()
     if choice in yes:
-       MongoIn(Name,  ServerIP,  ServerPort,  RsyncOpt, Priv,  Dirs,  DirsExclude )
+       MongoIn(ServerName,  ServerIP,  ServerPort,  RsyncOpt, Priv,  Dirs,  DirsExclude )
     elif choice in no:
         print "Bye"
         exit (0)
@@ -112,18 +114,26 @@ def add():
  
  
 def help():
-     print "Ok"
+    print "Help function: Basic Usage:\n "
+    print "\t\taddhost - Add host to backup"
+    print "\t\tlist    - List all hosts"
+    print "\t\tsearch  - Search host name, example: search w1.host.com"
+    print  "\t\tupdate  - Update data of host, example: update w1.host.com"
+    print "\n"
 
 def main():
-    if sys.argv[1] == 'addhost':
-        add()
-    elif sys.argv[1] == 'list':
-        MongoList()
-    elif sys.argv[1] == 'search':
-        MongoFind(sys.argv[2])
-    elif sys.argv[1] == 'update':
-        MongoChange(sys.argv[2])
-    else:
+    try:
+        if sys.argv[1] == 'addhost':
+            add()
+        elif sys.argv[1] == 'list':
+            MongoList()
+        elif sys.argv[1] == 'search':
+            MongoFind(sys.argv[2])
+        elif sys.argv[1] == 'update':
+            MongoChange(sys.argv[2])
+        else:
+            help()
+    except IndexError:
         help()
 
 
