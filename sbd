@@ -6,6 +6,8 @@ import time, random
 import sys
 sys.path.insert(0, "lib")
 import  SB
+DIR=os.getcwd()
+
 
 def MongoCon():
     from pymongo import MongoClient
@@ -17,8 +19,8 @@ def MongoCon():
 def CreateTmpFiles(Name,  Dirs, DirsEx):
     Dirs=Dirs.replace(',', '\n')  + "\n"
     DirsEx=DirsEx.replace(',', '\n') + "\n"
-    FileNameIn=SB.DIR  + "/tmp/" + Name +"_inc.txt"
-    FileNameEx=SB.DIR +"/tmp/"+ Name +"_ex.txt"
+    FileNameIn=DIR  + "/tmp/" + Name +"_inc.txt"
+    FileNameEx=DIR +"/tmp/"+ Name +"_ex.txt"
     FileIn=open(FileNameIn,  "w" )
     FileIn.write(Dirs)
     FileIn.close()
@@ -109,11 +111,15 @@ def Q():
     q.join()  
 
 
+def Check():
+    tmp=DIR+"/tmp"
+    if not os.path.exists(tmp):
+        os.makedirs(tmp)
+
 def main ():
-    #sbmain.Conf()
-    #test()
+    Check()
     #while True:
-     Q()
+    Q()
     #Name="Server"
     #D="/home/,/Dowload"
     #E="/Log/,/var/*"
