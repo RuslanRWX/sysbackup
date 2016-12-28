@@ -71,7 +71,8 @@ class Backup:
             print DirBL
             print DirB
             Link=DirB+"/"+"Latest"
-            os.remove(Link) 
+            if os.path.exists(Link):
+                os.remove(Link) 
             os.symlink(DirBL, Link)
             #time.sleep(SL)
             ISODateEnd = datetime.datetime.now().isoformat()
