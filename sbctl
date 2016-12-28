@@ -44,7 +44,7 @@ def List(allservers):
         print    "Dirs exclude example[/home/Downloads/*,/var/log/*]: " + R['DirsExclude'] + "\n"
     print "##########################    amount of servers ", count
     if count == 0:
-        print  "Haven't got any host with this name !\nBye "
+        print  "Haven't got any host !\nBye "
         exit(1)
 
 
@@ -98,7 +98,7 @@ def add():
     ServerPort = raw_input('Enter server SSH port [default:22] ') or 22
     RsyncOpt = raw_input('Enter options of rsync [default:-av] ') or '-av'
     Priv=raw_input('Priority default [ 20 ] : ') or 20
-    Dirs=raw_input('Dirs of backup example[/root/,/var ] : ') or '/root/,/var'
+    Dirs=raw_input('Dirs of backup example[/root,/var ] : ') or '/root,/var'
     DirsExclude=raw_input('Dirs exclude example[/var/lib/*,/var/log/*] :') or '/var/lib/*,/var/log/*'
     PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes','y', 'ye', ''])
@@ -138,6 +138,7 @@ def help():
     print  "\t\tupdate  - Update data of host, example: update w1.host.com"
     print  "\t\tremove  - Remove host, example: delete w1.host.com "
     print "\n"
+    exit(0)
 
 def main():
     try:

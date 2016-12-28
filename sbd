@@ -56,16 +56,31 @@ class Backup:
             DateUp={ "DateStart" : ISODateStart }
             coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
             Name = R['Name']
-            cmd="echo %s %s "%(Name, R['ServerIP'])
-            os.system(cmd)
-            time.sleep(SL)
+            DirB=SB.DirBackup+"/"+Name
+            DirBL=SB.DirBackup+"/"+Name+"/"+ISODateStart
+            ExFile="tmp/"+Name+"_ex.txt"
+            InFile="tmp/"+Name+"_inc.txt"
+            print "Start rsync ! "
+            if not os.path.exists(DirB):
+                os.makedirs(DirB)
+            if not os.path.exists(DirBL):
+                os.makedirs(DirBL)
+            for RD in R['Dirs'].split(","):
+                cmd="rsync  %s --progress -e \"ssh -p %s\"  --no-p --no-g --chmod=ugo=rwX  --delete  --timeout=600 --ignore-errors --exclude-from=%s --link-dest=%s/Latest   root@%s:%s  %s"%(R['RsyncOpt'], R['ServerPort'],ExFile,DirB,R['ServerIP'],RD,DirBL )
+                os.system(cmd)
+            print DirBL
+            print DirB
+            Link=DirB+"/"+"Latest"
+            os.remove(Link) 
+            os.symlink(DirBL, Link)
+            #time.sleep(SL)
             ISODateEnd = datetime.datetime.now().isoformat()
             DateUp={ "DateEnd" : ISODateEnd }
             coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
             print "###########End Backup  ###  " +  R['Name']  +     " #########\n"
             print  "Server name: "+ R['Name']
             print  "DateEnd :" + R["DateEnd"]
-        time.sleep(SL)
+       # time.sleep(SL)
 
 def CreateQ():
     ServersQ={}
