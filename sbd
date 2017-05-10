@@ -11,6 +11,8 @@ sys.path.insert(0, "lib")
 import  SB
 DIR=os.getcwd()
 import datetime
+pid = str(os.getpid())
+
 
 def MongoCon():
     from pymongo import MongoClient
@@ -137,16 +139,50 @@ def Check():
     tmp=DIR+"/tmp"
     if not os.path.exists(tmp):
         os.makedirs(tmp)
+    if os.path.isfile(SB.Pidfile):
+        print "%s already exists, exiting" % (SB.Pidfile)
+        sys.exit()
+    else:
+        file(SB.Pidfile, 'w').write(pid) 
 
-def main ():
+def help():
+    return """Help function: Basic Usage:\n
+    \tstart      - Start the sbd deamon
+    \tstop       - Stop the sbd deamon
+    \trestart    - Restart the sbd deamon
+    \thelp       - Print help\n"""
+    
+    
+def Stop():
+    if os.path.isfile(SB.Pidfile):
+        cmd="kill `cat %s`"% (SB.Pidfile)
+        os.system(cmd)
+        os.remove(SB.Pidfile)
+        print "sbd is stopped"
+    else:
+        print "sbd is not running"
+
+def Start():
+    print "Start sbd"
     Check()
     while True:
         Q()
         time.sleep(10)
-    #Name="Server"
-    #D="/home/,/Dowload"
-    #E="/Log/,/var/*"
-    #CreateTmpFiles(Name, D, E)
+
+def main ():
+    try:
+        if sys.argv[1] == 'start':
+            Start()
+        elif sys.argv[1] == 'stop':
+            Stop()
+        elif sys.argv[1] == 'restart':
+            Stop()
+            Start()
+        else:
+          print help()
+    except IndexError:
+        print help()
+            
 
 if __name__ == '__main__':
     main()
