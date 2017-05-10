@@ -5,9 +5,9 @@ After=syslog.target network.target
 User=root
 Environment=PATH='/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'
 Type=oneshot
-ExecStart=/root/scripts/ServerBackup/sbd start
-ExecStop=/root/scripts/ServerBackup/sbd stop
-ExecReload=/root/scripts/ServerBackup/sbd restart
+ExecStart=/root/scripts/ServerBackup/sbd start &
+ExecStop=/root/scripts/ServerBackup/sbd stop &
+ExecReload=/root/scripts/ServerBackup/sbd restart &
 WorkingDirectory=/root/scripts/ServerBackup
 RemainAfterExit=yes
 [Install]
