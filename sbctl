@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
 # Version 0.2.1
-import sys
-sys.path.insert(0, "lib")
+import sys, os
+DIR = os.getcwd()
+sys.path.insert(0, DIR+"/lib")
 import SB
 
 
