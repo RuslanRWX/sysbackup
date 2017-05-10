@@ -70,9 +70,10 @@ class Backup:
             CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
             id = R['_id']
             print "###########Start Backup############\n"
-            print "Server name: " + R['Name']
-            print "Server IP: ",  R['ServerIP']
-            print "Server port: ",  R['ServerPort']
+            print "Client name: " + R['Name']
+            print "User: ",  R['User']
+            print "Client IP: ",  R['ServerIP']
+            print "Client port: ",  R['ServerPort']
             print "Options of rsync: " + R['RsyncOpt'] + "\n"
             print "Dirs : " + R['Dirs']
             print "Dirs exclude: " + R['DirsExclude']
