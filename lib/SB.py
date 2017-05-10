@@ -1,8 +1,7 @@
 #!/usr/bin/python
 import ConfigParser,  os
 
-Pathini="sbd.ini"
-
+Pathini=os.path.dirname(__file__), 'sbd.ini'
 
 config = ConfigParser.ConfigParser()
 config.read(Pathini)

@@ -1,4 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
+# Version 0.2.1
+
 import ConfigParser,  os
 import threading
 import Queue
@@ -7,7 +10,7 @@ import sys
 sys.path.insert(0, "lib")
 import  SB
 DIR=os.getcwd()
-
+import datetime
 
 def MongoCon():
     from pymongo import MongoClient
@@ -27,13 +30,21 @@ def CreateTmpFiles(Name,  Dirs, DirsEx):
     FileEx=open(FileNameEx,  "w" )
     FileEx.write(DirsEx)
     FileEx.close()
+    
+def DateCheck(checkdate):
+    checkdate=int(checkdate)
+    #print checkdate
+    date0 = datetime.datetime.now() - datetime.timedelta(minutes=checkdate)
+    date = date0.isoformat()
+    #dateCh = "%s000000" % (date)
+    return date
+
 
 class Backup:
     def __init__(self, S):
         self.Server = S
 
     def run(self):
-        import datetime
         MongoCon()
         Mq=coll.find()
         Server=self.Server
@@ -44,6 +55,12 @@ class Backup:
         ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         for R in ServerData:
+            chdate=DateCheck(R["Frequency"])
+            #print "Check date: ", chdate
+            #print "Date End: ", R["DateEnd"]
+            if R["DateEnd"] > chdate:
+               #print R["Name"]
+               return 
             CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
             id=R['_id']
             print "###########Start Backup############\n"
@@ -70,6 +87,7 @@ class Backup:
             for RD in R['Dirs'].split(","):
                 cmd="rsync  %s --progress -e \"ssh -p %s\"  --no-p --no-g --chmod=ugo=rwX  --delete  --timeout=600 --ignore-errors --exclude-from=%s --link-dest=%s/Latest   root@%s:%s  %s"%(R['RsyncOpt'], R['ServerPort'],ExFile,DirB,R['ServerIP'],RD,DirBL )
                 os.system(cmd)
+                # rsync dbs cmd
             print DirBL
             print DirB
             Link=DirB+"/"+"Latest"
@@ -83,7 +101,11 @@ class Backup:
             print "###########End Backup  ###  " +  R['Name']  +     " #########\n"
             print  "Server name: "+ R['Name']
             print  "DateEnd :" + R["DateEnd"]
+            print "Start clean the backup server"
+            cmdclean="find %s -type d -mtime +%s -maxdepth 1 -exec rm -r '{}' \;"%(DirB, R['CleanDate'])
+            os.system(cmdclean)
        # time.sleep(SL)
+    
 
 def CreateQ():
     ServersQ={}
@@ -118,8 +140,9 @@ def Check():
 
 def main ():
     Check()
-    #while True:
-    Q()
+    while True:
+        Q()
+        time.sleep(10)
     #Name="Server"
     #D="/home/,/Dowload"
     #E="/Log/,/var/*"
