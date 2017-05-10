@@ -109,7 +109,7 @@ class Backup:
             print "Server name: " + R['Name']
             print "DateEnd :" + R["DateEnd"]
             print "Start clean the backup server"
-            cmdclean = "find %s -type d -mtime +%s -maxdepth 1 -exec rm -r '{}' \;" % (
+            cmdclean = "find %s -mtime +%s -maxdepth 1 -exec rm -r '{}' \;" % (
                 DirB, R['CleanDate'])
             os.system(cmdclean)
        # time.sleep(SL)

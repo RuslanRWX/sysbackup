@@ -82,11 +82,10 @@ def MongoFind(Name):
     List(allservers)
 
 
-def PrCheck(Name, ServerIP, User,  ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
-    print "Check information\nName: " + Name + "\nCleint IP: ",  ServerIP, "\nUser:", User, "\nClient SSH port: ",  ServerPort, """
-    Rsync options: """ + RsyncOpt + "\nPriority: ",  Priv, "\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude
-    print "Frequency of backups, hours :", Frequency
-    print "Clean the backup server, days: ", CleanDate
+def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
+    print "Check information\nName: " + Name + "\nUser:", User, "\nCleint IP: ", ServerIP, "\nClient SSH port: ",  ServerPort
+    print "Rsync options: " + RsyncOpt + "\nPriority: ",  Priv, "\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude 
+    print "Frequency of backups, hours :", Frequency, "\nClean the backup server, days:", CleanDate
 
 
 def MongoUpdate(Name):
@@ -111,7 +110,7 @@ def MongoUpdate(Name):
         'Frequency of backups, hours, now [ ' + str(Frequency) + ' ]: ') or Frequency)
     CleanDateN = int(raw_input(
         'Clean the backup server, days, now [ ' + str(CleanDate) + ' ]: ') or CleanDate)
-    PrCheck(ServerNameN, ServerIPN, UserN, ServerPortN, RsyncOptN,
+    PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
             PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye', ''])
     no = set(['no', 'n'])
@@ -135,7 +134,8 @@ def MongoUpdate(Name):
 def add():
     ServerName = raw_input('Enter client name or host name: ')
     ServerIP = raw_input('Enter client IP: ')
-    User = raw_input('Enter user name of client server: [default:root]') or "root"
+    User = raw_input(
+        'Enter user name of client server: [default:root]') or "root"
     ServerPort = raw_input('Enter client SSH port [default:22] ') or 22
     RsyncOpt = raw_input('Enter options of rsync [default:-av] ') or '-av'
     Priv = raw_input('Priority default [ 20 ] : ') or 20
@@ -146,8 +146,8 @@ def add():
         raw_input('Frequency of backups, hours [default 24]: ') or 24)
     CleanDate = int(
         raw_input('Clean the backup server, days [default 30]: ') or 30)
-    PrCheck(ServerName, ServerIP, ServerPort,
-            RsyncOpt, Priv, Dirs, DirsExclude)
+    PrCheck(ServerName, User,  ServerIP, ServerPort,
+            RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
     yes = set(['yes', 'y', 'ye', ''])
     no = set(['no', 'n'])
     choice = raw_input('Data are correct? ').lower()
