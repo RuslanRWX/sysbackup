@@ -2,14 +2,16 @@
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
 # Version 0.2.1
 
-import ConfigParser,  os
+import ConfigParser
+import os
 import threading
 import Queue
-import time, random
+import time
+import random
 import sys
 sys.path.insert(0, "lib")
-import  SB
-DIR=os.getcwd()
+import SB
+DIR = os.getcwd()
 import datetime
 pid = str(os.getpid())
 
@@ -21,21 +23,23 @@ def MongoCon():
     cl = MongoClient(SB.MongoConnect)
     coll = cl[SB.DBs][SB.Collection]
 
+
 def CreateTmpFiles(Name,  Dirs, DirsEx):
-    Dirs=Dirs.replace(',', '\n')  + "\n"
-    DirsEx=DirsEx.replace(',', '\n') + "\n"
-    FileNameIn=DIR  + "/tmp/" + Name +"_inc.txt"
-    FileNameEx=DIR +"/tmp/"+ Name +"_ex.txt"
-    FileIn=open(FileNameIn,  "w" )
+    Dirs = Dirs.replace(',', '\n') + "\n"
+    DirsEx = DirsEx.replace(',', '\n') + "\n"
+    FileNameIn = DIR + "/tmp/" + Name + "_inc.txt"
+    FileNameEx = DIR + "/tmp/" + Name + "_ex.txt"
+    FileIn = open(FileNameIn,  "w")
     FileIn.write(Dirs)
     FileIn.close()
-    FileEx=open(FileNameEx,  "w" )
+    FileEx = open(FileNameEx,  "w")
     FileEx.write(DirsEx)
     FileEx.close()
-    
+
+
 def DateCheck(checkdate):
-    checkdate=int(checkdate)
-    #print checkdate
+    checkdate = int(checkdate)
+    # print checkdate
     date0 = datetime.datetime.now() - datetime.timedelta(minutes=checkdate)
     date = date0.isoformat()
     #dateCh = "%s000000" % (date)
@@ -48,80 +52,84 @@ class Backup:
 
     def run(self):
         MongoCon()
-        Mq=coll.find()
-        Server=self.Server
+        Mq = coll.find()
+        Server = self.Server
         from random import randint
         from time import sleep
-        SL=(randint(1,20))
-        ServerData = list(coll.find({ "Name": Server}))
+        SL = (randint(1, 20))
+        ServerData = list(coll.find({"Name": Server}))
         ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         for R in ServerData:
-            chdate=DateCheck(R["Frequency"])
-            #print "Check date: ", chdate
-            #print "Date End: ", R["DateEnd"]
+            chdate = DateCheck(R["Frequency"])
+            # print "Check date: ", chdate
+            # print "Date End: ", R["DateEnd"]
             if R["DateEnd"] > chdate:
-               #print R["Name"]
-               return 
+                # print R["Name"]
+                return
             CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
-            id=R['_id']
+            id = R['_id']
             print "###########Start Backup############\n"
-            print  "Server name: "+ R['Name']
-            print  "Server IP: ",  R['ServerIP']
-            print  "Server port: ",  R['ServerPort']
-            print  "Options of rsync: "+ R['RsyncOpt'] +"\n"
-            print  "Dirs : " + R['Dirs']
-            print  "Dirs exclude: " + R['DirsExclude']
-            print  "DateStart :" + R['DateStart']
-            print  " Sleep Start backup  "+ str(SL) +"\n"
-            DateUp={ "DateStart" : ISODateStart }
-            coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
+            print "Server name: " + R['Name']
+            print "Server IP: ",  R['ServerIP']
+            print "Server port: ",  R['ServerPort']
+            print "Options of rsync: " + R['RsyncOpt'] + "\n"
+            print "Dirs : " + R['Dirs']
+            print "Dirs exclude: " + R['DirsExclude']
+            print "DateStart :" + R['DateStart']
+            print "Sleep Start backup  " + str(SL) + "\n"
+            DateUp = {"DateStart": ISODateStart}
+            coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
             Name = R['Name']
-            DirB=SB.DirBackup+"/"+Name
-            DirBL=SB.DirBackup+"/"+Name+"/"+ISODateStart
-            ExFile="tmp/"+Name+"_ex.txt"
-            InFile="tmp/"+Name+"_inc.txt"
+            DirB = SB.DirBackup + "/" + Name
+            DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
+            ExFile = "tmp/" + Name + "_ex.txt"
+            InFile = "tmp/" + Name + "_inc.txt"
             print "Start rsync ! "
             if not os.path.exists(DirB):
                 os.makedirs(DirB)
             if not os.path.exists(DirBL):
                 os.makedirs(DirBL)
             for RD in R['Dirs'].split(","):
-                cmd="rsync  %s --progress -e \"ssh -p %s\"  --no-p --no-g --chmod=ugo=rwX  --delete  --timeout=600 --ignore-errors --exclude-from=%s --link-dest=%s/Latest   root@%s:%s  %s"%(R['RsyncOpt'], R['ServerPort'],ExFile,DirB,R['ServerIP'],RD,DirBL )
+                cmd = "rsync  %s --progress -e \"ssh -p %s\"  --no-p --no-g --chmod=ugo=rwX  --delete  --timeout=600 --ignore-errors --exclude-from=%s --link-dest=%s/Latest   %s@%s:%s  %s" % (
+                    R['RsyncOpt'], R['ServerPort'], ExFile, DirB, R['User'], R['ServerIP'], RD, DirBL)
                 os.system(cmd)
                 # rsync dbs cmd
             print DirBL
             print DirB
-            Link=DirB+"/"+"Latest"
+            Link = DirB + "/" + "Latest"
             if os.path.exists(Link):
-                os.remove(Link) 
+                os.remove(Link)
             os.symlink(DirBL, Link)
-            #time.sleep(SL)
+            # time.sleep(SL)
             ISODateEnd = datetime.datetime.now().isoformat()
-            DateUp={ "DateEnd" : ISODateEnd }
-            coll.update({'_id':id}, {"$set": DateUp}, upsert=False)
-            print "###########End Backup  ###  " +  R['Name']  +     " #########\n"
-            print  "Server name: "+ R['Name']
-            print  "DateEnd :" + R["DateEnd"]
+            DateUp = {"DateEnd": ISODateEnd}
+            coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
+            print "###########End Backup  ###  " + R['Name'] + " #########\n"
+            print "Server name: " + R['Name']
+            print "DateEnd :" + R["DateEnd"]
             print "Start clean the backup server"
-            cmdclean="find %s -type d -mtime +%s -maxdepth 1 -exec rm -r '{}' \;"%(DirB, R['CleanDate'])
+            cmdclean = "find %s -type d -mtime +%s -maxdepth 1 -exec rm -r '{}' \;" % (
+                DirB, R['CleanDate'])
             os.system(cmdclean)
        # time.sleep(SL)
-    
+
 
 def CreateQ():
-    ServersQ={}
+    ServersQ = {}
     MongoCon()
-    Mq=coll.find().sort('Priv',  1)
+    Mq = coll.find().sort('Priv',  1)
     allservers = list(Mq)
     return allservers
-    
+
+
 def worker():
     while True:
         item = q.get()
-        Back=Backup(item)
+        Back = Backup(item)
         Back.run()
         q.task_done()
+
 
 def Q():
     global q
@@ -132,18 +140,19 @@ def Q():
         t.start()
     for item in CreateQ():
         q.put(item["Name"])
-    q.join()  
+    q.join()
 
 
 def Check():
-    tmp=DIR+"/tmp"
+    tmp = DIR + "/tmp"
     if not os.path.exists(tmp):
         os.makedirs(tmp)
     if os.path.isfile(SB.Pidfile):
         print "%s already exists, exiting" % (SB.Pidfile)
         sys.exit()
     else:
-        file(SB.Pidfile, 'w').write(pid) 
+        file(SB.Pidfile, 'w').write(pid)
+
 
 def help():
     return """Help function: Basic Usage:\n
@@ -151,16 +160,17 @@ def help():
     \tstop       - Stop the sbd deamon
     \trestart    - Restart the sbd deamon
     \thelp       - Print help\n"""
-    
-    
+
+
 def Stop():
     if os.path.isfile(SB.Pidfile):
-        cmd="kill `cat %s`"% (SB.Pidfile)
+        cmd = "kill `cat %s`" % (SB.Pidfile)
         os.system(cmd)
         os.remove(SB.Pidfile)
         print "sbd is stopped"
     else:
         print "sbd is not running"
+
 
 def Start():
     print "Start sbd"
@@ -169,7 +179,8 @@ def Start():
         Q()
         time.sleep(10)
 
-def main ():
+
+def main():
     try:
         if sys.argv[1] == 'start':
             Start()
@@ -179,10 +190,10 @@ def main ():
             Stop()
             Start()
         else:
-          print help()
+            print help()
     except IndexError:
         print help()
-            
+
 
 if __name__ == '__main__':
     main()
