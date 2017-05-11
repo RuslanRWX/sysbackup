@@ -155,8 +155,7 @@ def help():
 def Stop():
     if os.path.isfile(SB.Pidfile):
         f=open(SB.Pidfile, "r")
-        f=read()
-        PID=int(f)
+        PID=int(f.read())
         os.kill(PID, signal.SIGKILL)
         os.remove(SB.Pidfile)
         print "sbd is stopped"
