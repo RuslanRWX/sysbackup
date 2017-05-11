@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # Version 0.2.2
 import ConfigParser,  os
 
