@@ -154,9 +154,7 @@ def help():
 
 def Stop():
     if os.path.isfile(SB.Pidfile):
-        cmd = "/bin/kill `cat %s`" % (SB.Pidfile)
-        os.system(cmd)
-        os.remove(SB.Pidfile)
+        os.kill(pid, signal.SIGKILL)
         print "sbd is stopped"
     else:
         print "sbd is not running"
