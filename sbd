@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.1
+# Version 0.2.2
 
 import ConfigParser
 import os
@@ -9,7 +9,6 @@ import Queue
 import time
 import random
 import sys
-sys.path.insert(0, "lib")
 import SB
 DIR = os.getcwd()
 import datetime
