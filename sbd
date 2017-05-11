@@ -10,7 +10,6 @@ import time
 import random
 import sys
 import SB
-DIR = os.getcwd()
 import datetime
 pid = str(os.getpid())
 
@@ -31,7 +30,7 @@ def CreateTmpFiles(Name,  Dirs, DirsEx):
 def DateCheck(checkdate):
     checkdate = int(checkdate)
     # print checkdate
-    date0 = datetime.datetime.now() - datetime.timedelta(minutes=checkdate)
+    date0 = datetime.datetime.now() - datetime.timedelta(hours=checkdate)
     date = date0.isoformat()
     #dateCh = "%s000000" % (date)
     return date
