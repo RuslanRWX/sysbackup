@@ -154,7 +154,10 @@ def help():
 
 def Stop():
     if os.path.isfile(SB.Pidfile):
-        os.kill(pid, signal.SIGKILL)
+        f=open(SB.Pidfile, "r")
+        f=readline()
+        PID=int(f)
+        os.kill(PID, signal.SIGKILL)
         print "sbd is stopped"
     else:
         print "sbd is not running"
