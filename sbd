@@ -82,7 +82,7 @@ class Backup:
             if not os.path.exists(DirBL):
                 os.makedirs(DirBL)
             for RD in R['Dirs'].split(","):
-                cmd = "rsync  {rsopt} --progress -e \"ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl}".format(rsopt=R['RsyncOpt'], port=R['ServerPort'], exf=ExFile, dir=DirB, user=R['User'], ip=R['ServerIP'], rd=RD, dirbl=DirBL)
+                cmd = "/usr/bin/rsync  {rsopt} --progress -e \"ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl}".format(rsopt=R['RsyncOpt'], port=R['ServerPort'], exf=ExFile, dir=DirB, user=R['User'], ip=R['ServerIP'], rd=RD, dirbl=DirBL)
                 os.system(cmd)
                 # rsync dbs cmd
             print DirBL
@@ -99,7 +99,7 @@ class Backup:
             print "Server name: " + R['Name']
             print "DateEnd :" + R["DateEnd"]
             print "Start clean the backup server"
-            cmdclean = "find %s -mtime +%s -maxdepth 1 -exec rm -r '{}' \;" % (
+            cmdclean = "/usr/bin/find %s -mtime +%s -maxdepth 1 -exec rm -r '{}' \;" % (
                 DirB, R['CleanDate'])
             os.system(cmdclean)
        # time.sleep(SL)
@@ -154,7 +154,7 @@ def help():
 
 def Stop():
     if os.path.isfile(SB.Pidfile):
-        cmd = "kill `cat %s`" % (SB.Pidfile)
+        cmd = "/bin/kill `cat %s`" % (SB.Pidfile)
         os.system(cmd)
         os.remove(SB.Pidfile)
         print "sbd is stopped"

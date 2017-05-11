@@ -4,10 +4,10 @@ After=syslog.target network.target
 [Service]
 User=root
 Environment=PATH='/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'
-Type=oneshot
-ExecStart=/usr/sbin/sbd start &
-ExecStop=/usr/sbin/sbd stop &
-ExecReload=/usr/sbin/sbd restart &
+Type=fork
+ExecStart=/usr/sbin/sbd start 
+ExecStop=/usr/sbin/sbd stop 
+ExecReload=/usr/sbin/sbd restart 
 RemainAfterExit=yes
 [Install]
 WantedBy=multi-user.target
