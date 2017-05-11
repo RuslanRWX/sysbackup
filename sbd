@@ -82,7 +82,7 @@ class Backup:
             if not os.path.exists(DirBL):
                 os.makedirs(DirBL)
             for RD in R['Dirs'].split(","):
-                cmd = "/usr/bin/rsync  {rsopt} --progress -e \"ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl}".format(rsopt=R['RsyncOpt'], port=R['ServerPort'], exf=ExFile, dir=DirB, user=R['User'], ip=R['ServerIP'], rd=RD, dirbl=DirBL)
+                cmd = "/usr/bin/rsync  {rsopt} --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl}".format(rsopt=R['RsyncOpt'], port=R['ServerPort'], exf=ExFile, dir=DirB, user=R['User'], ip=R['ServerIP'], rd=RD, dirbl=DirBL)
                 os.system(cmd)
                 # rsync dbs cmd
             print DirBL
