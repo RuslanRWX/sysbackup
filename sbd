@@ -19,8 +19,8 @@ pid = str(os.getpid())
 def CreateTmpFiles(Name,  Dirs, DirsEx):
     Dirs = Dirs.replace(',', '\n') + "\n"
     DirsEx = DirsEx.replace(',', '\n') + "\n"
-    FileNameIn = DIR + "/tmp/" + Name + "_inc.txt"
-    FileNameEx = DIR + "/tmp/" + Name + "_ex.txt"
+    FileNameIn = SB.tmp+"/" + Name + "_inc.txt"
+    FileNameEx = SB.tmp+"/" + Name + "_ex.txt"
     FileIn = open(FileNameIn,  "w")
     FileIn.write(Dirs)
     FileIn.close()
@@ -32,7 +32,7 @@ def CreateTmpFiles(Name,  Dirs, DirsEx):
 def DateCheck(checkdate):
     checkdate = int(checkdate)
     # print checkdate
-    date0 = datetime.datetime.now() - datetime.timedelta(hours=checkdate)
+    date0 = datetime.datetime.now() - datetime.timedelta(minutes=checkdate)
     date = date0.isoformat()
     #dateCh = "%s000000" % (date)
     return date
@@ -76,8 +76,8 @@ class Backup:
             Name = R['Name']
             DirB = SB.DirBackup + "/" + Name
             DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
-            ExFile = "tmp/" + Name + "_ex.txt"
-            InFile = "tmp/" + Name + "_inc.txt"
+            ExFile = SB.tmp+"/" + Name + "_ex.txt"
+            InFile = SB.tmp+"/" + Name + "_inc.txt"
             print "Start rsync ! "
             if not os.path.exists(DirB):
                 os.makedirs(DirB)
@@ -136,7 +136,7 @@ def Q():
 
 
 def Check():
-    tmp = DIR + "/tmp"
+    tmp = SB.tmp
     if not os.path.exists(tmp):
         os.makedirs(tmp)
     if os.path.isfile(SB.Pidfile):

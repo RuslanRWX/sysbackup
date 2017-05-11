@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Version 0.2.2
 import ConfigParser,  os
 
 Pathini=os.path.dirname(__file__), 'sbd.ini'
@@ -17,6 +18,7 @@ Collection = config.get('Main', 'Collection')
 Num_thread = int(config.get('Main',  'Num_thread'))
 DirBackup = config.get('Main', 'DirBackup')
 Pidfile = config.get('Main', 'Pidfile')
+tmp = config.get('Main', 'tmp')
 
 def MongoCon():
     from pymongo import MongoClient
