@@ -17,3 +17,10 @@ Collection = config.get('Main', 'Collection')
 Num_thread = int(config.get('Main',  'Num_thread'))
 DirBackup = config.get('Main', 'DirBackup')
 Pidfile = config.get('Main', 'Pidfile')
+
+def MongoCon():
+    from pymongo import MongoClient
+    global cl
+    global coll
+    cl = MongoClient(MongoConnect)
+    coll = cl[DBs][Collection]

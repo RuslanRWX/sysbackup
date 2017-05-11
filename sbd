@@ -16,14 +16,6 @@ import datetime
 pid = str(os.getpid())
 
 
-def MongoCon():
-    from pymongo import MongoClient
-    global cl
-    global coll
-    cl = MongoClient(SB.MongoConnect)
-    coll = cl[SB.DBs][SB.Collection]
-
-
 def CreateTmpFiles(Name,  Dirs, DirsEx):
     Dirs = Dirs.replace(',', '\n') + "\n"
     DirsEx = DirsEx.replace(',', '\n') + "\n"
@@ -40,7 +32,7 @@ def CreateTmpFiles(Name,  Dirs, DirsEx):
 def DateCheck(checkdate):
     checkdate = int(checkdate)
     # print checkdate
-    date0 = datetime.datetime.now() - datetime.timedelta(minutes=checkdate)
+    date0 = datetime.datetime.now() - datetime.timedelta(hours=checkdate)
     date = date0.isoformat()
     #dateCh = "%s000000" % (date)
     return date
@@ -51,13 +43,13 @@ class Backup:
         self.Server = S
 
     def run(self):
-        MongoCon()
-        Mq = coll.find()
+        SB.MongoCon()
+        Mq = SB.coll.find()
         Server = self.Server
         from random import randint
         from time import sleep
         SL = (randint(1, 20))
-        ServerData = list(coll.find({"Name": Server}))
+        ServerData = list(SB.coll.find({"Name": Server}))
         ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         for R in ServerData:
@@ -70,17 +62,17 @@ class Backup:
             CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
             id = R['_id']
             print "###########Start Backup############\n"
-            print "Client name: " + R['Name']
+            print "Server name: " + R['Name']
             print "User: ",  R['User']
-            print "Client IP: ",  R['ServerIP']
-            print "Client port: ",  R['ServerPort']
+            print "Server IP: ",  R['ServerIP']
+            print "Server port: ",  R['ServerPort']
             print "Options of rsync: " + R['RsyncOpt'] + "\n"
             print "Dirs : " + R['Dirs']
             print "Dirs exclude: " + R['DirsExclude']
             print "DateStart :" + R['DateStart']
             print "Sleep Start backup  " + str(SL) + "\n"
             DateUp = {"DateStart": ISODateStart}
-            coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
+            SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
             Name = R['Name']
             DirB = SB.DirBackup + "/" + Name
             DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
@@ -92,8 +84,7 @@ class Backup:
             if not os.path.exists(DirBL):
                 os.makedirs(DirBL)
             for RD in R['Dirs'].split(","):
-                cmd = "rsync  %s --progress -e \"ssh -p %s\"  --no-p --no-g --chmod=ugo=rwX  --delete  --timeout=600 --ignore-errors --exclude-from=%s --link-dest=%s/Latest   %s@%s:%s  %s" % (
-                    R['RsyncOpt'], R['ServerPort'], ExFile, DirB, R['User'], R['ServerIP'], RD, DirBL)
+                cmd = "rsync  {rsopt} --progress -e \"ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl}".format(rsopt=R['RsyncOpt'], port=R['ServerPort'], exf=ExFile, dir=DirB, user=R['User'], ip=R['ServerIP'], rd=RD, dirbl=DirBL)
                 os.system(cmd)
                 # rsync dbs cmd
             print DirBL
@@ -105,7 +96,7 @@ class Backup:
             # time.sleep(SL)
             ISODateEnd = datetime.datetime.now().isoformat()
             DateUp = {"DateEnd": ISODateEnd}
-            coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
+            SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
             print "###########End Backup  ###  " + R['Name'] + " #########\n"
             print "Server name: " + R['Name']
             print "DateEnd :" + R["DateEnd"]
@@ -118,8 +109,8 @@ class Backup:
 
 def CreateQ():
     ServersQ = {}
-    MongoCon()
-    Mq = coll.find().sort('Priv',  1)
+    SB.MongoCon()
+    Mq = SB.coll.find().sort('Priv',  1)
     allservers = list(Mq)
     return allservers
 

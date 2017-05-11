@@ -6,20 +6,11 @@ DIR = os.getcwd()
 sys.path.insert(0, DIR+"/lib")
 import SB
 
-
-def MongoCon():
-    from pymongo import MongoClient
-    global cl
-    global coll
-    cl = MongoClient(SB.MongoConnect)
-    coll = cl[SB.DBs][SB.Collection]
-
-
 def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
-    MongoCon()
+    SB.MongoCon()
     data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,  "RsyncOpt": RsyncOpt, "Priv": Priv,
              "Dirs": Dirs,   "DirsExclude":   DirsExclude,  "DateStart": "",  "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate}]
-    coll.insert(data, True)
+    SB.coll.insert(data, True)
 
 
 def List(allservers):
@@ -50,11 +41,11 @@ def List(allservers):
         global id
         id = R['_id']
         print "##########################\n"
-        print (Fore.YELLOW + "Client name: " + R['Name'])
-        print "Client IP: ",  R['ServerIP']
+        print (Fore.YELLOW + "Server name: " + R['Name'])
+        print "Server IP: ",  R['ServerIP']
         print(Style.RESET_ALL)
         print "User:",  R['User']
-        print "Client ssh port: ",  R['ServerPort']
+        print "Server ssh port: ",  R['ServerPort']
         print "Priority: ",  R['Priv']
         print "Options of rsync: " + R['RsyncOpt']
         if R['DateStart']:
@@ -72,35 +63,35 @@ def List(allservers):
 
 
 def MongoList():
-    MongoCon()
-    allservers = list(coll.find())
+    SB.MongoCon()
+    allservers = list(SB.coll.find())
     List(allservers)
 
 
 def MongoFind(Name):
-    MongoCon()
-    allservers = list(coll.find({"Name": {'$regex': Name}}))
+    SB.MongoCon()
+    allservers = list(SB.coll.find({"Name": {'$regex': Name}}))
     List(allservers)
 
 
 def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
-    print "Check information\nName: " + Name + "\nUser:", User, "\nCleint IP: ", ServerIP, "\nClient SSH port: ",  ServerPort
+    print "Check information\nName: " + Name + "\nUser:", User, "\nCleint IP: ", ServerIP, "\nServer SSH port: ",  ServerPort
     print "Rsync options: " + RsyncOpt + "\nPriority: ",  Priv, "\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude 
     print "Frequency of backups, hours :", Frequency, "\nClean the backup server, days:", CleanDate
 
 
 def MongoUpdate(Name):
-    MongoCon()
-    allservers = list(coll.find({"Name": Name}))
+    SB.MongoCon()
+    allservers = list(SB.coll.find({"Name": Name}))
     List(allservers)
     ServerNameN = raw_input(
-        'Enter client name [default:' + ServerName + ']: ') or ServerName
+        'Enter server name [default:' + ServerName + ']: ') or ServerName
     ServerIPN = raw_input(
-        'Enter client IP [defaul:' + ServerIP + '] : ') or ServerIP
+        'Enter server IP [defaul:' + ServerIP + '] : ') or ServerIP
     UserN = raw_input(
         'Enter user [default:' + User + ']: ') or User
     ServerPortN = raw_input(
-        'Enter client SSH port [default: ' + str(ServerPort) + ' ] : ') or ServerPort
+        'Enter server SSH port [default: ' + str(ServerPort) + ' ] : ') or ServerPort
     RsyncOptN = raw_input(
         'Enter options of rsync [default:' + RsyncOpt + '] ') or RsyncOpt
     PrivN = raw_input('Priority  now [ ' + str(Priv) + ' ] : ') or Priv
@@ -121,7 +112,7 @@ def MongoUpdate(Name):
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN, "RsyncOpt": RsyncOptN,
                 "Dirs": DirsN, "DirsExclude": DirsExcludeN,  "Priv": PrivN, "Frequency": FrequencyN, "CleanDate": CleanDateN}
         #coll.update({'_id': R['_id']}, data, True)
-        coll.update({'_id': id}, {"$set": data}, upsert=False)
+        SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
         # coll.update({'Name': Name }, data})
         # db.servers.update({ "_id" : ObjectId("58533139399923269b261261")},
         # {$set: { "Name" : "Agnejka"  }}  )
@@ -133,11 +124,11 @@ def MongoUpdate(Name):
 
 
 def add():
-    ServerName = raw_input('Enter client name or host name: ')
-    ServerIP = raw_input('Enter client IP: ')
+    ServerName = raw_input('Enter server name or host name: ')
+    ServerIP = raw_input('Enter sever IP: ')
     User = raw_input(
-        'Enter user name of client server: [default:root]') or "root"
-    ServerPort = raw_input('Enter client SSH port [default:22] ') or 22
+        'Enter user name: [default:root]') or "root"
+    ServerPort = raw_input('Enter SSH port [default:22] ') or 22
     RsyncOpt = raw_input('Enter options of rsync [default:-av] ') or '-av'
     Priv = raw_input('Priority default [ 20 ] : ') or 20
     Dirs = raw_input('Dirs of backup example[/root,/var ] : ') or '/root,/var'
@@ -163,15 +154,15 @@ def add():
 
 
 def Delete(Name):
-    MongoCon()
-    allservers = list(coll.find({"Name": Name}))
+    SB.MongoCon()
+    allservers = list(SB.coll.find({"Name": Name}))
     List(allservers)
     #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes', 'y', 'ye', ''])
     no = set(['no', 'n'])
     choice = raw_input('Do you really want to delete host? ').lower()
     if choice in yes:
-        coll.remove({'_id': id})
+        SB.coll.remove({'_id': id})
     elif choice in no:
         print "Bye"
         exit(0)
