@@ -156,7 +156,7 @@ def Stop():
     if os.path.isfile(SB.Pidfile):
         f=open(SB.Pidfile, "r")
         PID=int(f.read())
-        os.kill(PID, signal.SIGKILL)
+        os.system('pkill -TERM -P {pid}'.format(pid=PID))
         os.remove(SB.Pidfile)
         print "sbd is stopped"
     else:
