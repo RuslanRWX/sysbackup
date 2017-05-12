@@ -156,7 +156,7 @@ def Check():
         text="\n{pd} already exists, exiting \n".format(pd=SB.Pidfile)
         log(text)
         print text
-        sys.exit(1)
+        return
     else:
         file(SB.Pidfile, 'w').write(pid)
 
