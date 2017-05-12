@@ -168,7 +168,7 @@ def help():
 
 
 def Stop():
-    text="\nStop sbd {date}\n".format(date=datetime.datetime.now())
+    text="\nStoped sbd {date}\n".format(date=datetime.datetime.now())
     log(text)
     print text
     if os.path.isfile(SB.Pidfile):
