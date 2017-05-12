@@ -30,11 +30,15 @@ def CreateTmpFiles(Name,  Dirs, DirsEx):
 def DateCheck(checkdate):
     checkdate = int(checkdate)
     # print checkdate
-    date0 = datetime.datetime.now() - datetime.timedelta(hours=checkdate)
+    date0 = datetime.datetime.now() - datetime.timedelta(minutes=checkdate)
     date = date0.isoformat()
     #dateCh = "%s000000" % (date)
     return date
 
+def log(text):
+    logf = open(SB.Log,"a")
+    logf.write(text)
+    logf.close()
 
 class Backup:
     def __init__(self, S):
@@ -59,16 +63,20 @@ class Backup:
                 return
             CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
             id = R['_id']
-            print "###########Start Backup############\n"
-            print "Server name: " + R['Name']
-            print "User: ",  R['User']
-            print "Server IP: ",  R['ServerIP']
-            print "Server port: ",  R['ServerPort']
-            print "Options of rsync: " + R['RsyncOpt'] + "\n"
-            print "Dirs : " + R['Dirs']
-            print "Dirs exclude: " + R['DirsExclude']
-            print "DateStart :" + R['DateStart']
-            print "Sleep Start backup  " + str(SL) + "\n"
+            text="""###########Start Backup######
+            Now TIME: {time}
+            Server name: {name}
+            User: {user}
+            Server IP: {ip}
+            Server port: {port}
+            Options of rsync: {rsyncOpt}
+            Dirs : {dirs}
+            Dirs exclude: {dirE}
+            DateStart : {dateS}
+            Sleep Start backup  {sl}\n"""
+            text=text.format(time=datetime.datetime.now(), name=R['Name'],user=R['User'],ip=R['ServerIP'],port=R['ServerPort'],rsyncOpt=R['RsyncOpt'],dirs=R['Dirs'],dirE=R['DirsExclude'],dateS=R['DateStart'], sl=str(SL))
+            print text
+            log(text)
             DateUp = {"DateStart": ISODateStart}
             SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
             Name = R['Name']
@@ -82,9 +90,9 @@ class Backup:
             if not os.path.exists(DirBL):
                 os.makedirs(DirBL)
             for RD in R['Dirs'].split(","):
-                cmd = "/usr/bin/rsync  {rsopt} --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl}".format(rsopt=R['RsyncOpt'], port=R['ServerPort'], exf=ExFile, dir=DirB, user=R['User'], ip=R['ServerIP'], rd=RD, dirbl=DirBL)
+                cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl} ".format(rsopt=R['RsyncOpt'], port=R['ServerPort'], exf=ExFile, dir=DirB, user=R['User'], ip=R['ServerIP'], rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=R['Name'])
                 os.system(cmd)
-                # rsync dbs cmd
+                #print cmd
             print DirBL
             print DirB
             Link = DirB + "/" + "Latest"
@@ -95,13 +103,18 @@ class Backup:
             ISODateEnd = datetime.datetime.now().isoformat()
             DateUp = {"DateEnd": ISODateEnd}
             SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
-            print "###########End Backup  ###  " + R['Name'] + " #########\n"
-            print "Server name: " + R['Name']
-            print "DateEnd :" + R["DateEnd"]
-            print "Start clean the backup server"
-            cmdclean = "/usr/bin/find %s -mtime +%s -maxdepth 1 -exec rm -r '{}' \;" % (
-                DirB, R['CleanDate'])
-            os.system(cmdclean)
+            text="""###########End Backup  #######
+            Now TIME: {time}
+            Server name: {name}
+            DateEnd : {date}"""
+            text=text.format(time=datetime.datetime.now(), name=R['Name'], date=R['DateEnd'])
+            log(text)
+        cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
+            DirB, R['CleanDate'])
+        text="""Start clean the backup server
+        Command: {com}""".format(com=cmdclean)
+        log(text)
+        os.system(cmdclean) 
        # time.sleep(SL)
 
 
@@ -134,9 +147,12 @@ def Q():
 
 
 def Check():
-    tmp = SB.tmp
+    tmp=SB.tmp
+    LogDir=SB.LogDir
     if not os.path.exists(tmp):
         os.makedirs(tmp)
+    if not os.path.exists(LogDir):
+        os.makedirs(LogDir)
     if os.path.isfile(SB.Pidfile):
         print "%s already exists, exiting" % (SB.Pidfile)
         sys.exit()
@@ -158,6 +174,7 @@ def Stop():
         PID=int(f.read())
         os.system('/usr/bin/pkill -TERM -P {pid}'.format(pid=PID))
         os.remove(SB.Pidfile)
+        f.close()
         print "sbd is stopped"
     else:
         print "sbd is not running"
@@ -165,15 +182,15 @@ def Stop():
 
 def Start():
     print "Start sbd"
-    Check()
     while True:
         Q()
-        time.sleep(60)
+        time.sleep(10)
 
 
 def main():
     try:
         if sys.argv[1] == 'start':
+            Check()
             Start()
         elif sys.argv[1] == 'stop':
             Stop()

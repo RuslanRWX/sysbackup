@@ -53,7 +53,7 @@ def List(allservers):
         print "Dirs of backup example[/home/,/var ] " + R['Dirs']
         print "Dirs exclude example[/home/Downloads/*,/var/log/*]: " + R['DirsExclude']
         print "Frequency of backup, hours: ",  Frequency
-        print "Clean the backup server, days: ", CleanDate, "\n"
+        print "Clean the backup server, mtime: ", CleanDate, "\n"
     print "##########################    amount of servers ", count
     if count == 0:
         print "Haven't got any host !\nBye "
@@ -75,7 +75,7 @@ def MongoFind(Name):
 def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
     print "Check information\nName: " + Name + "\nUser:", User, "\nCleint IP: ", ServerIP, "\nServer SSH port: ",  ServerPort
     print "Rsync options: " + RsyncOpt + "\nPriority: ",  Priv, "\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude 
-    print "Frequency of backups, hours :", Frequency, "\nClean the backup server, days:", CleanDate
+    print "Frequency of backups, hours :", Frequency, "\nClean the backup server, mtime:", CleanDate
 
 
 def MongoUpdate(Name):
@@ -99,7 +99,7 @@ def MongoUpdate(Name):
     FrequencyN = int(raw_input(
         'Frequency of backups, hours, now [ ' + str(Frequency) + ' ]: ') or Frequency)
     CleanDateN = int(raw_input(
-        'Clean the backup server, days, now [ ' + str(CleanDate) + ' ]: ') or CleanDate)
+        'Clean the backup server, mtime, now [ ' + str(CleanDate) + ' ]: ') or CleanDate)
     PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
             PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye', ''])
@@ -135,7 +135,7 @@ def add():
     Frequency = int(
         raw_input('Frequency of backups, hours [default 24]: ') or 24)
     CleanDate = int(
-        raw_input('Clean the backup server, days [default 30]: ') or 30)
+        raw_input('Clean the backup server, mtime [default 30]: ') or 30)
     PrCheck(ServerName, User,  ServerIP, ServerPort,
             RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
     yes = set(['yes', 'y', 'ye', ''])
