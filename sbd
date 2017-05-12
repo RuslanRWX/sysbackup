@@ -63,7 +63,7 @@ class Backup:
                 return
             CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
             id = R['_id']
-            text="""###########Start Backup######
+            text="""\n###########Start Backup######
             Now TIME: {time}
             Server name: {name}
             User: {user}
@@ -103,7 +103,7 @@ class Backup:
             ISODateEnd = datetime.datetime.now().isoformat()
             DateUp = {"DateEnd": ISODateEnd}
             SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
-            text="""############End Backup  #######
+            text="""\n############End Backup  #######
             Now TIME: {time}
             Server name: {name}
             DateEnd : {date}"""
