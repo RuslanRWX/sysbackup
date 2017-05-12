@@ -111,7 +111,7 @@ class Backup:
             log(text)
         cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
             DirB, R['CleanDate'])
-        text="Start clean the backup server\n Command: {com}".format(com=cmdclean)
+        text="\nStart clean the backup server\n Command: {com}".format(com=cmdclean)
         log(text)
         os.system(cmdclean) 
        # time.sleep(SL)
