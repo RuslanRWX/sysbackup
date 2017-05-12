@@ -168,6 +168,9 @@ def help():
 
 
 def Stop():
+    text="\nStop sbd ", datetime.datetime.now(),"\n"
+    log(text)
+    print text
     if os.path.isfile(SB.Pidfile):
         f=open(SB.Pidfile, "r")
         PID=int(f.read())
@@ -180,7 +183,9 @@ def Stop():
 
 
 def Start():
-    print "Start sbd"
+    text="\nStart sbd ", datetime.datetime.now(),"\n"
+    log(text)
+    print text
     while True:
         Q()
         time.sleep(60)
