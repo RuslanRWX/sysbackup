@@ -153,8 +153,10 @@ def Check():
     if not os.path.exists(LogDir):
         os.makedirs(LogDir)
     if os.path.isfile(SB.Pidfile):
-        print "%s already exists, exiting" % (SB.Pidfile)
-        sys.exit()
+        text="\n{pd} already exists, exiting \n".format(pd=SB.Pidfile)
+        log(text)
+        print text
+        sys.exit(1)
     else:
         file(SB.Pidfile, 'w').write(pid)
 
