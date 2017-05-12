@@ -168,7 +168,7 @@ def help():
 
 
 def Stop():
-    text="\nStop sbd ", datetime.datetime.now(),"\n"
+    text="\nStop sbd {date}\n".format(date=datetime.datetime.now())
     log(text)
     print text
     if os.path.isfile(SB.Pidfile):
@@ -183,7 +183,7 @@ def Stop():
 
 
 def Start():
-    text="\nStart sbd ", datetime.datetime.now(),"\n"
+    text="\nStart sbd {date}\n".format(date=datetime.datetime.now())
     log(text)
     print text
     while True:
