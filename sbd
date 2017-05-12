@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.2
+# Version 0.2.3
 
 import ConfigParser
 import os
@@ -190,7 +190,7 @@ def Start():
     print text
     while True:
         Q()
-        time.sleep(60)
+        time.sleep(3600)
 
 
 def main():
