@@ -183,7 +183,7 @@ def Start():
     print "Start sbd"
     while True:
         Q()
-        time.sleep(10)
+        time.sleep(60)
 
 
 def main():
