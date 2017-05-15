@@ -109,12 +109,13 @@ class Backup:
             DateEnd : {date}"""
             text=text.format(time=datetime.datetime.now(), name=R['Name'], date=R['DateEnd'])
             log(text)
-        cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
-            DirB, R['CleanDate'])
-        text="\nStart clean the backup server\n Command: {com}".format(com=cmdclean)
+            cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
+                DirB, R['CleanDate'])
+            text="\nStart clean the backup server\n Command: {com}".format(com=cmdclean)
+            log(text)
+            os.system(cmdclean) 
+        text="End of cycle ", datetime.datetime.now()
         log(text)
-        os.system(cmdclean) 
-       # time.sleep(SL)
 
 
 def CreateQ():
