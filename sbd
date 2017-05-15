@@ -179,6 +179,7 @@ def Stop():
         PID=int(f.read())
         os.system('/usr/bin/pkill -TERM -P {pid}'.format(pid=PID))
         os.remove(SB.Pidfile)
+        os.system('/usr/bin/pkill rsync')
         f.close()
         print "sbd is stopped"
     else:
