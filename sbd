@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.3
-
+# Version 0.2.4
+global Ver
+Ver = "0.2.4"
 import ConfigParser
 import os
 import threading
@@ -30,7 +31,7 @@ def CreateTmpFiles(Name,  Dirs, DirsEx):
 def DateCheck(checkdate):
     checkdate = int(checkdate)
     # print checkdate
-    date0 = datetime.datetime.now() - datetime.timedelta(hours=checkdate)
+    date0 = datetime.datetime.now() - datetime.timedelta(minutes=checkdate)
     date = date0.isoformat()
     #dateCh = "%s000000" % (date)
     return date
@@ -111,10 +112,10 @@ class Backup:
             log(text)
             cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
                 DirB, R['CleanDate'])
-            text="\nStart clean the backup server\n Command: {com}".format(com=cmdclean)
+            text="\nStart clean the backup server\nCommand: {com}".format(com=cmdclean)
             log(text)
             os.system(cmdclean) 
-        text="End of cycle ", datetime.datetime.now()
+        text="\nQueue is done date: {date}".format(date=datetime.datetime.now())
         log(text)
 
 
@@ -187,11 +188,12 @@ def Stop():
 
 
 def Start():
-    text="\nStart sbd {date}\n".format(date=datetime.datetime.now())
+    text="\nStart sbd version:{ver}, date: {date}\n".format(ver=Ver, date=datetime.datetime.now())
     log(text)
     print text
     while True:
         Q()
+        #print "sleep"
         time.sleep(3600)
 
 
