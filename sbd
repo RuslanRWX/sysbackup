@@ -49,9 +49,9 @@ class Backup:
         SB.MongoCon()
         Mq = SB.coll.find()
         Server = self.Server
-        from random import randint
-        from time import sleep
-        SL = (randint(1, 20))
+        #from random import randint
+        #from time import sleep
+        #SL = (randint(1, 20))
         ServerData = list(SB.coll.find({"Name": Server}))
         ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
@@ -61,7 +61,7 @@ class Backup:
             # print "Date End: ", R["DateEnd"]
             if R["DateEnd"] > chdate:
                 # print R["Name"]
-                return
+                break
             CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
             id = R['_id']
             text="""\n###########Start Backup######
@@ -73,9 +73,8 @@ class Backup:
             Options of rsync: {rsyncOpt}
             Dirs : {dirs}
             Dirs exclude: {dirE}
-            DateStart : {dateS}
-            Sleep Start backup  {sl}\n"""
-            text=text.format(time=datetime.datetime.now(), name=R['Name'],user=R['User'],ip=R['ServerIP'],port=R['ServerPort'],rsyncOpt=R['RsyncOpt'],dirs=R['Dirs'],dirE=R['DirsExclude'],dateS=R['DateStart'], sl=str(SL))
+            DateStart : {dateS}\n"""
+            text=text.format(time=datetime.datetime.now(), name=R['Name'],user=R['User'],ip=R['ServerIP'],port=R['ServerPort'],rsyncOpt=R['RsyncOpt'],dirs=R['Dirs'],dirE=R['DirsExclude'],dateS=R['DateStart'])
             print text
             log(text)
             DateUp = {"DateStart": ISODateStart}
