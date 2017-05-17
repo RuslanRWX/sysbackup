@@ -114,9 +114,9 @@ class Backup:
             time.sleep(10)
         except:
             pass
-        link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
-        #os.symlink(DirBL, Link)
-        os.system(link)
+        #link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
+        os.symlink(DirBL, Link)
+        #os.system(link)
         ISODateEnd = datetime.datetime.now().isoformat()
         DateUp = {"DateEnd": ISODateEnd}
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
@@ -126,11 +126,29 @@ class Backup:
         DateEnd : {date}"""
         text=text.format(time=datetime.datetime.now(), name=Name, date=DateEnd)
         log(text)
-        cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
-            DirB, CleanDate)
-        text="\nStart clean the backup server\nCommand: {com}".format(com=cmdclean)
-        log(text)
-        os.system(cmdclean) 
+        #cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
+        #    DirB, CleanDate)
+        Drs=set()
+        rDir=os.listdir(DirB)
+        CleanD = int(CleanDate) * 24
+        print CleanDate
+        print CleanD
+        DCh=DateCheck(CleanD)
+        for rd in rDir:
+            Drs.add(rd)
+        Drs.discard("Latest")
+        resultDir = filter(lambda x: DCh > x, Drs)
+        print "Start check dir"
+        print "Chekc date:",  DCh
+        if resultDir != []:
+            for D in resultDir:
+                path=DirB+"/"+D
+                print path
+                cmd="/bin/rm -rf {p}".format(p=path)
+                os.system(cmd)
+        #text="\nStart clean the backup server\nCommand: {com}".format(com=cmdclean)
+        #log(text)
+        #os.system(cmdclean) 
         text="\nQueue is done date: {date}".format(date=datetime.datetime.now())
         log(text)
 
