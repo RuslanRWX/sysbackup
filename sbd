@@ -99,10 +99,12 @@ class Backup:
             Link = DirB + "/" + "Latest"
             if os.path.exists(Link):
                 os.remove(Link)
+                time.sleep(10)
             try:
                 os.symlink(DirBL, Link)
             except:
                 os.remove(Link)
+                time.sleep(10)
                 os.symlink(DirBL, Link)
             # time.sleep(SL)
             ISODateEnd = datetime.datetime.now().isoformat()
