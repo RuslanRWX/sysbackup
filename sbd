@@ -31,7 +31,7 @@ def CreateTmpFiles(Name,  Dirs, DirsEx):
 def DateCheck(checkdate):
     checkdate = int(checkdate)
     # print checkdate
-    date0 = datetime.datetime.now() - datetime.timedelta(hours=checkdate)
+    date0 = datetime.datetime.now() - datetime.timedelta(minutes=checkdate)
     date = date0.isoformat()
     #dateCh = "%s000000" % (date)
     return date
@@ -57,11 +57,12 @@ class Backup:
         ISODateStart = datetime.datetime.now().isoformat()
         for R in ServerData:
             chdate = DateCheck(R["Frequency"])
-            # print "Check date: ", chdate
-            # print "Date End: ", R["DateEnd"]
+            print R["Name"]
+            print "Check date: ", chdate
+            print "Date End: ", R["DateEnd"]
             if R["DateEnd"] > chdate:
                 # print R["Name"]
-                break
+                return
             CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
             id = R['_id']
             text="""\n###########Start Backup######
@@ -197,7 +198,7 @@ def Start():
     while True:
         Q()
         #print "sleep"
-        time.sleep(3600)
+        time.sleep(10)
 
 
 def main():
