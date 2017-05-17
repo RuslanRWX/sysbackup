@@ -112,7 +112,9 @@ class Backup:
         if os.path.exists(Link):
             os.remove(Link)
             time.sleep(10)
-        os.symlink(DirBL, Link)
+        link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
+        #os.symlink(DirBL, Link)
+        os.system(link)
         ISODateEnd = datetime.datetime.now().isoformat()
         DateUp = {"DateEnd": ISODateEnd}
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
