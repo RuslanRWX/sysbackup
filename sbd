@@ -109,9 +109,11 @@ class Backup:
         print DirBL
         print DirB
         Link = DirB + "/" + "Latest"
-        if os.path.exists(Link):
+        try:
             os.remove(Link)
             time.sleep(10)
+        except:
+            pass
         link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
         #os.symlink(DirBL, Link)
         os.system(link)
