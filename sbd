@@ -109,12 +109,10 @@ class Backup:
         print DirBL
         print DirB
         Link = DirB + "/" + "Latest"
-        try:
-            os.symlink(DirBL, Link)
-        except:
+        if os.path.exists(Link):
             os.remove(Link)
             time.sleep(10)
-            os.symlink(DirBL, Link)
+        os.symlink(DirBL, Link)
         ISODateEnd = datetime.datetime.now().isoformat()
         DateUp = {"DateEnd": ISODateEnd}
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
