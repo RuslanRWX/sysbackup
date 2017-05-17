@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.4
+# Version 0.2.5
 global Ver
-Ver = "0.2.4"
+Ver = "0.2.5"
 import ConfigParser
 import os
 import threading
@@ -99,7 +99,11 @@ class Backup:
             Link = DirB + "/" + "Latest"
             if os.path.exists(Link):
                 os.remove(Link)
-            os.symlink(DirBL, Link)
+            try:
+                os.symlink(DirBL, Link)
+            except:
+                os.remove(Link)
+                os.symlink(DirBL, Link)
             # time.sleep(SL)
             ISODateEnd = datetime.datetime.now().isoformat()
             DateUp = {"DateEnd": ISODateEnd}
