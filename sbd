@@ -15,7 +15,7 @@ import datetime
 pid = str(os.getpid())
 
 
-def CreateTmpFiles(Name,  Dirs, DirsEx):
+def CreateTmpFiles(Name, Dirs, DirsEx):
     Dirs = Dirs.replace(',', '\n') + "\n"
     DirsEx = DirsEx.replace(',', '\n') + "\n"
     FileNameIn = SB.tmp+"/" + Name + "_inc.txt"
@@ -52,78 +52,88 @@ class Backup:
         #from random import randint
         #from time import sleep
         #SL = (randint(1, 20))
-        ServerData = list(SB.coll.find({"Name": Server}))
+        SD = list(SB.coll.find({"Name": Server}))
+        for R in SD:
+            Name = R["Name"]
+            CleanDate = R["CleanDate"]
+            Frequency = R["Frequency"]
+            DateEnd = R["DateEnd"]
+            DirsExclude = R["DirsExclude"]
+            Dirs = R["Dirs"]
+            User = R["User"]
+            id = R["_id"]
+            ServerIP = R["ServerIP"]
+            ServerPort = R["ServerPort"]
+            RsyncOpt = R["RsyncOpt"]
+            Dirs = R["Dirs"]
+            Dirs = R["Dirs"]
+            DirsExclude = R["DirsExclude"]
+            DateStart = R["DateStart"]
         ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
-        for R in ServerData:
-            chdate = DateCheck(R["Frequency"])
-            print R["Name"]
-            print "Check date: ", chdate
-            print "Date End: ", R["DateEnd"]
-            if R["DateEnd"] > chdate:
-                # print R["Name"]
-                return
-            CreateTmpFiles(R["Name"],  R["Dirs"], R["DirsExclude"])
-            id = R['_id']
-            text="""\n###########Start Backup######
-            Now TIME: {time}
-            Server name: {name}
-            User: {user}
-            Server IP: {ip}
-            Server port: {port}
-            Options of rsync: {rsyncOpt}
-            Dirs : {dirs}
-            Dirs exclude: {dirE}
-            DateStart : {dateS}\n"""
-            text=text.format(time=datetime.datetime.now(), name=R['Name'],user=R['User'],ip=R['ServerIP'],port=R['ServerPort'],rsyncOpt=R['RsyncOpt'],dirs=R['Dirs'],dirE=R['DirsExclude'],dateS=R['DateStart'])
-            print text
-            log(text)
-            DateUp = {"DateStart": ISODateStart}
-            SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
-            Name = R['Name']
-            DirB = SB.DirBackup + "/" + Name
-            DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
-            ExFile = SB.tmp+"/" + Name + "_ex.txt"
-            InFile = SB.tmp+"/" + Name + "_inc.txt"
-            print "Start rsync ! "
-            if not os.path.exists(DirB):
-                os.makedirs(DirB)
-            if not os.path.exists(DirBL):
-                os.makedirs(DirBL)
-            for RD in R['Dirs'].split(","):
-                cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl} ".format(rsopt=R['RsyncOpt'], port=R['ServerPort'], exf=ExFile, dir=DirB, user=R['User'], ip=R['ServerIP'], rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=R['Name'])
-                os.system(cmd)
-                #print cmd
-            print DirBL
-            print DirB
-            Link = DirB + "/" + "Latest"
-            if os.path.exists(Link):
-                os.remove(Link)
-                time.sleep(10)
-            try:
-                os.symlink(DirBL, Link)
-            except:
-                os.remove(Link)
-                time.sleep(10)
-                os.symlink(DirBL, Link)
-            # time.sleep(SL)
-            ISODateEnd = datetime.datetime.now().isoformat()
-            DateUp = {"DateEnd": ISODateEnd}
-            SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
-            text="""\n############End Backup  #######
-            Now TIME: {time}
-            Server name: {name}
-            DateEnd : {date}"""
-            text=text.format(time=datetime.datetime.now(), name=R['Name'], date=R['DateEnd'])
-            log(text)
-            cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
-                DirB, R['CleanDate'])
-            text="\nStart clean the backup server\nCommand: {com}".format(com=cmdclean)
-            log(text)
-            os.system(cmdclean) 
+        chdate = DateCheck(Frequency)
+        print "Name", Name
+        print "Check date: ", chdate
+        print "Date End: ", DateEnd
+        if DateEnd > chdate:
+            return
+        CreateTmpFiles(Name, Dirs, DirsExclude)
+        text="""\n###########Start Backup######
+        Now TIME: {time}
+        Server name: {name}
+        User: {user}
+        Server IP: {ip}
+        Server port: {port}
+        Options of rsync: {rsyncOpt}
+        Dirs : {dirs}
+        Dirs exclude: {dirE}
+        DateStart : {dateS}\n"""
+        text=text.format(time=datetime.datetime.now(), name=Name,user=User,ip=ServerIP,port=ServerPort,rsyncOpt=RsyncOpt,dirs=Dirs,dirE=DirsExclude,dateS=DateStart)
+        print text
+        log(text)
+        DateUp = {"DateStart": ISODateStart}
+        SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
+        DirB = SB.DirBackup + "/" + Name
+        DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
+        ExFile = SB.tmp+"/" + Name + "_ex.txt"
+        InFile = SB.tmp+"/" + Name + "_inc.txt"
+        print "Start rsync ! "
+        if not os.path.exists(DirB):
+            os.makedirs(DirB)
+        if not os.path.exists(DirBL):
+            os.makedirs(DirBL)
+        for RD in Dirs.split(","):
+            cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
+            os.system(cmd)
+            #print cmd
+        print DirBL
+        print DirB
+        Link = DirB + "/" + "Latest"
+        if os.path.exists(Link):
+            os.remove(Link)
+            time.sleep(10)
+        try:
+            os.symlink(DirBL, Link)
+        except:
+            os.remove(Link)
+            time.sleep(10)
+            os.symlink(DirBL, Link)
+        ISODateEnd = datetime.datetime.now().isoformat()
+        DateUp = {"DateEnd": ISODateEnd}
+        SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
+        text="""\n############End Backup  #######
+        Now TIME: {time}
+        Server name: {name}
+        DateEnd : {date}"""
+        text=text.format(time=datetime.datetime.now(), name=Name, date=DateEnd)
+        log(text)
+        cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
+            DirB, CleanDate)
+        text="\nStart clean the backup server\nCommand: {com}".format(com=cmdclean)
+        log(text)
+        os.system(cmdclean) 
         text="\nQueue is done date: {date}".format(date=datetime.datetime.now())
         log(text)
-
 
 def CreateQ():
     ServersQ = {}
