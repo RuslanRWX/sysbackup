@@ -109,9 +109,6 @@ class Backup:
         print DirBL
         print DirB
         Link = DirB + "/" + "Latest"
-        if os.path.exists(Link):
-            os.remove(Link)
-            time.sleep(10)
         try:
             os.symlink(DirBL, Link)
         except:
