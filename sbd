@@ -72,9 +72,9 @@ class Backup:
         ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         chdate = DateCheck(Frequency)
-        print "Name", Name
-        print "Check date: ", chdate
-        print "Date End: ", DateEnd
+        #print "Name", Name
+        #print "Check date: ", chdate
+        #print "Date End: ", DateEnd
         if DateEnd > chdate:
             return
         CreateTmpFiles(Name, Dirs, DirsExclude)
@@ -89,7 +89,7 @@ class Backup:
         Dirs exclude: {dirE}
         DateStart : {dateS}\n"""
         text=text.format(time=datetime.datetime.now(), name=Name,user=User,ip=ServerIP,port=ServerPort,rsyncOpt=RsyncOpt,dirs=Dirs,dirE=DirsExclude,dateS=DateStart)
-        print text
+        #print text
         log(text)
         DateUp = {"DateStart": ISODateStart}
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
@@ -97,7 +97,7 @@ class Backup:
         DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
         ExFile = SB.tmp+"/" + Name + "_ex.txt"
         InFile = SB.tmp+"/" + Name + "_inc.txt"
-        print "Start rsync ! "
+        #print "Start rsync ! "
         if not os.path.exists(DirB):
             os.makedirs(DirB)
         if not os.path.exists(DirBL):
@@ -106,8 +106,8 @@ class Backup:
             cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
             os.system(cmd)
             #print cmd
-        print DirBL
-        print DirB
+        #print DirBL
+        #print DirB
         Link = DirB + "/" + "Latest"
         try:
             os.remove(Link)
@@ -131,19 +131,19 @@ class Backup:
         Drs=set()
         rDir=os.listdir(DirB)
         CleanD = int(CleanDate) * 24
-        print CleanDate
-        print CleanD
+        #print CleanDate
+        #print CleanD
         DCh=DateCheck(CleanD)
         for rd in rDir:
             Drs.add(rd)
         Drs.discard("Latest")
         resultDir = filter(lambda x: DCh > x, Drs)
-        print "Start check dir"
-        print "Chekc date:",  DCh
+        #print "Start check dir"
+        #print "Chekc date:",  DCh
         if resultDir != []:
             for D in resultDir:
                 path=DirB+"/"+D
-                print path
+                #print path
                 cmd="/bin/rm -rf {p}".format(p=path)
                 os.system(cmd)
         #text="\nStart clean the backup server\nCommand: {com}".format(com=cmdclean)
