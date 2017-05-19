@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.5
+# Version 0.2.3
 global Ver
 Ver = "0.2.5"
 import ConfigParser
@@ -225,6 +225,8 @@ def Start():
     log(text)
     print text
     while True:
+        text="\nStart queue: {date}".format(date=datetime.datetime.now())
+        log(text)
         Q()
         text="\nQueue is done date: {date}".format(date=datetime.datetime.now())
         log(text)
