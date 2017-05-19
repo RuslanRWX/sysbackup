@@ -13,6 +13,7 @@ import sys
 import SB
 import datetime
 pid = str(os.getpid())
+import re
 
 
 def CreateTmpFiles(Name, Dirs, DirsEx):
@@ -103,6 +104,7 @@ class Backup:
         if not os.path.exists(DirBL):
             os.makedirs(DirBL)
         for RD in Dirs.split(","):
+            RD = re.sub(r'\/$', '', RD)
             cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
             os.system(cmd)
             #print cmd
@@ -148,9 +150,7 @@ class Backup:
                 os.system(cmd)
         #text="\nStart clean the backup server\nCommand: {com}".format(com=cmdclean)
         #log(text)
-        #os.system(cmdclean) 
-        text="\nQueue is done date: {date}".format(date=datetime.datetime.now())
-        log(text)
+
 
 def CreateQ():
     ServersQ = {}
@@ -226,7 +226,8 @@ def Start():
     print text
     while True:
         Q()
-        #print "sleep"
+        text="\nQueue is done date: {date}".format(date=datetime.datetime.now())
+        log(text)
         time.sleep(3600)
 
 
