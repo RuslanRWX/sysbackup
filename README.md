@@ -28,13 +28,13 @@ Install sbd and sbctl
 ./install.sh
 
 
-vim /etc/logrotate.d/sbd and add:
-/var/log/sbd/*.log {
-  rotate 10
-  daily
-  compress
-  missingok
-  notifempty
+vim /etc/logrotate.d/sbd and add:<br>
+/var/log/sbd/*.log {<br>
+  rotate 10 <br>
+  daily <br>
+  compress <br>
+  missingok <br>
+  notifempty <br>
 }
 
  
