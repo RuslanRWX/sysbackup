@@ -228,7 +228,7 @@ def Start():
         text="\nStart queue, date: {date}".format(date=datetime.datetime.now())
         log(text)
         Q()
-        text="\nQueue is done, date: {date}".format(date=datetime.datetime.now())
+        text="\nQueue is done, date: {date}\n".format(date=datetime.datetime.now())
         log(text)
         time.sleep(3600)
 
