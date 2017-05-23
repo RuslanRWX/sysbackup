@@ -50,7 +50,7 @@ def List(allservers):
             print "Last date of started backup: " + R['DateStart']
         if R['DateEnd']:
             print "Last date of end backup: " + R['DateEnd']
-        print "Dirs of backup example[/home/,/var ] " + R['Dirs']
+        print "Dirs of backup example[/home,/var ] " + R['Dirs']
         print "Dirs exclude example[/home/Downloads/*,/var/log/*]: " + R['DirsExclude']
         print "Frequency of backup, hours: ",  Frequency
         print "Clean the backup server, mtime: ", CleanDate, "\n"
