@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.3
+# Version 0.2.7
 global Ver
-Ver = "0.2.6"
+Ver = "0.2.7"
 import os
 import threading
 import Queue

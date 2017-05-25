@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.6
+# Version 0.2.7
 import sys
 import SB
 
