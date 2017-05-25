@@ -2,13 +2,11 @@
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
 # Version 0.2.3
 global Ver
-Ver = "0.2.5"
-import ConfigParser
+Ver = "0.2.6"
 import os
 import threading
 import Queue
 import time
-import random
 import sys
 import SB
 import datetime

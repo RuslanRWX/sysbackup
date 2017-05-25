@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.5
-import sys, os
+# Version 0.2.6
+import sys
 import SB
 
 def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
@@ -12,7 +12,7 @@ def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
 
 
 def List(allservers):
-    from colorama import Fore, Back, Style
+    from colorama import Fore, Style
     count = 0
     for R in allservers:
         count = count + 1
