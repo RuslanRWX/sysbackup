@@ -123,6 +123,8 @@ def MongoUpdate(Name):
 
 def add():
     import os
+    import time
+    from colorama import Fore, Style
     ServerName = raw_input('Enter server name or host name: ')
     ServerIP = raw_input('Enter sever IP: ')
     User = raw_input(
@@ -145,9 +147,15 @@ def add():
     if choice in yes:
         MongoIn(ServerName, User,  ServerIP,  ServerPort,  RsyncOpt,
                 Priv,  Dirs,  DirsExclude, Frequency, CleanDate)
-        print "Add sshkey, please prepare a password of remote server"
+        print (Fore.YELLOW +"Add sshkey, please, prepare to enter a password of remote server of its first to connect"
+        
+                + Style.RESET_ALL)
+        time.sleep(3)
         cmd="cat ~/.ssh/id_rsa.pub | ssh -p{Port} {User}@{IP} \"mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys\"".format(
                 Port=ServerPort, User=User, IP=ServerIP )
+        os.system(cmd)
+        serv="^"+ServerName+"$"
+        MongoFind(serv)
         os.system(cmd)
     elif choice in no:
         print "Bye"
@@ -176,10 +184,10 @@ def Delete(Name):
 def help():
     print """Help function: Basic Usage:
     \tadd or addhost     - Add host to backup
-    \tlist               - List all hosts
-    \tsearch             - Search host name, example: search w1.host.com
-    \tupdate             - Update data of host, example: update w1.host.com
-    \tremove             - Remove host, example: delete w1.host.com 
+    \tl or  list               - List all hosts
+    \tse or search             - Search host name, example: search w1.host.com
+    \tup or update             - Update data of host, example: update w1.host.com
+    \trm or remove             - Remove host, example: delete w1.host.com 
     \n"""
 
 
@@ -187,13 +195,13 @@ def main():
     try:
         if sys.argv[1] == 'addhost' or sys.argv[1] == 'add':
             add()
-        elif sys.argv[1] == 'list':
+        elif sys.argv[1] == 'list' or sys.argv[1] == 'l':
             MongoList()
-        elif sys.argv[1] == 'search':
+        elif sys.argv[1] == 'search' or sys.argv[1] == 'se':
             MongoFind(sys.argv[2])
-        elif sys.argv[1] == 'update':
+        elif sys.argv[1] == 'update' or sys.argv[1] == 'up':
             MongoUpdate(sys.argv[2])
-        elif sys.argv[1] == 'remove':
+        elif sys.argv[1] == 'remove' or sys.argv[1] == 'rm':
             Delete(sys.argv[2])
         else:
             help()
