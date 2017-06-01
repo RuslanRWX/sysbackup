@@ -15,6 +15,8 @@ import re
 
 
 def CreateTmpFiles(Name, Dirs, DirsEx):
+    Dirs = Dirs.replace(' ', '')
+    DirsEx = DirsEx.replace(' ', '')
     Dirs = Dirs.replace(',', '\n') + "\n"
     DirsEx = DirsEx.replace(',', '\n') + "\n"
     FileNameIn = SB.tmp+"/" + Name + "_inc.txt"
@@ -157,6 +159,37 @@ def CreateQ():
     allservers = list(Mq)
     return allservers
 
+def API():
+    import socket
+    SERVER_ADDRESS = ''
+    SERVER_PORT = 22222
+    s = socket.socket()
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((SERVER_ADDRESS, SERVER_PORT))
+    s.listen(5)
+    print("Listening on address %s. Kill server with Ctrl-C" %
+      str((SERVER_ADDRESS, SERVER_PORT)))
+    while True:
+        c, addr = s.accept()
+        print("\nConnection received from %s" % str(addr))
+        while True:
+            data = c.recv(2048)
+            if not data:
+                print("End of file from client. Resetting")
+                break
+            data = data.decode()
+            print("Received '%s' from client" % data)
+            if data == "Dir":
+                data = "/var/backup"
+                data = data.encode()
+                c.send(data)
+                continue
+            if data == "DBex":
+                data = "mysql,asd"
+                data = data.encode()
+                c.send(data)
+                continue
+        c.close()
 
 def worker():
     while True:
@@ -223,6 +256,9 @@ def Start():
     log(text)
     print text
     while True:
+        t = threading.Thread(target= API)
+        t.daemon = True
+        t.start()
         text="\nStart queue, date: {date}".format(date=datetime.datetime.now())
         log(text)
         Q()

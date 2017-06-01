@@ -4,10 +4,44 @@
 import sys
 import SB
 
-def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
+# text
+tStart = "##########################\n"
+tServName = "Server name: "
+tServIP = "Server IP: "
+tUser = "User:"
+tServPort = "Server ssh port: "
+tPriy = "Priority: "
+tOpR = "Options of rsync: "
+tLastD = "Last date of started backup: "
+tLastDN = "Last date of end backup: "
+tDirB = "Directories of backup example[/home,/var ] "
+tDirBx = "Directories of exclude example[/home/Downloads/*,/var/log/*]: "
+tFB = "Frequency of backup, hours: "
+tCleanB = "Clean the backup server, days: "
+tAOS = "##########################    amount of servers "
+tHavenot = "Haven't got any host !\nBye "
+tCheckInf = "Check information\nName: "
+tDir = "Directory :"
+tDirEx = "Exclude directory :"
+tDataCor = "Data are correct? yes|no: "
+tBye = "Bye!"
+tPlease = "Please respond with 'yes' or 'no'"
+tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"
+tDuD = 'Do you really want to delete host? '
+tDirBInc = "Incrimental directory: "
+tDoUBackupMysql = "Doy you want ot backup MySQLy? yes|no: "
+tResdf = "Result of \"df -h\" on your remote server"
+tInstClient = "Install a cleant for MySQL backuing "
+tDoUexdb = "Do you want ot exclude any databases? yes|no: "
+tUdb = "Your databases: "
+tDBex = "Exclude databases: "
+tChmy = "Backup mysql: "
+
+def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy,  DirsInc=None, DBex=None ):
     SB.MongoCon()
     data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,  "RsyncOpt": RsyncOpt, "Priv": Priv,
-             "Dirs": Dirs,   "DirsExclude":   DirsExclude,  "DateStart": "",  "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate}]
+             "Dirs": Dirs,   "DirsExclude":   DirsExclude,  "DateStart": "",  "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, 
+                    "Chmy": Chmy, "DirsInc": DirsInc, "DBex": DBex }]
     SB.coll.insert(data, True)
 
 
@@ -38,26 +72,30 @@ def List(allservers):
         CleanDate = R['CleanDate']
         global id
         id = R['_id']
-        print "##########################\n"
-        print (Fore.YELLOW + "Server name: " + R['Name'])
-        print "Server IP: ",  R['ServerIP']
+        print tStart
+        print (Fore.YELLOW + tServName + R['Name'])
+        print tServIP,  R['ServerIP']
         print(Style.RESET_ALL)
-        print "User:",  R['User']
-        print "Server ssh port: ",  R['ServerPort']
-        print "Priority: ",  R['Priv']
-        print "Options of rsync: " + R['RsyncOpt']
+        print tUser,  R['User']
+        print tServPort,  R['ServerPort']
+        print tPriy,  R['Priv']
+        print tOpR + R['RsyncOpt']
         if R['DateStart']:
-            print "Last date of started backup: " + R['DateStart']
+            print tLastD + R['DateStart']
         if R['DateEnd']:
-            print "Last date of end backup: " + R['DateEnd']
-        print "Dirs of backup example[/home,/var ] " + R['Dirs']
-        print "Dirs exclude example[/home/Downloads/*,/var/log/*]: " + R['DirsExclude']
-        print "Frequency of backup, hours: ",  Frequency
-        print "Clean the backup server, days: ", CleanDate, "\n"
-    print "##########################    amount of servers ", count
+            print tLastDN + R['DateEnd']
+        print tDir + R['Dirs']
+        print tDirEx + R['DirsExclude']
+        print tFB,  Frequency
+        print tCleanB, CleanDate
+        print tChmy, R['Chmy']
+        if R['Chmy'] == 'YES':
+            print tDirBInc + R['DirsInc']
+            print tDBex + R['DBex']+"\n"
+    print tAOS, count
     if count == 0:
-        print "Haven't got any host !\nBye "
-        exit(1)
+        print tHavenot
+        return
 
 
 def MongoList():
@@ -73,9 +111,9 @@ def MongoFind(Name):
 
 
 def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
-    print "Check information\nName: " + Name + "\nUser:", User, "\nCleint IP: ", ServerIP, "\nServer SSH port: ",  ServerPort
-    print "Rsync options: " + RsyncOpt + "\nPriority: ",  Priv, "\nDirectory :" + Dirs + "\nExclude directory :" + DirsExclude 
-    print "Frequency of backups, hours :", Frequency, "\nClean the backup server, days:", CleanDate
+    print tCheckInf + Name + "\n"+ tUser, User, "\n"+ tServIP, ServerIP, "\n"+tServPort,  ServerPort
+    print tOpR + RsyncOpt + "\n"+tPriy,  Priv, "\n"+tDir + Dirs + "\n"+ tDirEx + DirsExclude 
+    print tFB, Frequency, "\n"+ tCleanB, CleanDate
 
 
 def MongoUpdate(Name):
@@ -83,28 +121,29 @@ def MongoUpdate(Name):
     allservers = list(SB.coll.find({"Name": Name}))
     List(allservers)
     ServerNameN = raw_input(
-        'Enter server name [default:' + ServerName + ']: ') or ServerName
+        tServName +' [default:' + ServerName + ']: ') or ServerName
+    ServerNameN = ServerNameN.replace(' ', '')
     ServerIPN = raw_input(
-        'Enter server IP [defaul:' + ServerIP + '] : ') or ServerIP
+        tServIP +' [defaul:' + ServerIP + '] : ') or ServerIP
     UserN = raw_input(
-        'Enter user [default:' + User + ']: ') or User
+        tUser + ' [default:' + User + ']: ') or User
     ServerPortN = raw_input(
-        'Enter server SSH port [default: ' + str(ServerPort) + ' ] : ') or ServerPort
+        tServPort +' [default: ' + str(ServerPort) + ' ] : ') or ServerPort
     RsyncOptN = raw_input(
-        'Enter options of rsync [default:' + RsyncOpt + '] ') or RsyncOpt
-    PrivN = raw_input('Priority  now [ ' + str(Priv) + ' ] : ') or Priv
-    DirsN = raw_input('Dirs of backup now [ ' + Dirs + ' ] : ') or Dirs
+        tOpR + '[default:' + RsyncOpt + '] ') or RsyncOpt
+    PrivN = raw_input(tPriy  +' [ ' + str(Priv) + ' ] : ') or Priv
+    DirsN = raw_input(tDir +' [ ' + Dirs + ' ] : ') or Dirs
     DirsExcludeN = raw_input(
-        'Dirs exclude now [ ' + DirsExclude + '] : ') or DirsExclude
+        tDirEx + ' [ ' + DirsExclude + '] : ') or DirsExclude
     FrequencyN = int(raw_input(
-        'Frequency of backups, hours, now [ ' + str(Frequency) + ' ]: ') or Frequency)
+        tFB +' [ ' + str(Frequency) + ' ]: ') or Frequency)
     CleanDateN = int(raw_input(
-        'Clean the backup server, mtime, now [ ' + str(CleanDate) + ' ]: ') or CleanDate)
+        tCleanB + ' [ ' + str(CleanDate) + ' ]: ') or CleanDate)
     PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
             PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye', ''])
     no = set(['no', 'n'])
-    choice = raw_input('Data are correct? y/ye/yes|n/no: ').lower()
+    choice = raw_input(tDataCor).lower()
     if choice in yes:
         # print id
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN, "RsyncOpt": RsyncOptN,
@@ -115,53 +154,74 @@ def MongoUpdate(Name):
         # db.servers.update({ "_id" : ObjectId("58533139399923269b261261")},
         # {$set: { "Name" : "Agnejka"  }}  )
     elif choice in no:
-        print "Bye"
+        print tBye
         return
     else:
-        sys.stdout.write("Please respond with 'yes' or 'no'")
+        sys.stdout.write(tPealse)
 
 
 def add():
     import os
     import time
     from colorama import Fore, Style
-    ServerName = raw_input('Enter server name or host name: ')
-    ServerIP = raw_input('Enter sever IP: ')
+    ServerName = raw_input(tServName)
+    ServerName = ServerName.replace(' ', '')
+    ServerIP = raw_input(tServIP)
+ #   ServerIP = intServerIP.replace(' ', '')
     User = raw_input(
-        'Enter user name: [default:root]') or "root"
-    ServerPort = raw_input('Enter SSH port [default:22] ') or 22
-    RsyncOpt = raw_input('Enter options of rsync [default:-av] ') or '-av'
-    Priv = raw_input('Priority default [ 20 ] : ') or 20
-    Dirs = raw_input('Dirs of backup example[/root,/var ] : ') or '/root,/var'
+        tUser+' [default:root]') or "root"
+    ServerPort = raw_input(tServPort +' [default:22] ') or 22
+ #   ServerPort = ServerPort.replace(' ', '')
+    RsyncOpt = raw_input(tOpR +' [default:-av] ') or '-av'
+    Priv = raw_input(tPriy +' [default: 20 ] : ') or 20
+    Dirs = raw_input(tDirB) or '/root,/var'
     DirsExclude = raw_input(
-        'Dirs exclude example[/var/lib/*,/var/log/*] :') or ''
+        tDirBx ) or ''
     Frequency = int(
-        raw_input('Frequency of backups, hours [default 24]: ') or 24)
+        raw_input(tFB +' [default 24]: ') or 24)
     CleanDate = int(
-        raw_input('Clean the backup server, days [default 7]: ') or 7)
-    PrCheck(ServerName, User,  ServerIP, ServerPort,
-            RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
+        raw_input(tCleanB +' [default 7]: ') or 7)
+    #PrCheck(ServerName, User,  ServerIP, ServerPort,
+    #        RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
     yes = set(['yes', 'y', 'ye', ''])
     no = set(['no', 'n'])
-    choice = raw_input('Data are correct? ').lower()
+    choice = raw_input(tDataCor).lower()
     if choice in yes:
-        MongoIn(ServerName, User,  ServerIP,  ServerPort,  RsyncOpt,
-                Priv,  Dirs,  DirsExclude, Frequency, CleanDate)
-        print (Fore.YELLOW +"Add sshkey, please, prepare to enter a password of remote server of its first to connect"
-        
+        print (Fore.YELLOW + tAddsshKey
                 + Style.RESET_ALL)
-        time.sleep(3)
-        cmd="cat ~/.ssh/id_rsa.pub | ssh -p{Port} {User}@{IP} \"mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys\"".format(
-                Port=ServerPort, User=User, IP=ServerIP )
+        #time.sleep(3)
+        connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
+        cmd="cat ~/.ssh/id_rsa.pub | "+connect+" \"mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys\""
         os.system(cmd)
+        choise = raw_input(tDoUBackupMysql).lower()
+        if choise in yes:
+            Chmy="YES"
+            cmd=connect+" \"df -h\""
+            print tResdf
+            os.system(cmd)
+            DirsInc = raw_input(tDirBInc + '[default /var/backup]: ') or '/var/backup'
+            print tInstClient
+            cmdcp="scp -P{Port} sbd.logrotate {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
+            cmdmk=connect+"\"mkdir -p {dir}\"".format(dir=DirsInc)
+            os.system(cmdmk)
+            os.system(cmdcp)
+            choice = raw_input(tDoUexdb).lower()
+            if choice in yes:
+                cmd=connect+" \"mysql -e 'show databases;'\""
+                print tUdb
+                os.system(cmd)
+                DBex = raw_input(tDBex + '[default information_schema,performance_schema]: ') or 'information_schema,performance_schema'
+        else:
+            Chmy="NO"
         serv="^"+ServerName+"$"
+        MongoIn(ServerName, User,  ServerIP,  ServerPort,  RsyncOpt,
+                Priv,  Dirs,  DirsExclude, Frequency, CleanDate, Chmy, DirsInc, DBex )
         MongoFind(serv)
-        os.system(cmd)
     elif choice in no:
-        print "Bye"
+        print tBye
         return
     else:
-        sys.stdout.write("Please respond with 'yes' or 'no'")
+        sys.stdout.write(tPlease)
 
 
 def Delete(Name):
@@ -171,14 +231,14 @@ def Delete(Name):
     #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes', 'y', 'ye', ''])
     no = set(['no', 'n'])
-    choice = raw_input('Do you really want to delete host? ').lower()
+    choice = raw_input(tDuD).lower()
     if choice in yes:
         SB.coll.remove({'_id': id})
     elif choice in no:
-        print "Bye"
+        print tBye
         return
     else:
-        sys.stdout.write("Please respond with 'yes' or 'no'")
+        sys.stdout.write(tPlease)
 
 
 def help():
