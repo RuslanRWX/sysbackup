@@ -70,6 +70,7 @@ class Backup:
             Dirs = R["Dirs"]
             DirsExclude = R["DirsExclude"]
             DateStart = R["DateStart"]
+            DirsInc = R["DirsInc"]
         ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         chdate = DateCheck(Frequency)
@@ -77,6 +78,10 @@ class Backup:
         #print "Check date: ", chdate
         #print "Date End: ", DateEnd
         if DateEnd > chdate:
+            return
+        if R["MysqlReady"] == "NO":
+            text = "Mysqldump is not ready"
+            log(text)
             return
         CreateTmpFiles(Name, Dirs, DirsExclude)
         text="""\n###########Start Backup######
@@ -108,6 +113,9 @@ class Backup:
             cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
             os.system(cmd)
             #print cmd
+        if R["Chmy"] == "YES":
+            cmd =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
+            os.system(cmd)
         #print DirBL
         #print DirB
         Link = DirB + "/" + "Latest"
@@ -178,17 +186,24 @@ def API():
                 print("End of file from client. Resetting")
                 break
             data = data.decode()
-            print("Received '%s' from client" % data)
-            if data == "Dir":
-                data = "/var/backup"
-                data = data.encode()
-                c.send(data)
+            data = data.split(":")
+            print data[0]
+            print("Received '%s' from client" % data[0])
+            if data[0] == "Send":
+                SB.MongoCon()
+                DataMongo = list(SB.coll.find({"ServerIP": addr[0]}))
+                for R in DataMongo:
+                    print R[data[1]]
+                    DataResult = R[data[1]].encode()
+                    c.send(DataResult)
                 continue
-            if data == "DBex":
-                data = "mysql,asd"
-                data = data.encode()
+            if data[0] == "Add":
+                SB.MongoCon()
+                DateUp = {data[1]: data[2]}
+                SB.coll.update({"ServerIP": addr[0] }, {"$set": DateUp}, upsert=False)
+                data="End"
+                data.encode()
                 c.send(data)
-                continue
         c.close()
 
 def worker():

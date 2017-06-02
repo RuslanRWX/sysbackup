@@ -36,12 +36,14 @@ tDoUexdb = "Do you want ot exclude any databases? yes|no: "
 tUdb = "Your databases: "
 tDBex = "Exclude databases: "
 tChmy = "Backup mysql: "
+tMyDumpOpt = "MySQL dump options:"
+tMysqlLog = "MysqlLog:"
 
-def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy,  DirsInc=None, DBex=None ):
+def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc=None, DBex=None ):
     SB.MongoCon()
     data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,  "RsyncOpt": RsyncOpt, "Priv": Priv,
              "Dirs": Dirs,   "DirsExclude":   DirsExclude,  "DateStart": "",  "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, 
-                    "Chmy": Chmy, "DirsInc": DirsInc, "DBex": DBex }]
+                    "Chmy": Chmy, "MyDumpOpt": MyDumpOpt, "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady":"", "MysqlLog":"" }]
     SB.coll.insert(data, True)
 
 
@@ -90,8 +92,18 @@ def List(allservers):
         print tCleanB, CleanDate
         print tChmy, R['Chmy']
         if R['Chmy'] == 'YES':
-            print tDirBInc + R['DirsInc']
-            print tDBex + R['DBex']+"\n"
+            global DBex
+            DBex = R['DBex']
+            global MyDumpOpt
+            MyDumpOpt = R["MyDumpOpt"]
+            global DirsInc
+            DirsInc = R["DirsInc"]
+            global MysqlLog
+            MysqlLog = R["MysqlLog"]
+            print tDirBInc + DirsInc
+            print tDBex + DBex
+            print tMyDumpOpt + MyDumpOpt
+            print tMysqlLog + MysqlLog +"\n"
     print tAOS, count
     if count == 0:
         print tHavenot
@@ -139,6 +151,8 @@ def MongoUpdate(Name):
         tFB +' [ ' + str(Frequency) + ' ]: ') or Frequency)
     CleanDateN = int(raw_input(
         tCleanB + ' [ ' + str(CleanDate) + ' ]: ') or CleanDate)
+    CleanDateN = int(raw_input(
+        tCleanB + ' [ ' + DirsInc + ' ]: ') or DirsInc)
     PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
             PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye', ''])
@@ -201,21 +215,24 @@ def add():
             os.system(cmd)
             DirsInc = raw_input(tDirBInc + '[default /var/backup]: ') or '/var/backup'
             print tInstClient
-            cmdcp="scp -P{Port} sbd.logrotate {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
+            cmdcp="scp -P{Port} sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
             cmdmk=connect+"\"mkdir -p {dir}\"".format(dir=DirsInc)
+            cmdmklog=connect+"\"mkdir -p /var/log/sbclient\""
             os.system(cmdmk)
             os.system(cmdcp)
+            os.system(cmdmklog)
             choice = raw_input(tDoUexdb).lower()
             if choice in yes:
                 cmd=connect+" \"mysql -e 'show databases;'\""
                 print tUdb
                 os.system(cmd)
-                DBex = raw_input(tDBex + '[default information_schema,performance_schema]: ') or 'information_schema,performance_schema'
+                DBex = raw_input(tDBex + '[default: information_schema,performance_schema]: ') or 'information_schema,performance_schema'
+                MyDumpOpt = raw_input(tMyDumpOpt +'[default: --opt ]:' ) or '--opt'
         else:
             Chmy="NO"
         serv="^"+ServerName+"$"
         MongoIn(ServerName, User,  ServerIP,  ServerPort,  RsyncOpt,
-                Priv,  Dirs,  DirsExclude, Frequency, CleanDate, Chmy, DirsInc, DBex )
+                Priv,  Dirs,  DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt,  DirsInc, DBex )
         MongoFind(serv)
     elif choice in no:
         print tBye
