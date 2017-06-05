@@ -41,10 +41,10 @@ tMyDumpOpt = "MySQL dump options:"
 tMysqlLog = "MysqlLog: "
 tSbcltext = "Add a job in /etc/crontab, default: [ "
 tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py"
-tSbcltext2 = " ] You can add other, format for crontab  file : "
+tSbcltext2 = " ] You can add other job, format for crontab file : "
 tDateStartMysql = "Mysqldump start localtime: "
 tDateStopMysql = "Mysqldump stop localtime: "
-
+tMysqlUpdate = "Do you want ot configuration mysqldump on remote host ? 'yes' or 'no'"
 
 
 
@@ -101,7 +101,9 @@ def List(allservers):
         print tFB,  Frequency
         print tCleanB, CleanDate
         print tChmy, R['Chmy']
-        if R['Chmy'] == 'YES':
+        global Chmy
+        Chmy = R['Chmy']
+        if Chmy == 'YES':
             global DBex
             DBex = R['DBex']
             global MyDumpOpt
@@ -147,6 +149,7 @@ def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
 
 
 def MongoUpdate(Name):
+    import os
     MongoFindName(Name)
     ServerNameN = raw_input(
         tServName +' [default:' + ServerName + ']: ') or ServerName
@@ -167,22 +170,43 @@ def MongoUpdate(Name):
         tFB +' [ ' + str(Frequency) + ' ]: ') or Frequency)
     CleanDateN = int(raw_input(
         tCleanB + ' [ ' + str(CleanDate) + ' ]: ') or CleanDate)
-    DirsIncN = raw_input(
-        tDirBInc + ' [ ' + DirsInc + ' ]: ') or DirsInc
     #PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
     #        PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
+    yes = set(['yes', 'y', 'ye', ''])
+    no = set(['no', 'n'])
+    choice = raw_input(tMysqlUpdate).lower()
+    if choice in yes:
+        from colorama import Fore, Style
+        Chmy="YES"
+        connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
+        cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
+        cmd=connect+" \"mysql -e 'show databases;'\""
+        DirsIncN = raw_input(
+                tDirBInc + ' [ ' + DirsInc + ' ]: ') or DirsInc
+        print (Fore.YELLOW + tUdb + Style.RESET_ALL)
+        os.system(cmd)
+        print (Fore.YELLOW+"##############"+Style.RESET_ALL)
+        DBexN = raw_input(tDBex + '[Now: '+DBex+']: ') or  DBex
+        MyDumpOptN = raw_input(tMyDumpOpt +'[Now:'+MyDumpOpt+']:' ) or MyDumpOpt
+        CronN = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
+        cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
+        cmdcron = connect +" \"echo '" + CronN + "' >> /etc/crontab\""
+    else:
+        Chmy="NO"
     yes = set(['yes', 'y', 'ye', ''])
     no = set(['no', 'n'])
     choice = raw_input(tDataCor).lower()
     if choice in yes:
         # print id
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN, "RsyncOpt": RsyncOptN,
-                "Dirs": DirsN, "DirsExclude": DirsExcludeN, "DirsInc": DirsIncN, "Priv": PrivN, "Frequency": FrequencyN, "CleanDate": CleanDateN }
-        #coll.update({'_id': R['_id']}, data, True)
+                "Dirs": DirsN, "DirsExclude": DirsExcludeN, "DirsInc": DirsIncN, "Priv": PrivN, "Frequency": FrequencyN, 
+                        "CleanDate": CleanDateN,"DirsInc": DirsIncN, "DBex": DBexN, "MyDumpOpt": MyDumpOptN,  "Chmy": Chmy }
+                
         SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
-        # coll.update({'Name': Name }, data})
-        # db.servers.update({ "_id" : ObjectId("58533139399923269b261261")},
-        # {$set: { "Name" : "Agnejka"  }}  )
+        if Chmy == "YES":
+            os.system(cmdscp)
+            os.system(cmdcrondel)
+            os.system(cmdcron)
     elif choice in no:
         print tBye
         return
@@ -241,12 +265,9 @@ def add():
             os.system(cmd)
             DirsInc = raw_input(tDirBInc + '[default /var/backup]: ') or '/var/backup'
             print tInstClient
-            cmdcp="scp -P{Port} sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
+            cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
             cmdmk=connect+"\"mkdir -p {dir}\"".format(dir=DirsInc)
             cmdmklog=connect+"\"mkdir -p /var/log/sbclient\""
-            os.system(cmdmk)
-            os.system(cmdcp)
-            os.system(cmdmklog)
             choice = raw_input(tDoUexdb).lower()
             if choice in yes:
                 cmd=connect+" \"mysql -e 'show databases;'\""
@@ -258,12 +279,16 @@ def add():
                 MyDumpOpt = raw_input(tMyDumpOpt +'[default: --opt ]:' ) or '--opt'
                 Cron = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
                 cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
-                os.system(cmdcron)
         else:
             Chmy="NO"
         serv="^"+ServerName+"$"
         MongoIn(ServerName, User, ServerIP, ServerPort, RsyncOpt,
                 Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex )
+        if Chmy == "YES":
+            os.system(cmdmk)
+            os.system(cmdscp)
+            os.system(cmdmklog)
+            os.system(cmdcron)
         MongoFind(serv)
     elif choice in no:
         print tBye
