@@ -4,6 +4,7 @@
 import sys
 import SB
 
+
 # text
 tStart = "##########################\n"
 tServName = "Server name: "
@@ -37,13 +38,22 @@ tUdb = "Your databases: "
 tDBex = "Exclude databases: "
 tChmy = "Backup mysql: "
 tMyDumpOpt = "MySQL dump options:"
-tMysqlLog = "MysqlLog:"
+tMysqlLog = "MysqlLog: "
+tSbcltext = "Add a job in /etc/crontab, default: [ "
+tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py"
+tSbcltext2 = " ] You can add other, format for crontab  file : "
+tDateStartMysql = "Mysqldump start localtime: "
+tDateStopMysql = "Mysqldump stop localtime: "
+
+
+
 
 def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc=None, DBex=None ):
     SB.MongoCon()
     data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,  "RsyncOpt": RsyncOpt, "Priv": Priv,
              "Dirs": Dirs,   "DirsExclude":   DirsExclude,  "DateStart": "",  "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, 
-                    "Chmy": Chmy, "MyDumpOpt": MyDumpOpt, "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady":"", "MysqlLog":"" }]
+                    "Chmy": Chmy, "MyDumpOpt": MyDumpOpt, "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady":"", "MysqlLog":"", "DateStartMySQL":"", "DateStopMySQL":"" }]
+                    
     SB.coll.insert(data, True)
 
 
@@ -97,13 +107,16 @@ def List(allservers):
             global MyDumpOpt
             MyDumpOpt = R["MyDumpOpt"]
             global DirsInc
-            DirsInc = R["DirsInc"]
+            DirsInc = str(R["DirsInc"])
             global MysqlLog
             MysqlLog = R["MysqlLog"]
             print tDirBInc + DirsInc
             print tDBex + DBex
             print tMyDumpOpt + MyDumpOpt
-            print tMysqlLog + MysqlLog +"\n"
+            if MysqlLog == "Error":
+                print (Fore.RED + tMysqlLog + MysqlLog + Style.RESET_ALL) 
+            print tDateStartMysql + R['DateStartMySQL']
+            print tDateStopMysql + R['DateStopMySQL']+"\n"
     print tAOS, count
     if count == 0:
         print tHavenot
@@ -113,13 +126,18 @@ def List(allservers):
 def MongoList():
     SB.MongoCon()
     allservers = list(SB.coll.find())
-    List(allservers)
+    return List(allservers)
 
 
 def MongoFind(Name):
     SB.MongoCon()
     allservers = list(SB.coll.find({"Name": {'$regex': Name}}))
-    List(allservers)
+    return List(allservers)
+
+def MongoFindName(Name):
+    SB.MongoCon()
+    allservers = list(SB.coll.find({"Name": Name}))
+    return List(allservers)
 
 
 def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
@@ -129,9 +147,7 @@ def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
 
 
 def MongoUpdate(Name):
-    SB.MongoCon()
-    allservers = list(SB.coll.find({"Name": Name}))
-    List(allservers)
+    MongoFindName(Name)
     ServerNameN = raw_input(
         tServName +' [default:' + ServerName + ']: ') or ServerName
     ServerNameN = ServerNameN.replace(' ', '')
@@ -151,17 +167,17 @@ def MongoUpdate(Name):
         tFB +' [ ' + str(Frequency) + ' ]: ') or Frequency)
     CleanDateN = int(raw_input(
         tCleanB + ' [ ' + str(CleanDate) + ' ]: ') or CleanDate)
-    CleanDateN = int(raw_input(
-        tCleanB + ' [ ' + DirsInc + ' ]: ') or DirsInc)
-    PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
-            PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
+    DirsIncN = raw_input(
+        tDirBInc + ' [ ' + DirsInc + ' ]: ') or DirsInc
+    #PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
+    #        PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye', ''])
     no = set(['no', 'n'])
     choice = raw_input(tDataCor).lower()
     if choice in yes:
         # print id
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN, "RsyncOpt": RsyncOptN,
-                "Dirs": DirsN, "DirsExclude": DirsExcludeN,  "Priv": PrivN, "Frequency": FrequencyN, "CleanDate": CleanDateN}
+                "Dirs": DirsN, "DirsExclude": DirsExcludeN, "DirsInc": DirsIncN, "Priv": PrivN, "Frequency": FrequencyN, "CleanDate": CleanDateN }
         #coll.update({'_id': R['_id']}, data, True)
         SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
         # coll.update({'Name': Name }, data})
@@ -177,11 +193,21 @@ def MongoUpdate(Name):
 def add():
     import os
     import time
+    import re
     from colorama import Fore, Style
     ServerName = raw_input(tServName)
     ServerName = ServerName.replace(' ', '')
-    ServerIP = raw_input(tServIP)
+    #ServerIP = raw_input(tServIP)
  #   ServerIP = intServerIP.replace(' ', '')
+    checkip="True"
+    while checkip:
+        ServerIP = raw_input(tServIP)
+        pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+        resultip=pat.match(ServerIP)
+        if resultip:
+            checkip=None
+        else:
+            checkip="True"
     User = raw_input(
         tUser+' [default:root]') or "root"
     ServerPort = raw_input(tServPort +' [default:22] ') or 22
@@ -224,15 +250,20 @@ def add():
             choice = raw_input(tDoUexdb).lower()
             if choice in yes:
                 cmd=connect+" \"mysql -e 'show databases;'\""
-                print tUdb
+                print (Fore.YELLOW + tUdb
+                + Style.RESET_ALL)
                 os.system(cmd)
+                print (Fore.YELLOW+"##############"+Style.RESET_ALL)
                 DBex = raw_input(tDBex + '[default: information_schema,performance_schema]: ') or 'information_schema,performance_schema'
                 MyDumpOpt = raw_input(tMyDumpOpt +'[default: --opt ]:' ) or '--opt'
+                Cron = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
+                cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
+                os.system(cmdcron)
         else:
             Chmy="NO"
         serv="^"+ServerName+"$"
-        MongoIn(ServerName, User,  ServerIP,  ServerPort,  RsyncOpt,
-                Priv,  Dirs,  DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt,  DirsInc, DBex )
+        MongoIn(ServerName, User, ServerIP, ServerPort, RsyncOpt,
+                Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex )
         MongoFind(serv)
     elif choice in no:
         print tBye
@@ -258,13 +289,26 @@ def Delete(Name):
         sys.stdout.write(tPlease)
 
 
+def Command(Serv, Args):
+    import os
+    MongoFindName(Serv)
+    try:
+        connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
+        cmd = connect +"\""+Args+"\""
+        return os.system(cmd)
+    except:
+        return
+    
+
+
 def help():
     print """Help function: Basic Usage:
     \tadd or addhost     - Add host to backup
     \tl or  list               - List all hosts
-    \tse or search             - Search host name, example: search w1.host.com
-    \tup or update             - Update data of host, example: update w1.host.com
-    \trm or remove             - Remove host, example: delete w1.host.com 
+    \tse or search             - Search host name, example:sbctl search w1.host.com
+    \tup or update             - Update data of host, example:sbctl update w1.host.com
+    \trm or remove             - Remove host, example: delete w1.host.com
+    \tho or host               - Send command to host, example: sbctl host w1.host.com "ls -al /var/backup" 
     \n"""
 
 
@@ -280,6 +324,8 @@ def main():
             MongoUpdate(sys.argv[2])
         elif sys.argv[1] == 'remove' or sys.argv[1] == 'rm':
             Delete(sys.argv[2])
+        elif sys.argv[1] == 'host' or sys.argv[1] == 'ho':
+            Command(sys.argv[2], sys.argv[3])
         else:
             help()
     except IndexError:

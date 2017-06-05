@@ -19,5 +19,6 @@ systemctl daemon-reload
 
 cp sbd.logrotate  /etc/logrotate.d/
 
+
 echo "ServerBackup has been installed\n You can start and stop by using sysyemd; systemctl status sbd "
 echo "Configuration file is /etc/sbd/sbd.ini"

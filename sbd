@@ -71,7 +71,7 @@ class Backup:
             DirsExclude = R["DirsExclude"]
             DateStart = R["DateStart"]
             DirsInc = R["DirsInc"]
-        ts = time.time()
+        #ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         chdate = DateCheck(Frequency)
         #print "Name", Name
@@ -102,7 +102,7 @@ class Backup:
         DirB = SB.DirBackup + "/" + Name
         DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
         ExFile = SB.tmp+"/" + Name + "_ex.txt"
-        InFile = SB.tmp+"/" + Name + "_inc.txt"
+        #InFile = SB.tmp+"/" + Name + "_inc.txt"
         #print "Start rsync ! "
         if not os.path.exists(DirB):
             os.makedirs(DirB)
@@ -110,11 +110,12 @@ class Backup:
             os.makedirs(DirBL)
         for RD in Dirs.split(","):
             RD = re.sub(r'\/$', '', RD)
-            cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest   {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
-            os.system(cmd)
+            cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
+            #os.system(cmd)
             #print cmd
         if R["Chmy"] == "YES":
             cmd =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
+            print cmd
             os.system(cmd)
         #print DirBL
         #print DirB
@@ -169,13 +170,13 @@ def CreateQ():
 
 def API():
     import socket
-    SERVER_ADDRESS = ''
-    SERVER_PORT = 22222
+    SERVER_ADDRESS = SB.IP
+    SERVER_PORT = int(SB.Port)
     s = socket.socket()
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((SERVER_ADDRESS, SERVER_PORT))
-    s.listen(5)
-    print("Listening on address %s. Kill server with Ctrl-C" %
+    s.listen(255)
+    print("Listening on address %s." %
       str((SERVER_ADDRESS, SERVER_PORT)))
     while True:
         c, addr = s.accept()
@@ -186,7 +187,7 @@ def API():
                 print("End of file from client. Resetting")
                 break
             data = data.decode()
-            data = data.split(":")
+            data = data.split("|")
             print data[0]
             print("Received '%s' from client" % data[0])
             if data[0] == "Send":

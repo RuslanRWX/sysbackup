@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 
+SERVER_ADDRESS = '127.0.0.1'
+SERVER_PORT = 29029
+
+tmpfile = "/tmp/backup.mysqldb.txt"
+logdir = "/var/log/sbclient"
+
 import socket
 import os
-
-SERVER_ADDRESS = '127.0.0.1'
-SERVER_PORT = 22222
-
-tmpfile="/tmp/backup.mysqldb.txt"
-log="/var/log/sbclient"
+import datetime
 
 print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
+if not os.path.exists(logdir):
+    os.makedirs(logdir)
+with open(logdir+"/sbclient.error.log", 'w'): pass
+
 def GetData(data):
     c = socket.socket()
     c.connect((SERVER_ADDRESS, SERVER_PORT))
@@ -30,37 +35,37 @@ def GetData(data):
     c.close()
 
 
-#print GetData("Send:DirsInc")
-
 def MysqlDump():
-    GetData("Add:MysqlReady:NO")
-    Ex=GetData("Send:DBex")
-    Dir=GetData("Send:DirsInc")
-    Opt=GetData("Send:MyDumpOpt")
-    Ex=Ex.split(",")
+    GetData("Add|MysqlReady|NO")
+    Ex = GetData("Send|DBex")
+    Dir = GetData("Send|DirsInc")
+    Opt = GetData("Send|MyDumpOpt")
+    Ex = Ex.split(",")
+    ISODateStart = datetime.datetime.now().isoformat()
+    GetData("Add|DateStartMySQL|"+ISODateStart)
+    GetData("Add|DateStopMySQL|None")
     print Ex
-    os.system("mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(file=tmpfile))
+    os.system(
+        "mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(file=tmpfile))
     for R in Ex:
-        os.system("sed -i\"\" \"/{line}/d\" {file}".format(line=R, file=tmpfile))
-    file=open(tmpfile, "r")
+        os.system(
+            "sed -i\"\" \"/{line}/d\" {file}".format(line=R, file=tmpfile))
+    file = open(tmpfile, "r")
     for line in file:
         line = line.strip('\n')
-        cmd="mysqldump {opt} {line} > {dir}/{line}.sql 2>> {log}/sbclient.log ".format(opt=Opt, line=line, dir=Dir, log=log)
+        cmd = "mysqldump {opt} {line} > {dir}/{line}.sql 2>> {logdir}/sbclient.error.log ".format(
+            opt=Opt, line=line, dir=Dir, logdir=logdir)
         os.system(cmd)
-    if os.stat(log).st_size != 0:
-        GetData("Add:MysqlLog:Error")
+    if os.stat(logdir).st_size != 0:
+        GetData("Add|MysqlLog|Error")
     else:
-        GetData("Add:MysqlLog:Not")
-    GetData("Add:MysqlReady:YES")  
-        
-    #print Res
+        GetData("Add|MysqlLog|Not")
+    GetData("Add|MysqlReady|YES")
+    ISODateStop = datetime.datetime.now().isoformat()
+    GetData("Add|DateStopMySQL|"+ISODateStop)
+
+
+if __name__ == '__main__':
+    MysqlDump()
     
-
-MysqlDump()
-
-#print GetData("DBex")
-#print GetData("MyDumpOpt")
-
-
-
-
+    
