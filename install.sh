@@ -2,11 +2,11 @@
 
 IP=`ip addr | grep -v -w "lo" | grep -Eo 'inet [0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' | awk '{ print $2 }' | head -1`
 
-#read -p "	|->  Your Server IP: default [ "$IP" ]: " ServIP
-# : ${ServIP:=$IP}
+read -p "	|->  Your Server IP: default [ "$IP" ]: " ServIP
+ : ${ServIP:=$IP}
 
-#sed -i "s/127\.0\.0\.1/$ServIP/" sbcl.py
-#sed -i "s/127\.0\.0\.1/$ServIP/" sbd.ini
+sed -i "s/127\.0\.0\.1/$ServIP/" sbcl.py
+sed -i "s/127\.0\.0\.1/$ServIP/" sbd.ini
 
 echo "Start install Server backup "
 mkdir /etc/sbd
