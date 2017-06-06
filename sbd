@@ -188,17 +188,17 @@ def API():
         while True:
             data = c.recv(2048)
             if not data:
-                print("End of file from client. Resetting")
+                #print("End of file from client. Resetting")
                 break
             data = data.decode()
             data = data.split("|")
-            print data[0]
-            print("Received '%s' from client" % data[0])
+            #print data[0]
+            #print("Received '%s' from client" % data[0])
             if data[0] == "Send":
                 SB.MongoCon()
                 DataMongo = list(SB.coll.find({"ServerIP": addr[0]}))
                 for R in DataMongo:
-                    print R[data[1]]
+                    #print R[data[1]]
                     DataResult = R[data[1]].encode()
                     c.send(DataResult)
                 continue

@@ -30,7 +30,7 @@ tPlease = "Please respond with 'yes' or 'no'"
 tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"
 tDuD = 'Do you really want to delete host? '
 tDirBInc = "Incrimental directory: "
-tDoUBackupMysql = "Doy you want ot backup MySQLy? yes|no: "
+tDoUBackupMysql = "Doy you want ot backup MySQL? yes|no: "
 tResdf = "Result of \"df -h\" on your remote server"
 tInstClient = "Install a cleant for MySQL backuing "
 tDoUexdb = "Do you want ot exclude any databases? yes|no: "
@@ -44,10 +44,20 @@ tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py"
 tSbcltext2 = " ] You can add other job, format for crontab file : "
 tDateStartMysql = "Mysqldump start localtime: "
 tDateStopMysql = "Mysqldump stop localtime: "
-tMysqlUpdate = "Do you want ot configuration mysqldump on remote host ? 'yes' or 'no'"
-tPS = """Note: You should to install no your remote server rsync if you have not, 
-    if you using mysql backup, please, check that mysqldump is installed and local configuration file .my.cnf is configureted """
+tMysqlUpdate = "Do you want ot configuration mysqldump on remote host ? ['yes' or 'no' ] "
+tNote = """Note that rsync must be installed on your remote server.
+If you using mysql backup, please, check that mysqldump is installed and a local configuration file ~/.my.cnf is configured """
+tCheckRsync = "Is the Rsync installed on your remote server ? ['yes' or 'no']: "
+tPlInR = "Please, install the rsync on your remote server !"
+tCheckMy = "Is the file ~/.my.cnf configured ?  ['yes' or 'no']: "
+tPlconfMy = "Please, configure the ~/.my.cnf for databases access "
+tDefMysqlOpt = " you can add --ignore-table=db.table [default: --opt --routines ]: "
+tdefExDb =  "[default: information_schema,performance_schema]: "
 
+
+def Yellow(data):
+    from colorama import Fore, Style
+    return (Fore.YELLOW + data + Style.RESET_ALL)
 
 
 def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc=None, DBex=None ):
@@ -180,14 +190,20 @@ def MongoUpdate(Name):
     if choice in yes:
         from colorama import Fore, Style
         Chmy="YES"
+        choicech = raw_input(Yellow(tCheckMy)).lower()
+        if choicech in yes:
+            pass
+        else:
+            print Yellow(tPlconfMy)
+            return
         connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
         cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
         cmd=connect+" \"mysql -e 'show databases;'\""
         DirsIncN = raw_input(
                 tDirBInc + ' [ ' + DirsInc + ' ]: ') or DirsInc
-        print (Fore.YELLOW + tUdb + Style.RESET_ALL)
+        print (Yellow(tUdb))
         os.system(cmd)
-        print (Fore.YELLOW+"##############"+Style.RESET_ALL)
+        print (Yellow("##############"))
         DBexN = raw_input(tDBex + '[Now: '+DBex+']: ') or  DBex
         MyDumpOptN = raw_input(tMyDumpOpt +'[Now:'+MyDumpOpt+']:' ) or MyDumpOpt
         CronN = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
@@ -195,8 +211,6 @@ def MongoUpdate(Name):
         cmdcron = connect +" \"echo '" + CronN + "' >> /etc/crontab\""
     else:
         Chmy="NO"
-    yes = set(['yes', 'y', 'ye', ''])
-    no = set(['no', 'n'])
     choice = raw_input(tDataCor).lower()
     if choice in yes:
         # print id
@@ -220,10 +234,19 @@ def add():
     import os
     import re
     from colorama import Fore, Style
+    print Yellow(tNote)
+    #import time
+    #time.sleep(3)
+    yes = set(['yes', 'y', 'ye', ''])
+    no = set(['no', 'n'])
+    choicech = raw_input(tCheckRsync).lower()
+    if choicech in yes:
+        pass
+    else:
+        print Yellow(tPlInR)
+        return
     ServerName = raw_input(tServName)
     ServerName = ServerName.replace(' ', '')
-    #ServerIP = raw_input(tServIP)
- #   ServerIP = intServerIP.replace(' ', '')
     checkip="True"
     while checkip:
         ServerIP = raw_input(tServIP)
@@ -234,7 +257,7 @@ def add():
         else:
             checkip="True"
     User = raw_input(
-        tUser+' [default:root]') or "root"
+        tUser+' [default:root] ') or "root"
     ServerPort = raw_input(tServPort +' [default:22] ') or 22
  #   ServerPort = ServerPort.replace(' ', '')
     RsyncOpt = raw_input(tOpR +' [default:-av ] ') or '-av'
@@ -248,36 +271,37 @@ def add():
         raw_input(tCleanB +' [default 7]: ') or 7)
     #PrCheck(ServerName, User,  ServerIP, ServerPort,
     #        RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
-    yes = set(['yes', 'y', 'ye', ''])
-    no = set(['no', 'n'])
     choice = raw_input(tDataCor).lower()
     if choice in yes:
-        print (Fore.YELLOW + tAddsshKey
-                + Style.RESET_ALL)
+        print Yellow(tAddsshKey)
         #time.sleep(3)
         connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
         cmd="cat ~/.ssh/id_rsa.pub | "+connect+" \"mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys\""
         os.system(cmd)
         choise = raw_input(tDoUBackupMysql).lower()
         if choise in yes:
+            choicech = raw_input(Yellow(tCheckMy)).lower()
+            if choicech in yes:
+                pass
+            else:
+                print Yellow(tPlconfMy)
+                return
             Chmy="YES"
             cmd=connect+" \"df -h\""
             print tResdf
             os.system(cmd)
             DirsInc = raw_input(tDirBInc + '[default /var/backup]: ') or '/var/backup'
-            print tInstClient
             cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
             cmdmk=connect+"\"mkdir -p {dir}\"".format(dir=DirsInc)
             cmdmklog=connect+"\"mkdir -p /var/log/sbclient\""
             choice = raw_input(tDoUexdb).lower()
             if choice in yes:
                 cmd=connect+" \"mysql -e 'show databases;'\""
-                print (Fore.YELLOW + tUdb
-                + Style.RESET_ALL)
+                print Yellow(tUdb)
                 os.system(cmd)
-                print (Fore.YELLOW+"##############"+Style.RESET_ALL)
-                DBex = raw_input(tDBex + '[default: information_schema,performance_schema]: ') or 'information_schema,performance_schema'
-                MyDumpOpt = raw_input(tMyDumpOpt +'[default: --opt --routines ], you can add--ignore-table=db.table :' ) or '--opt --routines'
+                print (Yellow("##############"))
+                DBex = raw_input(tDBex + tdefExDb ) or 'information_schema,performance_schema'
+                MyDumpOpt = raw_input(tMyDumpOpt + tDefMysqlOpt ) or '--opt --routines'
                 Cron = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
                 cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
         else:
@@ -287,6 +311,7 @@ def add():
                 Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex )
         if Chmy == "YES":
             os.system(cmdmk)
+            print tInstClient
             os.system(cmdscp)
             os.system(cmdmklog)
             os.system(cmdcron)
@@ -328,7 +353,7 @@ def Command(Serv, Args):
 
 
 def help():
-    print """Help function: Basic Usage:
+    return """Help function: Basic Usage:
     \tadd or addhost     - Add host to backup
     \tl or  list               - List all hosts
     \tse or search             - Search host name, example:sbctl search w1.host.com
@@ -353,9 +378,9 @@ def main():
         elif sys.argv[1] == 'host' or sys.argv[1] == 'ho':
             Command(sys.argv[2], sys.argv[3])
         else:
-            help()
+            print help()
     except IndexError:
-        help()
+        print help()
 
 
 if __name__ == '__main__':
