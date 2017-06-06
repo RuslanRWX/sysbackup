@@ -211,6 +211,10 @@ def MongoUpdate(Name):
         cmdcron = connect +" \"echo '" + CronN + "' >> /etc/crontab\""
     else:
         Chmy="NO"
+        MyDumpOptN="None"
+        DirsIncN="None"
+        DBexN="None"
+        
     choice = raw_input(tDataCor).lower()
     if choice in yes:
         # print id
@@ -233,7 +237,6 @@ def MongoUpdate(Name):
 def add():
     import os
     import re
-    from colorama import Fore, Style
     print Yellow(tNote)
     #import time
     #time.sleep(3)
@@ -306,6 +309,9 @@ def add():
                 cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
         else:
             Chmy="NO"
+            MyDumpOpt="None"
+            DirsInc="None"
+            DBex="None"
         serv="^"+ServerName+"$"
         MongoIn(ServerName, User, ServerIP, ServerPort, RsyncOpt,
                 Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex )
