@@ -1,0 +1,13 @@
+[Unit]
+Description=Start sbd
+After=syslog.target network.target
+[Service]
+User=root
+Environment=PATH='/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'
+ExecStart=/usr/sbin/sbd start
+ExecStop=/usr/sbin/sbd stop 
+ExecReload=/usr/sbin/sbd restart
+StandardOutput=syslog
+StandardError=syslog
+[Install]
+WantedBy=multi-user.target
