@@ -13,6 +13,8 @@ import datetime
 pid = str(os.getpid())
 import re
 
+global Not_check
+
 
 def CreateTmpFiles(Name, Dirs, DirsEx):
     Dirs = Dirs.replace(' ', '')
@@ -77,11 +79,12 @@ class Backup:
         #print "Name", Name
         #print "Check date: ", chdate
         #print "Date End: ", DateEnd
-        if Not_check == "YES":
-            pass
-        else:
-            if DateEnd > chdate:
+    #    if DateEnd > chdate and Not_check == "YES":
+        try:
+            if DateEnd > chdate and Not_check:
                 return
+        except:
+            pass
         if R["MysqlReady"] == "NO":
             text = "Mysqldump is not ready"
             log(text)
@@ -305,7 +308,6 @@ def main():
             if not os.path.exists(tmp):
                 os.makedirs(tmp)
             Back = Backup(sys.argv[2])
-            global Not_check
             Not_check = "YES"
             try:
                 Back.run()

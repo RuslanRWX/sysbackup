@@ -304,9 +304,11 @@ def add():
                 os.system(cmd)
                 print (Yellow("##############"))
                 DBex = raw_input(tDBex + tdefExDb ) or 'information_schema,performance_schema'
-                MyDumpOpt = raw_input(tMyDumpOpt + tDefMysqlOpt ) or '--opt --routines'
-                Cron = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
-                cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
+            else:
+                DBex="None"
+            MyDumpOpt = raw_input(tMyDumpOpt + tDefMysqlOpt ) or '--opt --routines'
+            Cron = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
+            cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
         else:
             Chmy="NO"
             MyDumpOpt="None"
@@ -383,6 +385,10 @@ def main():
             Delete(sys.argv[2])
         elif sys.argv[1] == 'host' or sys.argv[1] == 'ho':
             Command(sys.argv[2], sys.argv[3])
+        elif sys.argv[1] == "backup":
+            import os
+            cmd="sbd backup "+sys.argv[2]
+            os.system(cmd)
         else:
             print help()
     except IndexError:
