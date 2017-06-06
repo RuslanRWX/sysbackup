@@ -5,11 +5,10 @@ IP=`ip addr | grep -v -w "lo" | grep -Eo 'inet [0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.
 read -p "	|->  Your Server IP: default [ "$IP" ]: " ServIP
  : ${ServIP:=$IP}
 
-sed -i "s/127\.0\.0\.1/$ServIP/" sbcl.py
-sed -i "s/127\.0\.0\.1/$ServIP/" sbd.ini
 
 echo "Start install Server backup "
-mkdir /etc/sbd
+if [ ! -d /etc/sbd ]; then { mkdir -p /etc/sbd;  } fi 
+
 cp sbd.ini /etc/sbd/
 
 echo "Install sbd"
@@ -25,10 +24,12 @@ cp sbd.service /etc/systemd/system/
 systemctl daemon-reload
 
 cp sbd.logrotate  /etc/logrotate.d/
-mkdir /usr/share/sbcl/
+if [ ! -d /usr/share/sbcl ]; then { mkdir -p /usr/share/sbcl; } fi 
 cp sbcl.py /usr/share/sbcl/
+sed -i "s/127\.0\.0\.1/$ServIP/" /usr/share/sbcl.py
+sed -i "s/127\.0\.0\.1/$ServIP/" /etc/sbd/sbd.ini
 
 
 
-echo "ServerBackup has been installed\n You can start and stop by using sysyemd; systemctl status sbd "
+echo "ServerBackup has been installed\nYou can start and stop by using sysyemd; systemctl status sbd "
 echo "Configuration file is /etc/sbd/sbd.ini"

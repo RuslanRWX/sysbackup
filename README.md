@@ -24,17 +24,8 @@ Install python module colorama
 
 pip install colorama
 
-Install sbd and sbctl 
+cd ServerBackup<br>
+Install sbd and sbctl<br> 
 ./install.sh
-
-
-vim /etc/logrotate.d/sbd and add:<br>
-/var/log/sbd/*.log {<br>
-  rotate 10 <br>
-  daily <br>
-  compress <br>
-  missingok <br>
-  notifempty <br>
-}
 
  
