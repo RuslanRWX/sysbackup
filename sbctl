@@ -45,6 +45,8 @@ tSbcltext2 = " ] You can add other job, format for crontab file : "
 tDateStartMysql = "Mysqldump start localtime: "
 tDateStopMysql = "Mysqldump stop localtime: "
 tMysqlUpdate = "Do you want ot configuration mysqldump on remote host ? 'yes' or 'no'"
+tPS = """Note: You should to install no your remote server rsync if you have not, 
+    if you using mysql backup, please, check that mysqldump is installed and local configuration file .my.cnf is configureted """
 
 
 
@@ -211,12 +213,11 @@ def MongoUpdate(Name):
         print tBye
         return
     else:
-        sys.stdout.write(tPealse)
+        sys.stdout.write(tPlease)
 
 
 def add():
     import os
-    import time
     import re
     from colorama import Fore, Style
     ServerName = raw_input(tServName)
@@ -236,7 +237,7 @@ def add():
         tUser+' [default:root]') or "root"
     ServerPort = raw_input(tServPort +' [default:22] ') or 22
  #   ServerPort = ServerPort.replace(' ', '')
-    RsyncOpt = raw_input(tOpR +' [default:-av] ') or '-av'
+    RsyncOpt = raw_input(tOpR +' [default:-av ] ') or '-av'
     Priv = raw_input(tPriy +' [default: 20 ] : ') or 20
     Dirs = raw_input(tDirB) or '/root,/var'
     DirsExclude = raw_input(
@@ -276,7 +277,7 @@ def add():
                 os.system(cmd)
                 print (Fore.YELLOW+"##############"+Style.RESET_ALL)
                 DBex = raw_input(tDBex + '[default: information_schema,performance_schema]: ') or 'information_schema,performance_schema'
-                MyDumpOpt = raw_input(tMyDumpOpt +'[default: --opt ]:' ) or '--opt'
+                MyDumpOpt = raw_input(tMyDumpOpt +'[default: --opt --routines ], you can add--ignore-table=db.table :' ) or '--opt --routines'
                 Cron = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
                 cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
         else:

@@ -44,7 +44,7 @@ def MysqlDump():
     ISODateStart = datetime.datetime.now().isoformat()
     GetData("Add|DateStartMySQL|"+ISODateStart)
     GetData("Add|DateStopMySQL|None")
-    print Ex
+    print "Start backup"
     os.system(
         "mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(file=tmpfile))
     for R in Ex:
@@ -63,6 +63,7 @@ def MysqlDump():
     GetData("Add|MysqlReady|YES")
     ISODateStop = datetime.datetime.now().isoformat()
     GetData("Add|DateStopMySQL|"+ISODateStop)
+    print "Mysqldump has been done"
 
 
 if __name__ == '__main__':

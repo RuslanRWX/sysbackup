@@ -77,11 +77,15 @@ class Backup:
         #print "Name", Name
         #print "Check date: ", chdate
         #print "Date End: ", DateEnd
-        if DateEnd > chdate:
-            return
+        if Not_check == "YES":
+            pass
+        else:
+            if DateEnd > chdate:
+                return
         if R["MysqlReady"] == "NO":
             text = "Mysqldump is not ready"
             log(text)
+            print text
             return
         CreateTmpFiles(Name, Dirs, DirsExclude)
         text="""\n###########Start Backup######
@@ -111,7 +115,7 @@ class Backup:
         for RD in Dirs.split(","):
             RD = re.sub(r'\/$', '', RD)
             cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
-            #os.system(cmd)
+            os.system(cmd)
             #print cmd
         if R["Chmy"] == "YES":
             cmd =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
@@ -248,6 +252,7 @@ def help():
     \tstart      - Start the sbd deamon
     \tstop       - Stop the sbd deamon
     \trestart    - Restart the sbd deamon
+    \tbackup     - Start backup just one node, example [sbd backup myhost] 
     \thelp       - Print help\n"""
 
 
@@ -272,7 +277,7 @@ def Start():
     log(text)
     print text
     while True:
-        t = threading.Thread(target= API)
+        t = threading.Thread(target=API)
         t.daemon = True
         t.start()
         text="\nStart queue, date: {date}".format(date=datetime.datetime.now())
@@ -293,6 +298,19 @@ def main():
         elif sys.argv[1] == 'restart':
             Stop()
             Start()
+        elif sys.argv[1] == 'backup':
+            cmd="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl.py\""
+            os.system(cmd)
+            tmp=SB.tmp
+            if not os.path.exists(tmp):
+                os.makedirs(tmp)
+            Back = Backup(sys.argv[2])
+            global Not_check
+            Not_check = "YES"
+            try:
+                Back.run()
+            except:
+               print "Error: have not host like "+ sys.argv[2] +" !"
         else:
             print help()
     except IndexError:
