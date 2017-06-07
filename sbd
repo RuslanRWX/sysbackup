@@ -14,7 +14,7 @@ pid = str(os.getpid())
 import re
 
 global Not_check
-
+Not_check = "YES"
 
 def CreateTmpFiles(Name, Dirs, DirsEx):
     Dirs = Dirs.replace(' ', '')
@@ -73,6 +73,7 @@ class Backup:
             DirsExclude = R["DirsExclude"]
             DateStart = R["DateStart"]
             DirsInc = R["DirsInc"]
+            Chmy = R["Chmy"]
         #ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         chdate = DateCheck(Frequency)
@@ -80,11 +81,11 @@ class Backup:
         #print "Check date: ", chdate
         #print "Date End: ", DateEnd
     #    if DateEnd > chdate and Not_check == "YES":
-        try:
-            if DateEnd > chdate and Not_check:
-                return
-        except:
-            pass
+        if DateEnd > chdate and Not_check == "NO":
+            return
+        if Chmy == "Yes" and Not_check == "YES":
+            cmd="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl.py\""
+            os.system(cmd)
         if R["MysqlReady"] == "NO":
             text = "Mysqldump is not ready"
             log(text)
@@ -117,12 +118,14 @@ class Backup:
             os.makedirs(DirBL)
         for RD in Dirs.split(","):
             RD = re.sub(r'\/$', '', RD)
-            cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
+            cmd = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
+                port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
             os.system(cmd)
             #print cmd
-        if R["Chmy"] == "YES":
-            cmd =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt, port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
-            print cmd
+        if Chmy == "YES":
+            cmd =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
+                port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
+            #print cmd
             os.system(cmd)
         #print DirBL
         #print DirB
@@ -307,8 +310,6 @@ def main():
             Stop()
             Start()
         elif sys.argv[1] == 'backup':
-            cmd="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl.py\""
-            os.system(cmd)
             tmp=SB.tmp
             if not os.path.exists(tmp):
                 os.makedirs(tmp)
