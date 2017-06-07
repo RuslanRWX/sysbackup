@@ -191,27 +191,32 @@ def API():
         while True:
             data = c.recv(2048)
             if not data:
-                #print("End of file from client. Resetting")
+                print("End of file from client. Resetting")
                 break
             data = data.decode()
             data = data.split("|")
-            #print data[0]
-            #print("Received '%s' from client" % data[0])
-            if data[0] == "Send":
+            #print data
+            print("Received '%s' from client" % data[0])
+            if data[0] == "Get":
                 SB.MongoCon()
                 DataMongo = list(SB.coll.find({"ServerIP": addr[0]}))
+                #print DataMongo
                 for R in DataMongo:
                     #print R[data[1]]
                     DataResult = R[data[1]].encode()
                     c.send(DataResult)
                 continue
-            if data[0] == "Add":
+            elif data[0] == "Add":
                 SB.MongoCon()
                 DateUp = {data[1]: data[2]}
                 SB.coll.update({"ServerIP": addr[0] }, {"$set": DateUp}, upsert=False)
                 data="End"
                 data.encode()
                 c.send(data)
+            else:
+                Data="Error api"
+                Data=Data.encode()
+                c.send(DataResult)
         c.close()
 
 def worker():

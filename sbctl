@@ -16,7 +16,7 @@ tOpR = "Options of rsync: "
 tLastD = "Last date of started backup: "
 tLastDN = "Last date of end backup: "
 tDirB = "Directories of backup example[/home,/var ] "
-tDirBx = "Directories of exclude example[/home/Downloads/*,/var/log/*]: "
+tDirBx = "Directories of exclude example[/home/Downloads,/var/log]: "
 tFB = "Frequency of backup, hours: "
 tCleanB = "Clean the backup server, days: "
 tAOS = "##########################    amount of servers "
@@ -71,6 +71,7 @@ def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
 
 def List(allservers):
     from colorama import Fore, Style
+    global count 
     count = 0
     for R in allservers:
         count = count + 1
@@ -133,7 +134,7 @@ def List(allservers):
             print tDateStopMysql + R['DateStopMySQL']+"\n"
     print tAOS, count
     if count == 0:
-        print tHavenot
+        print tHavenot        
         return
 
 
@@ -229,7 +230,7 @@ def MongoUpdate(Name):
             os.system(cmdcron)
     elif choice in no:
         print tBye
-        return
+        return exit(1)
     else:
         sys.stdout.write(tPlease)
 
@@ -335,6 +336,8 @@ def Delete(Name):
     SB.MongoCon()
     allservers = list(SB.coll.find({"Name": Name}))
     List(allservers)
+    if count == 0:
+        return
     #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes', 'y', 'ye', ''])
     no = set(['no', 'n'])
@@ -343,7 +346,6 @@ def Delete(Name):
         SB.coll.remove({'_id': id})
     elif choice in no:
         print tBye
-        return
     else:
         sys.stdout.write(tPlease)
 
@@ -359,7 +361,6 @@ def Command(Serv, Args):
         return
     
 
-
 def help():
     return """Help function: Basic Usage:
     \tadd or addhost     - Add host to backup
@@ -367,7 +368,8 @@ def help():
     \tse or search             - Search host name, example:sbctl search w1.host.com
     \tup or update             - Update data of host, example:sbctl update w1.host.com
     \trm or remove             - Remove host, example: delete w1.host.com
-    \tho or host               - Send command to host, example: sbctl host w1.host.com "ls -al /var/backup" 
+    \tho or host               - Send command to host, example: sbctl host w1.host.com "ls -al /var/backup"
+    \tbackup                   - Start backup, example: sbctl backup w1.host.com
     \n"""
 
 

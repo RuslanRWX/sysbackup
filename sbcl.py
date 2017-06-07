@@ -37,19 +37,20 @@ def GetData(data):
 
 def MysqlDump():
     GetData("Add|MysqlReady|NO")
-    Ex = GetData("Send|DBex")
-    Dir = GetData("Send|DirsInc")
-    Opt = GetData("Send|MyDumpOpt")
+    Ex = GetData("Get|DBex")
+    Dir = GetData("Get|DirsInc")
+    Opt = GetData("Get|MyDumpOpt")
     Ex = Ex.split(",")
     ISODateStart = datetime.datetime.now().isoformat()
     GetData("Add|DateStartMySQL|"+ISODateStart)
     GetData("Add|DateStopMySQL|None")
     print "Start backup"
-    os.system(
-        "mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(file=tmpfile))
-    for R in Ex:
-        os.system(
-            "sed -i\"\" \"/{line}/d\" {file}".format(line=R, file=tmpfile))
+    cmd="mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(file=tmpfile)
+    os.system(cmd)
+    if Ex != "None":
+        for R in Ex:
+            cmd="sed -i\"\" \"/{line}/d\" {file}".format(line=R, file=tmpfile)
+            os.system(cmd)
     file = open(tmpfile, "r")
     for line in file:
         line = line.strip('\n')
