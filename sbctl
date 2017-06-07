@@ -263,14 +263,12 @@ def add():
     else:
         print Yellow(tPlInR)
         return
-    checkServer="True"
-    while checkServer:
+    checkServer=None
+    while checkServer is None:
         ServerName = raw_input(tServName)
-        if ServerName == None:
-            checkServer=None
-        else:
+        ServerName = ServerName.replace(' ', '')
+        if ServerName != "":
             checkServer="True"
-    ServerName = ServerName.replace(' ', '')
     checkip="True"
     while checkip:
         ServerIP = raw_input(tServIP)
