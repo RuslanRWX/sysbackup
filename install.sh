@@ -31,5 +31,7 @@ sed -i "s/127\.0\.0\.1/$ServIP/" /etc/sbd/sbd.ini
 
 
 
-echo "ServerBackup has been installed\nYou can start and stop by using sysyemd; systemctl status sbd "
+echo "ServerBackup has been installed. You can start and stop by using sysyemd; systemctl status sbd "
 echo "Configuration file is /etc/sbd/sbd.ini"
+echo "Your configuration parameters"
+cat /etc/sbd/sbd.ini

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.7
+# Version 0.3.0
 import sys
 import SB
 import os
@@ -384,7 +384,7 @@ def Command(Serv, Args):
 
 def help():
     return """Help function: Basic Usage:
-    \tadd or addhost     - Add host to backup
+    \tadd or addhost           - Add host to backup
     \tl or  list               - List all hosts
     \tse or search             - Search host name, example:sbctl search w1.host.com
     \tup or update             - Update data of host, example:sbctl update w1.host.com

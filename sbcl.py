@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
+# Version 0.3.0
 
 SERVER_ADDRESS = '127.0.0.1'
 SERVER_PORT = 29029
@@ -9,6 +11,8 @@ logdir = "/var/log/sbclient"
 import socket
 import os
 import datetime
+import sys
+
 
 print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
 if not os.path.exists(logdir):
@@ -44,6 +48,9 @@ def MysqlDump():
     ISODateStart = datetime.datetime.now().isoformat()
     GetData("Add|DateStartMySQL|"+ISODateStart)
     GetData("Add|DateStopMySQL|None")
+    if Dir == "None":
+        print "Not configured on the backup server"
+        return
     print "Start backup"
     cmd="mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(file=tmpfile)
     os.system(cmd)
@@ -67,7 +74,18 @@ def MysqlDump():
     print "Mysqldump has been done"
 
 
+def help():
+    return """Help function: Basic Usage:
+    \tmysqldump     - Start mysqldump
+    """
+
+
 if __name__ == '__main__':
-    MysqlDump()
-    
+    try:
+        if sys.argv[1] == 'mysqldump':
+            MysqlDump()
+        else:
+            print help()
+    except IndexError:
+        print help()
     

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.2.7
+# Version 0.3.0
 global Ver
-Ver = "0.2.7"
+Ver = "0.3.0"
 import os
 import threading
 import Queue
@@ -84,7 +84,7 @@ class Backup:
         if DateEnd > chdate and Not_check == "NO":
             return
         if Chmy == "Yes" and Not_check == "YES":
-            cmd="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl.py\""
+            cmd="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl.py mysqldump\""
             os.system(cmd)
         if R["MysqlReady"] == "NO":
             text = "Mysqldump is not ready"
