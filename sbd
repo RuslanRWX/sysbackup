@@ -13,8 +13,8 @@ import datetime
 pid = str(os.getpid())
 import re
 
-global Not_check
-Not_check = "YES"
+#global Not_check
+#Not_check = "NO"
 
 def CreateTmpFiles(Name, Dirs, DirsEx):
     Dirs = Dirs.replace(' ', '')
@@ -45,8 +45,9 @@ def log(text):
     logf.close()
 
 class Backup:
-    def __init__(self, S):
+    def __init__(self, S, Not_check = "NO"):
         self.Server = S
+        self.Not_check = Not_check
 
     def run(self):
         SB.MongoCon()
@@ -74,19 +75,19 @@ class Backup:
             DateStart = R["DateStart"]
             DirsInc = R["DirsInc"]
             Chmy = R["Chmy"]
+            Status = R["Status"]
         #ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         chdate = DateCheck(Frequency)
         #print "Name", Name
         #print "Check date: ", chdate
         #print "Date End: ", DateEnd
-    #    if DateEnd > chdate and Not_check == "YES":
-        if DateEnd > chdate and Not_check == "NO":
+        if DateEnd > chdate and self.Not_check == "NO" and Status == "Done":
             return
-        if Chmy == "Yes" and Not_check == "YES":
+        if Chmy == "Yes" and self.Not_check == "YES":
             cmd="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl.py mysqldump\""
             os.system(cmd)
-        if R["MysqlReady"] == "NO":
+        if R["MysqlReady"] == "NO" and Chmy == "YES":
             text = "Mysqldump is not ready"
             log(text)
             print text
@@ -105,7 +106,7 @@ class Backup:
         text=text.format(time=datetime.datetime.now(), name=Name,user=User,ip=ServerIP,port=ServerPort,rsyncOpt=RsyncOpt,dirs=Dirs,dirE=DirsExclude,dateS=DateStart)
         #print text
         log(text)
-        DateUp = {"DateStart": ISODateStart}
+        DateUp = {"DateStart": ISODateStart ,  "Status": "running" }
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
         DirB = SB.DirBackup + "/" + Name
         DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
@@ -139,7 +140,7 @@ class Backup:
         os.symlink(DirBL, Link)
         #os.system(link)
         ISODateEnd = datetime.datetime.now().isoformat()
-        DateUp = {"DateEnd": ISODateEnd}
+        DateUp = {"DateEnd": ISODateEnd , "Status": "Done" }
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
         text="""\n############End Backup  #######
         Now TIME: {time}
@@ -191,36 +192,39 @@ def API():
     while True:
         c, addr = s.accept()
         print("\nConnection received from %s" % str(addr))
-        while True:
-            data = c.recv(2048)
-            if not data:
-                print("End of file from client. Resetting")
-                break
-            data = data.decode()
-            data = data.split("|")
-            #print data
-            print("Received '%s' from client" % data[0])
-            if data[0] == "Get":
+        try:
+            while True:
                 SB.MongoCon()
-                DataMongo = list(SB.coll.find({"ServerIP": addr[0]}))
-                #print DataMongo
-                for R in DataMongo:
-                    #print R[data[1]]
-                    DataResult = R[data[1]].encode()
-                    c.send(DataResult)
-                continue
-            elif data[0] == "Add":
-                SB.MongoCon()
-                DateUp = {data[1]: data[2]}
-                SB.coll.update({"ServerIP": addr[0] }, {"$set": DateUp}, upsert=False)
-                data="End"
-                data.encode()
-                c.send(data)
-            else:
-                Data="Error api"
-                Data=Data.encode()
+                data = c.recv(2048)
+                if not data:
+                    print("End of file from client. Resetting")
+                    break
+                data = data.decode()
+                data = data.split("|")
+                #print data
+                print("Received '%s' from client " % data[0], str(addr))
+                if data[0] == "Get":
+                    DataMongo = list(SB.coll.find({"ServerIP": addr[0]}))
+                    for R in DataMongo:
+                        DataResult = R[data[1]]
+                        if type(DataResult) == int:
+                            DataResult = str(DataResult)
+                        if DataResult == "":
+                            print "NONE"
+                            DataResult="Empty"
+                elif data[0] == "Add":
+                    DateUp = {data[1]: data[2]}
+                    SB.coll.update({"ServerIP": addr[0] }, {"$set": DateUp}, upsert=False)
+                    DataResult="End"
+                elif data[0] == "GetAll":
+                    DataResult = str(list(SB.coll.find({"ServerIP": addr[0]})))
+                else:
+                    DataResult="Error api: "
+                DataResult.encode()
                 c.send(DataResult)
-        c.close()
+            c.close()
+        except:
+            pass
 
 def worker():
     while True:
@@ -287,16 +291,16 @@ def Start():
     text="\nStart sbd version:{ver}, date: {date}\n".format(ver=Ver, date=datetime.datetime.now())
     log(text)
     print text
+    t = threading.Thread(target=API)
+    t.daemon = True
+    t.start()
     while True:
-        t = threading.Thread(target=API)
-        t.daemon = True
-        t.start()
         text="\nStart queue, date: {date}".format(date=datetime.datetime.now())
         log(text)
         Q()
         text="\nQueue is done, date: {date}\n".format(date=datetime.datetime.now())
         log(text)
-        time.sleep(3600)
+        time.sleep(SB.TimeCheck)
 
 
 def main():
@@ -313,8 +317,7 @@ def main():
             tmp=SB.tmp
             if not os.path.exists(tmp):
                 os.makedirs(tmp)
-            Back = Backup(sys.argv[2])
-            Not_check = "YES"
+            Back = Backup(sys.argv[2],Not_check="YES")
             try:
                 Back.run()
             except:

@@ -5,6 +5,19 @@ import sys
 import SB
 import os
 
+# mail variables 
+MysqlOptDef = "--opt  --routines"
+PortDef = 22
+UserDef = "root"
+RsyncOptDef = "-av"
+PrivDef = 20
+DirsDef = "/etc,/var"
+DirIncDef = "/var/backup"
+DirExDef = "/etc/ssh,/var/log"
+FrequencyDef = 24
+CleanDateDef = 7
+DBexDef = "information_schema,performance_schema"
+
 # text
 tStart = "##########################\n"
 tServName = "Server name: "
@@ -30,10 +43,10 @@ tPlease = "Please respond with 'yes' or 'no'"
 tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"
 tDuD = 'Do you really want to delete host? '
 tDirBInc = "Incrimental directory: "
-tDoUBackupMysql = "Doy you want ot backup MySQL? yes|no: "
+tDoUBackupMysql = "Do you want to backup MySQL? yes|no: "
 tResdf = "Result of \"df -h\" on your remote server"
 tInstClient = "Install a cleant for MySQL backuing "
-tDoUexdb = "Do you want ot exclude any databases? yes|no: "
+tDoUexdb = "Do you want to exclude any databases? yes|no: "
 tUdb = "Your databases: "
 tDBex = "Exclude databases: "
 tChmy = "Backup mysql: "
@@ -44,24 +57,28 @@ tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py"
 tSbcltext2 = " ] You can add other job, format for crontab file : "
 tDateStartMysql = "Mysqldump start localtime: "
 tDateStopMysql = "Mysqldump stop localtime: "
-tMysqlUpdate = "Do you want ot configuration mysqldump on remote host ? ['yes' or 'no' ] "
+tMysqlUpdate = "Do you want ot configuration mysqldump on the remote host ? ['yes' or 'no' ] "
 tNote = """Note that rsync must be installed on your remote server.
 If you using mysql backup, please, check that mysqldump is installed and a local configuration file ~/.my.cnf is configured """
 tCheckRsync = "Is the Rsync installed on your remote server ? ['yes' or 'no']: "
 tPlInR = "Please, install the rsync on your remote server !"
 tCheckMy = "Is the file ~/.my.cnf configured ?  ['yes' or 'no']: "
 tPlconfMy = "Please, configure the ~/.my.cnf for databases access "
-tDefMysqlOpt = " you can add --ignore-table=db.table [default: --opt --routines ]: "
+tDefMysqlOpt = " you can add --ignore-table=db.table [default: " + MysqlOptDef + " ]: "
 tdefExDb =  "[default: information_schema,performance_schema]: "
 tDuDel = "Do you want to purge ['yes' or 'on']: "
-Defroot = "[default:root] "
-Defport = "[default: 22 ] "
-Defop = "[default:-av]"
-Defpri = "[default: 20 ] "
-DefFr = "[default: 24] "
-DefClean = "[default 7]"
-ExamplDir = "example[/etc,/var ]"
-ExamplDirEx = "example[/etc/ssh,/var/log]"
+Defroot = "[default:"+UserDef+"] "
+Defport = "[default: "+ str(PortDef) +" ] "
+Defop = "[default:"+RsyncOptDef+"]"
+Defpri = "[default: "+  str(PrivDef) +" ] "
+DefFr = "[default: "+ str(FrequencyDef) +"] "
+DefClean = "[default "+ str(CleanDateDef)+"]"
+ExampleDir = "example["+DirsDef+"]"
+ExampleDirEx = "example["+DirExDef+"]"
+ExampleIncDir = "example["+DirIncDef+"]" 
+ExampleExDB = "example["+DBexDef+"]"
+tStatus = "Status: "
+
 
 def Yellow(data):
     from colorama import Fore, Style
@@ -72,7 +89,8 @@ def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
     SB.MongoCon()
     data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,  "RsyncOpt": RsyncOpt, "Priv": Priv,
              "Dirs": Dirs,   "DirsExclude":   DirsExclude,  "DateStart": "",  "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, 
-                    "Chmy": Chmy, "MyDumpOpt": MyDumpOpt, "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady":"", "MysqlLog":"", "DateStartMySQL":"", "DateStopMySQL":"" }]
+                    "Chmy": Chmy, "MyDumpOpt": MyDumpOpt, "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady":"", "MysqlLog":"", "DateStartMySQL":"", 
+                        "DateStopMySQL":"", "Status":"Never"  }]
                     
     SB.coll.insert(data, True)
 
@@ -105,23 +123,8 @@ def List(allservers):
         CleanDate = R['CleanDate']
         global id
         id = R['_id']
-        print tStart
-        print (Fore.YELLOW + tServName + R['Name'])
-        print tServIP,  R['ServerIP']
-        print(Style.RESET_ALL)
-        print tUser,  R['User']
-        print tServPort,  R['ServerPort']
-        print tPriy,  R['Priv']
-        print tOpR + R['RsyncOpt']
-        if R['DateStart']:
-            print tLastD + R['DateStart']
-        if R['DateEnd']:
-            print tLastDN + R['DateEnd']
-        print tDir + R['Dirs']
-        print tDirEx + R['DirsExclude']
-        print tFB,  Frequency
-        print tCleanB, CleanDate
-        print tChmy, R['Chmy']
+        global Status
+        Status = R['Status']
         global Chmy
         Chmy = R['Chmy']
         global DBex
@@ -132,6 +135,25 @@ def List(allservers):
         DirsInc = str(R["DirsInc"])
         global MysqlLog
         MysqlLog = R["MysqlLog"]
+        
+        print tStart
+        print (Fore.YELLOW + tServName + ServerName)
+        print tServIP,  ServerIP
+        print(Style.RESET_ALL)
+        print tUser, User
+        print tServPort, ServerPort
+        print tPriy, Priv
+        print tOpR + RsyncOpt
+        print tStatus  + Status
+        if R['DateStart']:
+            print tLastD + R['DateStart']
+        if R['DateEnd']:
+            print tLastDN + R['DateEnd']
+        print tDir + Dirs
+        print tDirEx + DirsExclude
+        print tFB,  Frequency
+        print tCleanB, CleanDate
+        print tChmy, Chmy
         if Chmy == 'YES':
             print tDirBInc + DirsInc
             print tDBex + DBex
@@ -192,9 +214,9 @@ def MongoUpdate(Name):
     RsyncOptN = raw_input(
         tOpR + Defop +' [Now:' + RsyncOpt + '] ') or RsyncOpt
     PrivN = raw_input(tPriy  +' [ ' + str(Priv) + ' ] : ') or Priv
-    DirsN = raw_input(tDir + ExamplDir +' [ ' + Dirs + ' ] : ') or Dirs
+    DirsN = raw_input(tDir + ExampleDir +' [ ' + Dirs + ' ] : ') or Dirs
     DirsExcludeN = raw_input(
-        tDirEx + ExamplDirEx +' [ ' + DirsExclude + '] : ') or DirsExclude
+        tDirEx + ExampleDirEx +' [ ' + DirsExclude + '] : ') or DirsExclude
     FrequencyN = int(raw_input(
         tFB +' [ ' + str(Frequency) + ' ]: ') or Frequency)
     CleanDateN = int(raw_input(
@@ -215,12 +237,18 @@ def MongoUpdate(Name):
         connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
         cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
         cmd=connect+" \"mysql -e 'show databases;'\""
+        if DirsInc == None:
+            DirsInc == "/var/backup"
         DirsIncN = raw_input(
-                tDirBInc + ' [ ' + DirsInc + ' ]: ') or DirsInc
+                tDirBInc + ExampleIncDir  +' [ ' + DirsInc + ' ]: ') or DirsInc
         print (Yellow(tUdb))
         os.system(cmd)
         print (Yellow("##############"))
-        DBexN = raw_input(tDBex + '[Now: '+DBex+']: ') or  DBex
+        if DBex == None:
+            DBex = "information_schema,performance_schema"
+        DBexN = raw_input(tDBex + ExampleExDB +'[Now: '+DBex+']: ') or  DBex
+        if MyDumpOpt == None:
+            MyDumpOpt = MysqlOptDef
         MyDumpOptN = raw_input(tMyDumpOpt +'[Now:'+MyDumpOpt+']:' ) or MyDumpOpt
         CronN = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
         cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
@@ -266,7 +294,7 @@ def add():
     checkServer=None
     while checkServer is None:
         ServerName = raw_input(tServName)
-        ServerName = ServerName.replace(' ', '')
+        ServerName = ServerName.replace(' ', '').replace('\t', '')
         if ServerName != "":
             checkServer="True"
     checkip="True"
@@ -279,18 +307,18 @@ def add():
         else:
             checkip="True"
     User = raw_input(
-        tUser + Defroot) or "root"
-    ServerPort = raw_input(tServPort + Defport) or 22
+        tUser + Defroot) or UserDef
+    ServerPort = raw_input(tServPort + Defport) or PortDef
  #   ServerPort = ServerPort.replace(' ', '')
-    RsyncOpt = raw_input(tOpR + Defop) or '-av'
-    Priv = raw_input(tPriy + Defpri) or 20
-    Dirs = raw_input(tDirB + ExamplDir + ": ") or '/root,/var'
+    RsyncOpt = raw_input(tOpR + Defop) or RsyncOptDef
+    Priv = raw_input(tPriy + Defpri) or PrivDef
+    Dirs = raw_input(tDirB + ExampleDir + ": ") or DirsDef
     DirsExclude = raw_input(
-        tDirBx + ExamplDirEx + ": ") or ''
+        tDirBx + ExampleDirEx + ": ") or ''
     Frequency = int(
-        raw_input(tFB + DefFr) or 24)
+        raw_input(tFB + DefFr) or FrequencyDef)
     CleanDate = int(
-        raw_input(tCleanB + DefClean) or 7)
+        raw_input(tCleanB + DefClean) or CleanDateDef)
     #PrCheck(ServerName, User,  ServerIP, ServerPort,
     #        RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
     choice = raw_input(tDataCor).lower()
@@ -312,7 +340,7 @@ def add():
             cmd=connect+" \"df -h\""
             print tResdf
             os.system(cmd)
-            DirsInc = raw_input(tDirBInc + '[default /var/backup]: ') or '/var/backup'
+            DirsInc = raw_input(tDirBInc + '[default /var/backup]: ') or DirIncDef
             cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort, User=User, IP=ServerIP)
             cmdmk=connect+"\"mkdir -p {dir}\"".format(dir=DirsInc)
             cmdmklog=connect+"\"mkdir -p /var/log/sbclient\""
@@ -322,10 +350,10 @@ def add():
                 print Yellow(tUdb)
                 os.system(cmd)
                 print (Yellow("##############"))
-                DBex = raw_input(tDBex + tdefExDb ) or 'information_schema,performance_schema'
+                DBex = raw_input(tDBex + tdefExDb ) or DBexDef
             else:
                 DBex="None"
-            MyDumpOpt = raw_input(tMyDumpOpt + tDefMysqlOpt ) or '--opt --routines'
+            MyDumpOpt = raw_input(tMyDumpOpt + tDefMysqlOpt ) or MysqlOptDef
             Cron = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
             cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
         else:
@@ -357,8 +385,8 @@ def Delete(Name):
     if count == 0:
         return
     #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
-    yes = set(['yes', 'y', 'ye', ''])
-    no = set(['no', 'n'])
+    yes = set(['yes', 'y', 'ye'])
+    no = set(['no', 'n', ''])
     choice = raw_input(tDuD).lower()
     if choice in yes:
         SB.coll.remove({'_id': id})

@@ -16,6 +16,9 @@ global Log
 global LogDirListen
 global IP
 global Port
+global TimeCheck
+
+
 MongoConnect = config.get('Main', 'MongoConnect')
 DBs = config.get('Main',  'DBs')
 Collection = config.get('Main', 'Collection')
@@ -24,9 +27,10 @@ DirBackup = config.get('Main', 'DirBackup')
 Pidfile = config.get('Main', 'Pidfile')
 tmp = config.get('Main', 'tmp')
 Log = config.get('Main', 'Log')
-LogDir = config.get('Main',  'LogDir')
-IP = config.get('Main',  'ListenIP')
-Port = config.get('Main',  'ListenPort')
+LogDir = config.get('Main', 'LogDir')
+IP = config.get('Main', 'ListenIP')
+Port = config.get('Main', 'ListenPort')
+TimeCheck = int(config.get('Main', 'TimeCheck'))
 
 
 def MongoCon():
