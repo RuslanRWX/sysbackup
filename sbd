@@ -210,7 +210,6 @@ def API():
                         if type(DataResult) == int:
                             DataResult = str(DataResult)
                         if DataResult == "":
-                            print "NONE"
                             DataResult="Empty"
                 elif data[0] == "Add":
                     DateUp = {data[1]: data[2]}
