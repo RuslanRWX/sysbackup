@@ -119,7 +119,7 @@ class Backup:
             os.makedirs(DirBL)
         for RD in Dirs.split(","):
             RD = re.sub(r'\/$', '', RD)
-            cmdrsnyc = "/usr/bin/rsync  {rsopt} --relative --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
+            cmdrsync = "/usr/bin/rsync  {rsopt} --relative --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
                 port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
             os.system(cmdrsync)
             #print cmd
@@ -236,7 +236,7 @@ def worker():
 def Q():
     global q
     q = Queue.Queue(0)
-    for i in range(SB.Num_thread):
+    for i in range():
         t = threading.Thread(target=worker)
         t.daemon = True
         t.start()
@@ -314,9 +314,10 @@ def main():
             Start()
         elif sys.argv[1] == 'backup':
             tmp=SB.tmp
+            name=sys.argv[2]
             if not os.path.exists(tmp):
                 os.makedirs(tmp)
-            Back = Backup(sys.argv[2],Not_check="YES")
+            Back = Backup(name,Not_check="YES")
             try:
                 Back.run()
             except:
