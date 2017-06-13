@@ -236,7 +236,7 @@ def MongoUpdate(Name):
     no = set(['no', 'n'])
     rm = set(['rm'])
     choice = raw_input(tMysqlUpdate).lower()
-    connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
+    connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPortN, User=UserN, IP=ServerIPN)
     cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
     if choice in rm:
         Chmy="NO"
@@ -248,8 +248,8 @@ def MongoUpdate(Name):
         else:
             print Yellow(tPlconfMy)
             return
-        cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort,
-            User=User, IP=ServerIP)
+        cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPortN,
+            User=UserN, IP=ServerIPN)
         cmddb=connect+" \"mysql -e 'show databases;'\""
         cmddf=connect+" \"df -h\""
         print tResdf
