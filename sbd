@@ -85,8 +85,8 @@ class Backup:
         if DateEnd > chdate and self.Not_check == "NO" and Status == "Done":
             return
         if Chmy == "Yes" and self.Not_check == "YES":
-            cmd="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl.py mysqldump\""
-            os.system(cmd)
+            cmdsbcl="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl.py mysqldump\""
+            os.system(cmdsbcl)
         if R["MysqlReady"] == "NO" and Chmy == "YES":
             text = "Mysqldump is not ready"
             log(text)
@@ -119,26 +119,26 @@ class Backup:
             os.makedirs(DirBL)
         for RD in Dirs.split(","):
             RD = re.sub(r'\/$', '', RD)
-            cmd = "/usr/bin/rsync  {rsopt} --relative --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
+            cmdrsnyc = "/usr/bin/rsync  {rsopt} --relative --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
                 port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
-            os.system(cmd)
+            os.system(cmdrsync)
             #print cmd
         if Chmy == "YES":
-            cmd =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
+            cmdrsyncmysql =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
                 port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
             #print cmd
-            os.system(cmd)
+            os.system(cmdrsyncmysql)
         #print DirBL
         #print DirB
         Link = DirB + "/" + "Latest"
         try:
             os.remove(Link)
-            time.sleep(10)
+            time.sleep(3)
         except:
             pass
-        #link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
-        os.symlink(DirBL, Link)
-        #os.system(link)
+        link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
+        #os.symlink(DirBL, Link)
+        os.system(link)
         ISODateEnd = datetime.datetime.now().isoformat()
         DateUp = {"DateEnd": ISODateEnd , "Status": "Done" }
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
@@ -166,8 +166,8 @@ class Backup:
             for D in resultDir:
                 path=DirB+"/"+D
                 #print path
-                cmd="/bin/rm -rf {p}".format(p=path)
-                os.system(cmd)
+                cmdrm="/bin/rm -rf {p}".format(p=path)
+                os.system(cmdrm)
         #text="\nStart clean the backup server\nCommand: {com}".format(com=cmdclean)
         #log(text)
 
