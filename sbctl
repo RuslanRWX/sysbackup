@@ -198,6 +198,7 @@ def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
 def MongoUpdate(Name):
     import re
     global Chmy
+    CronN = None
     MongoFindName(Name)
     if count == 0:
         return
@@ -239,9 +240,9 @@ def MongoUpdate(Name):
     connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPortN, User=UserN, IP=ServerIPN)
     cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
     if choice in rm:
-        Chmy="NO"
+        ChmyN="NO"
     elif choice in yes:
-        Chmy="YES"
+        ChmyN="YES"
         choicech = raw_input(Yellow(tCheckMy)).lower()
         if choicech in yes:
             pass
@@ -277,22 +278,23 @@ def MongoUpdate(Name):
         cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
         cmdcron = connect +" \"echo '" + CronN + "' >> /etc/crontab\""
     else:
-        Chmy="NO"
-    if Chmy == "NO":
+        ChmyN="NO"
+    if ChmyN == "NO":
         MyDumpOptN="Empty"
         DirsIncN="Empty"
         DBexN="Empty"
-    print CronN + tAddtoCron
+    if CronN is not None:
+        print CronN + tAddtoCron
     choice = raw_input(tDataCor).lower()
     if choice in yes:
         # print id
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN, 
             "RsyncOpt": RsyncOptN, "Dirs": DirsN, "DirsExclude": DirsExcludeN, "Priv": PrivN,  
                 "Frequency": FrequencyN, "CleanDate": CleanDateN,"DirsInc": DirsIncN, "DBex": DBexN, 
-                    "MyDumpOpt": MyDumpOptN,  "Chmy": Chmy }
+                    "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN }
                 
         SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
-        if Chmy == "YES":
+        if ChmyN == "YES":
             os.system(cmdscp)
             os.system(cmdcrondel)
             os.system(cmdcron)
