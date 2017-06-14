@@ -89,6 +89,7 @@ ExampleExDB = "example["+DBexDef+"] "
 tStatus = "Status: "
 tDelCronResult = "Cron job sbcl.py has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
+tEndofUpdate = "Configuration has been modified"
 
 print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
 if not os.path.exists(logdir):
@@ -217,6 +218,7 @@ def list2():
 def update():
     import re
     list()
+    ChmyN = None
     ServerNameN = raw_input(
         tServName + ' [Now:' + ServerName + ']: ') or ServerName
     ServerNameN = ServerNameN.replace(' ', '').replace('\t', '')
@@ -247,7 +249,7 @@ def update():
         else:
             print tPlconfMy
             return
-        cmddb="mysql -e 'show databases;"
+        cmddb="mysql -e 'show databases;'"
         cmddf="df -h"
         print tResdf
         os.system(cmddf)
@@ -297,22 +299,22 @@ def update():
             GetData("Add|Priv|"+PrivN)
         if Frequency != FrequencyN:
             GetData("Add|Frequency|"+FrequencyN)
-        if DirsInc != DirsIncN:
-            GetData("Add|DirsInc|"+DirsIncN)
-        if DBex != DBexN:
-            GetData("Add|DBex|"+DBexN)
-        if MyDumpOpt != MyDumpOptN:
-            GetData("Add|MyDumpOpt|"+MyDumpOptN)
-        if Chmy != ChmyN:
+        if ChmyN is not None and Chmy != ChmyN:
             GetData("Add|Chmy|"+ChmyN)
-        if ChmyN == "YES":
+        if  ChmyN == "YES":
+            if DirsInc != DirsIncN:
+                GetData("Add|DirsInc|"+DirsIncN)
+            if DBex != DBexN:
+                GetData("Add|DBex|"+DBexN)
+            if MyDumpOpt != MyDumpOptN:
+                GetData("Add|MyDumpOpt|"+MyDumpOptN)
             os.system(cmdcrondel)
             os.system(cmdcron)
-        elif ChmyN == "NO":
+        elif ChmyN == "NO" and Chmy == "YES":
             os.system(cmdcrondel)
-            print tDelCronResult
         else: 
             pass
+        print tEndofUpdate
     elif choice in no:
         print tBye
         return exit(1)

@@ -80,6 +80,7 @@ ExampleExDB = "example["+DBexDef+"] "
 tStatus = "Status: "
 tDelCronResult = "Cron job sbcl.py has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
+tEndofUpdate = "Configuration has been modified"
 
 
 def Yellow(data):
@@ -301,6 +302,7 @@ def MongoUpdate(Name):
         else:
             os.system(cmdcrondel)
             print tDelCronResult
+        print Yellow(tEndofUpdate)
     elif choice in no:
         print tBye
         return exit(1)

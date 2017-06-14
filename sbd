@@ -236,7 +236,7 @@ def worker():
 def Q():
     global q
     q = Queue.Queue(0)
-    for i in range():
+    for i in range(SB.Num_thread):
         t = threading.Thread(target=worker)
         t.daemon = True
         t.start()
