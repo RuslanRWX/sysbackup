@@ -17,7 +17,7 @@ global LogDirListen
 global IP
 global Port
 global TimeCheck
-
+global PublickKey
 
 MongoConnect = config.get('Main', 'MongoConnect')
 DBs = config.get('Main',  'DBs')
@@ -31,6 +31,7 @@ LogDir = config.get('Main', 'LogDir')
 IP = config.get('Main', 'ListenIP')
 Port = config.get('Main', 'ListenPort')
 TimeCheck = int(config.get('Main', 'TimeCheck'))
+PublickKey = config.get('Main', 'PublickKey')
 
 
 def MongoCon():

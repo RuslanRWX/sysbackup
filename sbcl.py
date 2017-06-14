@@ -91,7 +91,7 @@ tDelCronResult = "Cron job sbcl.py has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
 tEndofUpdate = "Configuration has been modified"
 
-print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
+#print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
 if not os.path.exists(logdir):
     os.makedirs(logdir)
 with open(logdir+"/sbclient.error.log", 'w'): pass
@@ -336,6 +336,7 @@ if __name__ == '__main__':
         elif sys.argv[1] == 'list':
             list()
         elif sys.argv[1] == 'backup':
+            
             print "Send command to backup"
             GetData("Add|Status|needbackup")
         elif sys.argv[1] == 'update':
