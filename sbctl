@@ -45,7 +45,7 @@ tDuD = 'Do you really want to delete host? '
 tDirBInc = "Mysqlump directory: "
 tDoUBackupMysql = "Do you want to backup MySQL? yes|no: "
 tResdf = "Result of \"df -h\" on your remote server"
-tInstClient = "Install a cleant for MySQL backuing "
+tInstClient = "A client for MySQL backuping has been installed to the remote host, sbcl.py"
 tDoUexdb = "Do you want to exclude any databases? yes|no: "
 tUdb = "Your databases: "
 tDBex = "Exclude databases: "
@@ -53,7 +53,7 @@ tChmy = "Backup mysql: "
 tMyDumpOpt = "MySQL dump options: "
 tMysqlLog = "MysqlLog: "
 tSbcltext = "Add a job in /etc/crontab, default: [ "
-tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py"
+tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py mysqldump"
 tSbcltext2 = " ] You can add other job, format for crontab file : "
 tDateStartMysql = "Mysqldump start localtime: "
 tDateStopMysql = "Mysqldump stop localtime: "
@@ -451,7 +451,7 @@ def help():
     \tse or search             - Search host name, example:sbctl search w1.host.com
     \tup or update             - Update data of host, example:sbctl update w1.host.com
     \trm or remove             - Remove host, example: delete w1.host.com
-    \tho or host               - Send command to host, example: sbctl host w1.host.com "ls -al /var/backup"
+    \tho or host               - Send command to remote host, example: sbctl host w1.host.com "ls -al /var/backup"
     \tbackup                   - Start backup, example: sbctl backup w1.host.com
     \n"""
 

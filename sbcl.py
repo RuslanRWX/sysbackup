@@ -62,7 +62,7 @@ tChmy = "Backup mysql: "
 tMyDumpOpt = "MySQL dump options: "
 tMysqlLog = "MysqlLog: "
 tSbcltext = "Add a job in /etc/crontab, default: [ "
-tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py"
+tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py mysqldump"
 tSbcltext2 = " ] You can add other job, format for crontab file : "
 tDateStartMysql = "Mysqldump start localtime: "
 tDateStopMysql = "Mysqldump stop localtime: "
@@ -142,7 +142,7 @@ def MysqlDump():
         cmd = "mysqldump {opt} {line} > {dir}/{line}.sql 2>> {logdir}/sbclient.error.log ".format(
             opt=Opt, line=line, dir=Dir, logdir=logdir)
         os.system(cmd)
-    if os.stat(logdir).st_size != 0:
+    if os.stat(logdir+"/sbclient.error.log").st_size > 0:
         GetData("Add|MysqlLog|Error")
     else:
         GetData("Add|MysqlLog|Not")
@@ -216,7 +216,6 @@ def list2():
     #print Res
     
 def update():
-    import re
     list()
     ChmyN = None
     ServerNameN = raw_input(
