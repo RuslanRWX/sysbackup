@@ -284,6 +284,10 @@ def MongoUpdate(Name):
         MyDumpOptN="Empty"
         DirsIncN="Empty"
         DBexN="Empty"
+    else:
+        MyDumpOptN=MyDumpOpt
+        DirsIncN=DirsInc
+        DBexN=DBex
     if CronN is not None:
         print CronN + tAddtoCron
     choice = raw_input(tDataCor).lower()
