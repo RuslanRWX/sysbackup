@@ -476,7 +476,7 @@ def main():
             Delete(sys.argv[2])
         elif sys.argv[1] == 'host' or sys.argv[1] == 'ho':
             Command(sys.argv[2], sys.argv[3])
-        elif sys.argv[1] == "backup":
+        elif sys.argv[1] == "reconf":
             cmd="sbd backup "+sys.argv[2]
             os.system(cmd)
         else:
