@@ -43,7 +43,7 @@ tDataCor = "Data are correct? yes|no: "
 tBye = "Bye!"
 tPlease = "Please respond with 'yes' or 'no'"
 tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"
-tDuD = 'Do you really want to delete host? '
+tDuD = "Do you really want to delete host 'yes' or 'no'? "
 tDirBInc = "Mysqlump directory: "
 tDoUBackupMysql = "Do you want to backup MySQL? yes|no: "
 tResdf = "Result of \"df -h\" on your remote server"
@@ -344,15 +344,7 @@ def add():
         print Yellow(tPlInR)
         return
     ServerName = ImCheck(tServName)
-    checkip="True"
-    while checkip:
-        ServerIP = raw_input(tServIP)
-        pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-        resultip=pat.match(ServerIP)
-        if resultip:
-            checkip=None
-        else:
-            checkip="True"
+    ServerIP = ImCheckIP(tServIP)
     User = ImCheck(
         tUser + Defroot, default=UserDef)
     ServerPort = ImCheck(tServPort + Defport,  default=PortDef)
@@ -436,10 +428,10 @@ def Delete(Name):
     #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
-    choice = InCheck(tDuD).lower()
+    choice = ImCheck(tDuD).lower()
     if choice in yes:
         SB.coll.remove({'_id': id})
-        choice = InCheck(tDuDel + SB.DirBackup+"/"+ServerName +" ").lower()
+        choice = ImCheck(tDuDel + SB.DirBackup+"/"+ServerName +" ").lower()
         if choice in yes:
             cmd="rm -fr {dir}".format(dir=SB.DirBackup+"/"+ServerName)
             os.system(cmd)
