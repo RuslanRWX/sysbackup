@@ -331,7 +331,6 @@ def MongoUpdate(Name):
 
 
 def add():
-    import re
     print Yellow(tNote)
     #import time
     #time.sleep(3)
