@@ -49,7 +49,7 @@ class Backup:
         self.Server = S
         self.Not_check = Not_check
 
-    def run(self):
+    def runs(self):
         SB.MongoCon()
         Mq = SB.coll.find()
         Server = self.Server
@@ -137,9 +137,9 @@ class Backup:
             time.sleep(3)
         except:
             pass
-        link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
-        #os.symlink(DirBL, Link)
-        os.system(link)
+        #link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
+        os.symlink(DirBL, Link)
+        #os.system(link)
         ISODateEnd = datetime.datetime.now().isoformat()
         DateUp = {"DateEnd": ISODateEnd , "Status": "Done" }
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
@@ -230,7 +230,7 @@ def worker():
     while True:
         item = q.get()
         Back = Backup(item)
-        Back.run()
+        Back.runs()
         q.task_done()
 
 
@@ -320,7 +320,7 @@ def main():
                 os.makedirs(tmp)
             Back = Backup(name,Not_check="YES")
             try:
-                Back.run()
+                Back.runs()
             except:
                print "Error: have not host like "+ sys.argv[2] +" !"
         else:
