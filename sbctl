@@ -198,9 +198,23 @@ def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
     print tFB, Frequency, "\n"+ tCleanB, CleanDate
 
 
-def Repl(data):
-    return data.replace(' ', '').replace('\t', '')
+def ImCheck(data, default=None, Empty=None):
+    Check = None
+    while Check is None:
+        Result=raw_input(data).replace(' ', '').replace('\t', '') or default
+        if Result != "" and Result is not None or Empty == "YES" :
+            Check="True"
+    return Result
 
+def ImCheckIP(data, default=None):
+    checkip="True"
+    while checkip:
+        Result=raw_input(data) or default
+        pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
+        resultip=pat.match(Result)
+        if resultip:
+            checkip=None
+    return Result
 
 def MongoUpdate(Name):
     CronN = None
@@ -214,39 +228,30 @@ def MongoUpdate(Name):
         return
     if Chmy == "NO":
         tRmDel = None
-    ServerNameN = raw_input(
-        tServName +Yellow(' [Now:' + ServerName + ']: ')) or ServerName
-    ServerNameN = Repl(ServerNameN)
-    checkip="True"
-    while checkip:
-        ServerIPN = raw_input(
-            tServIP + Yellow(' [Now:' + ServerIP + '] : ')) or ServerIP
-        pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-        resultip=pat.match(ServerIP)
-        if resultip:
-            checkip=None
-        else:
-            checkip="True"
-    UserN = raw_input(
-        tUser + Defroot +Yellow(' [Now:' + User + ']: ')) or User
-    ServerPortN = raw_input(
-        tServPort + Defport +Yellow(' [Now: ' + str(ServerPort) + ' ] : ')) or ServerPort
-    RsyncOptN = raw_input(
-        tOpR + Defop +Yellow(' [Now:' + RsyncOpt + ']: ')) or RsyncOpt
-    PrivN = raw_input(tPriy  +Yellow(' [ Now:' + str(Priv) + ' ]: ')) or Priv
-    DirsN = raw_input(tDir + ExampleDir +Yellow(' [ Now:' + Dirs + ' ]: ')) or Dirs
-    DirsExcludeN = raw_input(
-        tDirEx + ExampleDirEx +Yellow(' [ Now:' + DirsExclude + ']: ')) or DirsExclude
-    FrequencyN = int(raw_input(
-        tFB +Yellow(' [ Now:' + str(Frequency) + ' ]: ')) or Frequency)
-    CleanDateN = int(raw_input(
-        tCleanB + Yellow(' [ Now:' + str(CleanDate) + ' ]: ')) or CleanDate)
+    ServerNameN = ImCheck(
+        tServName +Yellow(' [Now:' + ServerName + ']: '),  default=ServerName)
+    ServerIPN = ImCheckIP(
+        tServIP + Yellow(' [Now:' + ServerIP + '] : '), default=ServerIP)
+    UserN = ImCheck(
+        tUser + Defroot +Yellow(' [Now:' + User + ']: '),  default=User)
+    ServerPortN = ImCheck(
+        tServPort + Defport +Yellow(' [Now: ' + str(ServerPort) + ' ] : '), default=ServerPort)
+    RsyncOptN = ImCheck(
+        tOpR + Defop +Yellow(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt)
+    PrivN = ImCheck(tPriy  + Yellow(' [ Now:' + str(Priv) + ' ]: '), default=Priv)
+    DirsN = ImCheck(tDir + ExampleDir +Yellow(' [ Now:' + Dirs + ' ]: '), default=Dirs)
+    DirsExcludeN = ImCheck(
+        tDirEx + ExampleDirEx +Yellow(' [ Now:' + DirsExclude + ']: '), default=DirsExclude,  Empty="YES")
+    FrequencyN = int(ImCheck(
+        tFB +Yellow(' [ Now:' + str(Frequency) + ' ]: '), default=Frequency))
+    CleanDateN = int(ImCheck(
+        tCleanB + Yellow(' [ Now:' + str(CleanDate) + ' ]: '), default=CleanDate))
     #PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
     #        PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
-    yes = set(['yes', 'y', 'ye', ''])
+    yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
     rm = set(['rm'])
-    choice = raw_input(tMysqlUpdate).lower()
+    choice = ImCheck(tMysqlUpdate).lower()
     connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPortN, User=UserN, IP=ServerIPN)
     cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
     if choice in rm:
@@ -254,7 +259,7 @@ def MongoUpdate(Name):
     elif choice in yes:
         ChmyN="YES"
         ChmyNReal="YES"
-        choicech = raw_input(Yellow(tCheckMy)).lower()
+        choicech = ImCheck(Yellow(tCheckMy)).lower()
         if choicech in yes:
             pass
         else:
@@ -270,8 +275,9 @@ def MongoUpdate(Name):
             DirsIncExample = DirIncDef
         else:
             DirsIncExample = DirsInc
-        DirsIncN = raw_input(
-                tDirBInc + ExampleIncDir  +Yellow(' [ Now:' + DirsInc + ' ]: ')) or DirsIncExample
+        DirsIncN = ImCheck(
+                tDirBInc + ExampleIncDir  +Yellow(' [ Now:' + DirsInc + ' ]: '), 
+                    default=DirsIncExample)
         print (Yellow(tUdb))
         os.system(cmddb)
         print (Yellow(tAOS))
@@ -279,13 +285,13 @@ def MongoUpdate(Name):
             DBexExample = DBexDef
         else:
             DBexExample = DBex
-        DBexN = raw_input(tDBex + ExampleExDB +Yellow('[Now: '+DBex+']: ')) or  DBexExample
+        DBexN = ImCheck(tDBex + ExampleExDB +Yellow('[Now: '+DBex+']: '), default=DBexExample,  Empty="YES")
         if MyDumpOpt == "Empty":
             MyDumpOptExample = MysqlOptDef
         else:
             MyDumpOptExample = MyDumpOpt
-        MyDumpOptN = raw_input(tMyDumpOpt + tDefMysqlOpt +Yellow('[Now:'+MyDumpOpt+']:' )) or MyDumpOptExample
-        CronN = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
+        MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +Yellow('[Now:'+MyDumpOpt+']:' ), default=MyDumpOptExample)
+        CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
         cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
         cmdcron = connect +" \"echo '" + CronN + "' >> /etc/crontab\""
     else:
@@ -298,7 +304,7 @@ def MongoUpdate(Name):
         DBexN="Empty"
     else:
         pass
-    choice = raw_input(tDataCor).lower()
+    choice = ImCheck(tDataCor).lower()
     if choice in yes:
         # print id
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN, 
@@ -329,20 +335,15 @@ def add():
     print Yellow(tNote)
     #import time
     #time.sleep(3)
-    yes = set(['yes', 'y', 'ye', ''])
+    yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
-    choicech = raw_input(tCheckRsync).lower()
+    choicech = ImCheck(tCheckRsync).lower()
     if choicech in yes:
         pass
     else:
         print Yellow(tPlInR)
         return
-    checkServer=None
-    while checkServer is None:
-        ServerName = raw_input(tServName)
-        ServerName = ServerName.replace(' ', '').replace('\t', '')
-        if ServerName != "":
-            checkServer="True"
+    ServerName = ImCheck(tServName)
     checkip="True"
     while checkip:
         ServerIP = raw_input(tServIP)
@@ -352,22 +353,22 @@ def add():
             checkip=None
         else:
             checkip="True"
-    User = raw_input(
-        tUser + Defroot) or UserDef
-    ServerPort = raw_input(tServPort + Defport) or PortDef
+    User = ImCheck(
+        tUser + Defroot, default=UserDef)
+    ServerPort = ImCheck(tServPort + Defport,  default=PortDef)
  #   ServerPort = ServerPort.replace(' ', '')
-    RsyncOpt = raw_input(tOpR + Defop) or RsyncOptDef
-    Priv = raw_input(tPriy + Defpri) or PrivDef
-    Dirs = raw_input(tDirB + ExampleDir + ": ") or DirsDef
-    DirsExclude = raw_input(
-        tDirBx + ExampleDirEx + ": ") or ''
+    RsyncOpt = ImCheck(tOpR + Defop, default=RsyncOptDef)
+    Priv = ImCheck(tPriy + Defpri,  default=PrivDef)
+    Dirs = ImCheck(tDirB + ExampleDir + ": ",  default=DirsDef)
+    DirsExclude = ImCheck(
+        tDirBx + ExampleDirEx + ": ",  default='',  Empty="YES")
     Frequency = int(
-        raw_input(tFB + DefFr) or FrequencyDef)
+        ImCheck(tFB + DefFr,  default=FrequencyDef))
     CleanDate = int(
-        raw_input(tCleanB + DefClean) or CleanDateDef)
+        ImCheck(tCleanB + DefClean,  default=CleanDateDef))
     #PrCheck(ServerName, User,  ServerIP, ServerPort,
     #        RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
-    choice = raw_input(tDataCor).lower()
+    choice = ImCheck(tDataCor).lower()
     if choice in yes:
         print Yellow(tAddsshKey)
         #time.sleep(3)
@@ -379,9 +380,9 @@ def add():
         os.system(cmd)
         os.system(cmdscp)
         os.system(cmdmklog)
-        choise = raw_input(tDoUBackupMysql).lower()
+        choise = ImCheck(tDoUBackupMysql).lower()
         if choise in yes:
-            choicech = raw_input(Yellow(tCheckMy)).lower()
+            choicech = ImCheck((Yellow(tCheckMy))).lower()
             if choicech in yes:
                 pass
             else:
@@ -391,20 +392,20 @@ def add():
             cmd=connect+" \"df -h\""
             print tResdf
             os.system(cmd)
-            DirsInc = raw_input(tDirBInc + '[default /var/backup]: ') or DirIncDef
+            DirsInc = ImCheck(tDirBInc + '[default /var/backup]: ', default=DirIncDef)
             cmdmk=connect+"\"mkdir -p {dir}\"".format(dir=DirsInc)
             cmdmklog=connect+"\"mkdir -p /var/log/sbclient\""
-            choice = raw_input(tDoUexdb).lower()
+            choice = ImCheck(tDoUexdb).lower()
             if choice in yes:
                 cmd=connect+" \"mysql -e 'show databases;'\""
                 print Yellow(tUdb)
                 os.system(cmd)
                 print (Yellow("##############"))
-                DBex = raw_input(tDBex + tdefExDb ) or DBexDef
+                DBex = ImCheck(tDBex + tdefExDb,   default=DBexDef,  Empty="YES")
             else:
                 DBex="Empty"
-            MyDumpOpt = raw_input(tMyDumpOpt + tDefMysqlOpt ) or MysqlOptDef
-            Cron = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
+            MyDumpOpt = ImCheck(tMyDumpOpt + tDefMysqlOpt, default=MysqlOptDef)
+            Cron = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
             cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
         else:
             Chmy="NO"
@@ -434,11 +435,11 @@ def Delete(Name):
         return
     #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes', 'y', 'ye'])
-    no = set(['no', 'n', ''])
-    choice = raw_input(tDuD).lower()
+    no = set(['no', 'n'])
+    choice = InCheck(tDuD).lower()
     if choice in yes:
         SB.coll.remove({'_id': id})
-        choice = raw_input(tDuDel + SB.DirBackup+"/"+ServerName +" ").lower()
+        choice = InCheck(tDuDel + SB.DirBackup+"/"+ServerName +" ").lower()
         if choice in yes:
             cmd="rm -fr {dir}".format(dir=SB.DirBackup+"/"+ServerName)
             os.system(cmd)
