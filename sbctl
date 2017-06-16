@@ -455,7 +455,7 @@ def help():
     \tadd or addhost           - Add host to backup
     \tl or  list               - List all hosts
     \tse or search             - Search host name, example:sbctl search w1.host.com
-    \tup or update             - Update data of host, example:sbctl update w1.host.com
+    \tre or reconf             - Reconfiguration of backup settings, example:sbctl update w1.host.com
     \trm or remove             - Remove host, example: delete w1.host.com
     \tho or host               - Send command to remote host, example: sbctl host w1.host.com "ls -al /var/backup"
     \tbackup                   - Start backup, example: sbctl backup w1.host.com

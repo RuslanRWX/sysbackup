@@ -324,7 +324,8 @@ def help():
     return """Help function: Basic Usage:
     \tmysqldump     - Start mysqldump
     \tlist          - list,show your configurations 
-    \tbackup         - Add status needbackup, it mean the backup server will start a backup script as fast as it can
+    \tbackup        - Add status needbackup, it mean the backup server will start a backup script as fast as it can
+    \treconf        - Reconfiguration of backup settings 
     """
 
 
@@ -338,7 +339,7 @@ if __name__ == '__main__':
             
             print "Send command to backup"
             GetData("Add|Status|needbackup")
-        elif sys.argv[1] == 'update':
+        elif sys.argv[1] == 'reconf':
             update()
         else:
             print help()
