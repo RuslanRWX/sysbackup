@@ -470,13 +470,13 @@ def main():
             MongoList()
         elif sys.argv[1] == 'search' or sys.argv[1] == 'se':
             MongoFind(sys.argv[2])
-        elif sys.argv[1] == 'update' or sys.argv[1] == 'up':
+        elif sys.argv[1] == 'reconf' or sys.argv[1] == 're':
             MongoUpdate(sys.argv[2])
         elif sys.argv[1] == 'remove' or sys.argv[1] == 'rm':
             Delete(sys.argv[2])
         elif sys.argv[1] == 'host' or sys.argv[1] == 'ho':
             Command(sys.argv[2], sys.argv[3])
-        elif sys.argv[1] == "reconf":
+        elif sys.argv[1] == "backup":
             cmd="sbd backup "+sys.argv[2]
             os.system(cmd)
         else:
