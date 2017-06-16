@@ -4,6 +4,8 @@
 import sys
 import SB
 import os
+import re
+
 
 # mail variables 
 MysqlOptDef = "--opt  --routines"
@@ -196,11 +198,14 @@ def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
     print tFB, Frequency, "\n"+ tCleanB, CleanDate
 
 
+def Repl(data):
+    return data.replace(' ', '').replace('\t', '')
+
+
 def MongoUpdate(Name):
-    import re
-    global Chmy
     CronN = None
     ChmyNReal = None
+    ChmyN = None
     MongoFindName(Name)
     if count == 0:
         return
@@ -208,7 +213,7 @@ def MongoUpdate(Name):
         tRmDel = None
     ServerNameN = raw_input(
         tServName +Yellow(' [Now:' + ServerName + ']: ')) or ServerName
-    ServerNameN = ServerNameN.replace(' ', '').replace('\t', '')
+    ServerNameN = Repl(ServerNameN)
     checkip="True"
     while checkip:
         ServerIPN = raw_input(
