@@ -288,11 +288,13 @@ def MongoUpdate(Name):
         MyDumpOptN="Empty"
         DirsIncN="Empty"
         DBexN="Empty"
-    else:
+    elif ChmyN is None:
         MyDumpOptN=MyDumpOpt
         DirsIncN=DirsInc
         DBexN=DBex
         ChmyN=Chmy
+    else:
+        pass
     choice = raw_input(tDataCor).lower()
     if choice in yes:
         # print id
