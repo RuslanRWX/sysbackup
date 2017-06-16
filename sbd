@@ -49,7 +49,7 @@ class Backup:
         self.Server = S
         self.Not_check = Not_check
 
-    def runs(self):
+    def run(self):
         SB.MongoCon()
         Mq = SB.coll.find()
         Server = self.Server
@@ -230,7 +230,7 @@ def worker():
     while True:
         item = q.get()
         Back = Backup(item)
-        Back.runs()
+        Back.run()
         q.task_done()
 
 
@@ -320,7 +320,7 @@ def main():
                 os.makedirs(tmp)
             Back = Backup(name,Not_check="YES")
             try:
-                Back.runs()
+                Back.run()
             except:
                print "Error: have not host like "+ sys.argv[2] +" !"
         else:
