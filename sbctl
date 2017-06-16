@@ -205,15 +205,11 @@ def Repl(data):
 def MongoUpdate(Name):
     CronN = None
     ChmyNReal = None
-    global ChmyN
-    ChmyN = None
-    global MyDumpOptN
-    MyDumpOptN = None
-    global DirsIncN
-    DirsIncN = None
-    global DBexN
-    DBexN = None
     MongoFindName(Name)
+    MyDumpOptN=MyDumpOpt
+    DirsIncN=DirsInc
+    DBexN=DBex
+    ChmyN=Chmy
     if count == 0:
         return
     if Chmy == "NO":
@@ -300,11 +296,6 @@ def MongoUpdate(Name):
         MyDumpOptN="Empty"
         DirsIncN="Empty"
         DBexN="Empty"
-    elif ChmyN is None:
-        MyDumpOptN=MyDumpOpt
-        DirsIncN=DirsInc
-        DBexN=DBex
-        ChmyN=Chmy
     else:
         pass
     choice = raw_input(tDataCor).lower()
