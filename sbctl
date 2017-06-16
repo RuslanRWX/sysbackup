@@ -158,7 +158,7 @@ def List(allservers):
             print Yellow(tLastDN + R['DateEnd'])
         print tDir + Dirs
         print tDirEx + DirsExclude
-        print Yellow(tFB,  Frequency)
+        print Yellow(tFB + str(Frequency))
         print tCleanB, CleanDate
         print tChmy, Chmy
         if Chmy == 'YES':
