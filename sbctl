@@ -306,9 +306,11 @@ def MongoUpdate(Name):
             os.system(cmdscp)
             os.system(cmdcrondel)
             os.system(cmdcron)
-        else:
+        elif CronN == "NO":
             os.system(cmdcrondel)
             print tDelCronResult
+        else:
+            pass
         print Yellow(tEndofUpdate)
     elif choice in no:
         print tBye
