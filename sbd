@@ -82,7 +82,7 @@ class Backup:
         #print "Name", Name
         #print "Check date: ", chdate
         #print "Date End: ", DateEnd
-        if DateEnd > chdate and self.Not_check == "NO" and Status == "Done":
+        if DateEnd > chdate and self.Not_check == "NO" and Status == "Done" or Status == "running":
             return
         if Chmy == "YES" and self.Not_check == "YES":
             cmdsbcl="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl.py mysqldump\""
