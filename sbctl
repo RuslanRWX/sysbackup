@@ -200,6 +200,7 @@ def MongoUpdate(Name):
     import re
     global Chmy
     CronN = None
+    ChmyNReal = None
     MongoFindName(Name)
     if count == 0:
         return
@@ -290,6 +291,7 @@ def MongoUpdate(Name):
         MyDumpOptN=MyDumpOpt
         DirsIncN=DirsInc
         DBexN=DBex
+        ChmyNReal=ChmyN
         ChmyN=Chmy
     choice = raw_input(tDataCor).lower()
     if choice in yes:
@@ -300,7 +302,7 @@ def MongoUpdate(Name):
                     "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN }
                 
         SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
-        if ChmyN == "YES":
+        if ChmyNReal is not None and ChmyNReal == "YES":
             os.system(cmdscp)
             os.system(cmdcrondel)
             os.system(cmdcron)
