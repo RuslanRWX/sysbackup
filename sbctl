@@ -280,6 +280,8 @@ def MongoUpdate(Name):
         cmdcron = connect +" \"echo '" + CronN + "' >> /etc/crontab\""
     else:
         pass
+    if CronN is not None:
+        print CronN + tAddtoCron
     if CronN is not None and ChmyN == "NO":
         MyDumpOptN="Empty"
         DirsIncN="Empty"
@@ -288,8 +290,7 @@ def MongoUpdate(Name):
         MyDumpOptN=MyDumpOpt
         DirsIncN=DirsInc
         DBexN=DBex
-    if CronN is not None:
-        print CronN + tAddtoCron
+        ChmyN=Chmy
     choice = raw_input(tDataCor).lower()
     if choice in yes:
         # print id
