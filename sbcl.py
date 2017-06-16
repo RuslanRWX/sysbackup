@@ -66,7 +66,7 @@ tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py mysqldump"
 tSbcltext2 = " ] You can add other job, format for crontab file : "
 tDateStartMysql = "Mysqldump start localtime: "
 tDateStopMysql = "Mysqldump stop localtime: "
-tMysqlUpdate = "Do you want ot configuration mysqldump on the remote host ? ['yes','no' or 'rm' (for remove) ]: "
+tMysqlUpdate = "Do you want to configuration mysqldump on the remote host ? ['yes','no' or 'rm' (for remove) ]: "
 tNote = """Note that rsync must be installed on your remote server.
 If you using mysql backup, please, check that mysqldump is installed and a local configuration file ~/.my.cnf is configured """
 tCheckRsync = "Is the Rsync installed on your remote server ? ['yes' or 'no']: "
@@ -95,6 +95,15 @@ tEndofUpdate = "Configuration has been modified"
 if not os.path.exists(logdir):
     os.makedirs(logdir)
 with open(logdir+"/sbclient.error.log", 'w'): pass
+
+
+def ImCheck(data, default=None, Empty=None):
+    Check = None
+    while Check is None:
+        Result=raw_input(data).replace(' ', '').replace('\t', '') or default
+        if Result != "" and Result is not None or Empty == "YES" :
+            Check="True"
+    return Result
 
 
 def GetData(data):
@@ -208,41 +217,34 @@ def list():
 def list2():
     data = GetData("GetAll|None")
     print data
-    #data = list(data)
-   # for R in list(data):
-   #     print R
-    #data= data.replace("[", "").replace("]", "").replace("u")
-    #Res = json.loads(data)
-    #print Res
     
 def update():
     list()
     ChmyN = None
-    ServerNameN = raw_input(
-        tServName + ' [Now:' + ServerName + ']: ') or ServerName
-    ServerNameN = ServerNameN.replace(' ', '').replace('\t', '')
-    UserN = raw_input(
-        tUser + Defroot + ' [Now:' + User + ']: ') or User
-    ServerPortN = raw_input(
-        tServPort + Defport + ' [Now: ' + str(ServerPort) + ' ] : ') or ServerPort
-    RsyncOptN = raw_input(
-        tOpR + Defop + ' [Now:' + RsyncOpt + ']: ') or RsyncOpt
-    PrivN = raw_input(tPriy  + ' [ Now:' + str(Priv) + ' ]: ') or Priv
-    DirsN = raw_input(tDir + ExampleDir +' [ Now:' + Dirs + ' ]: ') or Dirs
-    DirsExcludeN = raw_input(
-        tDirEx + ExampleDirEx + ' [ Now:' + DirsExclude + ']: ') or DirsExclude
-    FrequencyN = (raw_input(
-        tFB + ' [ Now:' + Frequency + ' ]: ') or Frequency)
-    yes = set(['yes', 'y', 'ye', ''])
+    ServerNameN = ImCheck(
+        tServName + ' [Now:' + ServerName + ']: ', default=ServerName)
+    UserN = ImCheck(
+        tUser + Defroot + ' [Now:' + User + ']: ', default=User)
+    ServerPortN = ImCheck(
+        tServPort + Defport + ' [Now: ' + str(ServerPort) + ' ] : ', default=ServerPort)
+    RsyncOptN = ImCheck(
+        tOpR + Defop + ' [Now:' + RsyncOpt + ']: ', default=RsyncOpt)
+    PrivN = ImCheck(tPriy  + ' [ Now:' + str(Priv) + ' ]: ', default=Priv)
+    DirsN = ImCheck(tDir + ExampleDir +' [ Now:' + Dirs + ' ]: ', default=Dirs)
+    DirsExcludeN = ImCheck(
+        tDirEx + ExampleDirEx + ' [ Now:' + DirsExclude + ']: ', default=DirsExclude, Empty="YES")
+    FrequencyN = ImCheck(
+        tFB + ' [ Now:' + Frequency + ' ]: ', default=Frequency)
+    yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
     rm = set(['rm'])
-    choice = raw_input(tMysqlUpdate).lower()
+    choice = ImCheck(tMysqlUpdate).lower()
     cmdcrondel = "sed -i '/sbcl.py/d' /etc/crontab"
     if choice in "rm":
         ChmyN="NO"
     elif choice in yes:
         ChmyN="YES"
-        choicech = raw_input(tCheckMy).lower()
+        choicech = ImCheck(tCheckMy).lower()
         if choicech in yes:
             pass
         else:
@@ -256,8 +258,8 @@ def update():
             DirsIncExample = DirIncDef
         else:
             DirsIncExample = DirsInc
-        DirsIncN = raw_input(
-            tDirBInc + ExampleIncDir  + ' [ Now:' + DirsInc + ' ]: ') or DirsIncExample
+        DirsIncN = ImCheck(
+            tDirBInc + ExampleIncDir  + ' [ Now:' + DirsInc + ' ]: ', default=DirsIncExample)
         print tUdb
         os.system(cmddb)
         print tAOS
@@ -265,13 +267,13 @@ def update():
             DBexExample = DBexDef
         else:
             DBexExample = DBex
-        DBexN = raw_input(tDBex + ExampleExDB + '[Now: '+DBex+']: ') or  DBexExample
+        DBexN = ImCheck(tDBex + ExampleExDB + '[Now: '+DBex+']: ', DBexExample,  Empty="YES")
         if MyDumpOpt == "Empty":
             MyDumpOptExample = MysqlOptDef
         else:
             MyDumpOptExample = MyDumpOpt
-        MyDumpOptN = raw_input(tMyDumpOpt + tDefMysqlOpt + '[Now:'+MyDumpOpt+']:' ) or MyDumpOptExample
-        CronN = raw_input(tSbcltext + tSbclCron + tSbcltext2) or tSbclCron
+        MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt + '[Now:'+MyDumpOpt+']:', default=MyDumpOptExample)
+        CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
         print CronN + tAddtoCron
         cmdcron = "echo \"" + CronN + "\" >> /etc/crontab"    
     else:
@@ -280,7 +282,7 @@ def update():
         MyDumpOptN="Empty"
         DirsIncN="Empty"
         DBexN="Empty"
-    choice = raw_input(tDataCor).lower()
+    choice = ImCheck(tDataCor).lower()
     if choice in yes:
         if ServerName != ServerNameN:
             GetData("Add|Name|"+ServerNameN)
