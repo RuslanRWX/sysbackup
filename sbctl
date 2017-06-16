@@ -205,10 +205,14 @@ def Repl(data):
 def MongoUpdate(Name):
     CronN = None
     ChmyNReal = None
+    global ChmyN
     ChmyN = None
-    MyDumpOptN=None
-    DirsIncN=None
-    DBexN=None
+    global MyDumpOptN
+    MyDumpOptN = None
+    global DirsIncN
+    DirsIncN = None
+    global DBexN
+    DBexN = None
     MongoFindName(Name)
     if count == 0:
         return
