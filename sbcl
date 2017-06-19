@@ -90,7 +90,7 @@ tStatus = "Status: "
 tDelCronResult = "Cron job sbcl has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
 tEndofUpdate = "Configuration has been modified"
-tMysqlReady = "MySQL ready: "
+tMysqlReady = "MySQLdump ready: "
 
 
 #print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
