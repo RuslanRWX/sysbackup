@@ -301,7 +301,7 @@ def MongoUpdate(Name):
             MyDumpOptExample = MyDumpOpt
         MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +Yellow('[Now:'+MyDumpOpt+']:' ), default=MyDumpOptExample)
         CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
-        cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
+        cmdcrondel = connect + " \"sed -i /sbcl/d /etc/crontab \""
         cmdcron = connect +" \"echo '" + CronN + "' >> /etc/crontab\""
     else:
         pass
