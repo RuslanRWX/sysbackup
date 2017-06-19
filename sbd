@@ -89,7 +89,7 @@ class Backup:
             os.system(cmdsbcl)
             time.sleep(3)
         if R["MysqlReady"] == "NO" and Chmy == "YES":
-            text = "Mysqldump is not ready"
+            text = "\n"+Name+": Mysqldump is not ready"
             log(text)
             print text
             return

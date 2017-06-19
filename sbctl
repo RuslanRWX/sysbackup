@@ -435,10 +435,10 @@ def Delete(Name):
     #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
-    choice = ImCheck(tDuD).lower()
+    choice = ImCheck(Yellow(tDuD)).lower()
     if choice in yes:
         SB.coll.remove({'_id': id})
-        choice = ImCheck(tDuDel + SB.DirBackup+"/"+ServerName +" ").lower()
+        choice = ImCheck(Yellow(tDuDel + SB.DirBackup+"/"+ServerName +" ")).lower()
         if choice in yes:
             cmd="rm -fr {dir}".format(dir=SB.DirBackup+"/"+ServerName)
             os.system(cmd)
