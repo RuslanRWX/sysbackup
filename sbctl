@@ -83,6 +83,7 @@ tStatus = "Status: "
 tDelCronResult = "Cron job sbcl.py has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
 tEndofUpdate = "Configuration has been modified"
+tMysqlReady = "MySQL ready: "
 
 
 def Yellow(data):
@@ -96,7 +97,7 @@ def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt,
     data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort, 
         "RsyncOpt": RsyncOpt, "Priv": Priv, "Dirs": Dirs, "DirsExclude": DirsExclude, "DateStart": "", 
             "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, "Chmy": Chmy, "MyDumpOpt": MyDumpOpt, 
-                "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady":"", "MysqlLog":"", "DateStartMySQL":"", 
+                "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady":"Empty", "MysqlLog":"", "DateStartMySQL":"", 
                     "DateStopMySQL":"", "Status":"Never"  }]
                     
     SB.coll.insert(data, True)
@@ -142,6 +143,8 @@ def List(allservers):
         DirsInc = str(R["DirsInc"])
         global MysqlLog
         MysqlLog = R["MysqlLog"]
+        global MysqlReady
+        MysqlReady = R["MysqlReady"]
         
         print tStart
         print (Fore.YELLOW + tServName + ServerName)
@@ -167,6 +170,10 @@ def List(allservers):
             print tMyDumpOpt + MyDumpOpt
             if MysqlLog == "Error":
                 print (Fore.RED + tMysqlLog + MysqlLog + Style.RESET_ALL) 
+            if MysqlReady == "YES":
+                print tMysqlReady + MysqlReady
+            else:
+                print (Fore.RED + tMysqlReady + MysqlReady + Style.RESET_ALL)
             print tDateStartMysql + R['DateStartMySQL']
             print tDateStopMysql + R['DateStopMySQL']+"\n"
     print tAOS, count
@@ -302,6 +309,7 @@ def MongoUpdate(Name):
         MyDumpOptN="Empty"
         DirsIncN="Empty"
         DBexN="Empty"
+        MysqlReady="Empty"
     else:
         pass
     choice = ImCheck(tDataCor).lower()
@@ -310,7 +318,7 @@ def MongoUpdate(Name):
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN, 
             "RsyncOpt": RsyncOptN, "Dirs": DirsN, "DirsExclude": DirsExcludeN, "Priv": PrivN,  
                 "Frequency": FrequencyN, "CleanDate": CleanDateN,"DirsInc": DirsIncN, "DBex": DBexN, 
-                    "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN }
+                    "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN, "MysqlReady":MysqlReady }
                 
         SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
         if ChmyNReal == "YES":

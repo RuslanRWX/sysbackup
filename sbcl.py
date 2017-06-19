@@ -90,6 +90,8 @@ tStatus = "Status: "
 tDelCronResult = "Cron job sbcl.py has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
 tEndofUpdate = "Configuration has been modified"
+tMysqlReady = "MySQL ready: "
+
 
 #print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
 if not os.path.exists(logdir):
@@ -190,6 +192,9 @@ def list():
         DirsInc = str(GetData("Get|DirsInc"))
         global MysqlLog
         MysqlLog = GetData("Get|MysqlLog")
+        global MysqlReady
+        MysqlReady  = GetData("Get|MysqlReady")
+        
         print tStart
         print tServName,  ServerName
         print tUser,  User
@@ -209,7 +214,8 @@ def list():
             print tDBex + DBex
             print tMyDumpOpt + MyDumpOpt
             if MysqlLog == "Error":
-                print tMysqlLog + MysqlLog 
+                print tMysqlLog + MysqlLog
+            print tMysqlReady + MysqlReady
             print tDateStartMysql + GetData("Get|DateStartMySQL")
             print tDateStopMysql + GetData("Get|DateStopMySQL")+"\n"
         print tAOS
