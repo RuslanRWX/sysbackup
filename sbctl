@@ -47,7 +47,7 @@ tDuD = "Do you really want to delete host 'yes' or 'no'? "
 tDirBInc = "Mysqlump directory: "
 tDoUBackupMysql = "Do you want to backup MySQL? yes|no: "
 tResdf = "Result of \"df -h\" on your remote server"
-tInstClient = "A client for MySQL backuping has been installed to the remote host, sbcl.py"
+tInstClient = "A client for MySQL backuping has been installed to the remote host, sbcl"
 tDoUexdb = "Do you want to exclude any databases? yes|no: "
 tUdb = "Your databases: "
 tDBex = "Exclude databases: "
@@ -55,7 +55,7 @@ tChmy = "Backup mysql: "
 tMyDumpOpt = "MySQL dump options: "
 tMysqlLog = "MysqlLog: "
 tSbcltext = "Add a job in /etc/crontab, default: [ "
-tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py mysqldump"
+tSbclCron = "0 0    * * * root /usr/sbin/sbcl mysqldump"
 tSbcltext2 = " ] You can add other job, format for crontab file : "
 tDateStartMysql = "Mysqldump start localtime: "
 tDateStopMysql = "Mysqldump stop localtime: "
@@ -80,7 +80,7 @@ ExampleDirEx = "example["+DirExDef+"] "
 ExampleIncDir = "example["+DirIncDef+"] " 
 ExampleExDB = "example["+DBexDef+"] "
 tStatus = "Status: "
-tDelCronResult = "Cron job sbcl.py has been removed on the remote host"
+tDelCronResult = "Cron job sbcl has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
 tEndofUpdate = "Configuration has been modified"
 tMysqlReady = "MySQL ready: "
@@ -274,7 +274,7 @@ def MongoUpdate(Name):
         else:
             print Yellow(tPlconfMy)
             return
-        cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPortN,
+        cmdscp="scp -P{Port} /usr/share/sbcl/sbcl {User}@{IP}:/usr/sbin/".format(Port=ServerPortN,
             User=UserN, IP=ServerIPN)
         cmddb=connect+" \"mysql -e 'show databases;'\""
         cmddf=connect+" \"df -h\""
@@ -375,7 +375,7 @@ def add():
         #time.sleep(3)
         connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
         cmd="cat "+SB.PublickKey+" | "+connect+" \"mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys\""
-        cmdscp="scp -P{Port} /usr/share/sbcl/sbcl.py {User}@{IP}:/usr/sbin/".format(Port=ServerPort,
+        cmdscp="scp -P{Port} /usr/share/sbcl/sbcl {User}@{IP}:/usr/sbin/".format(Port=ServerPort,
             User=User, IP=ServerIP)
         cmdmklog=connect+"\"mkdir -p /var/log/sbclient\""
         os.system(cmd)

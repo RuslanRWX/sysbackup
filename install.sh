@@ -25,8 +25,8 @@ systemctl daemon-reload
 
 cp sbd.logrotate  /etc/logrotate.d/
 if [ ! -d /usr/share/sbcl ]; then { mkdir -p /usr/share/sbcl; } fi 
-cp sbcl.py /usr/share/sbcl/
-sed -i "s/127\.0\.0\.1/$ServIP/" /usr/share/sbcl/sbcl.py
+cp sbcl /usr/share/sbcl/
+sed -i "s/127\.0\.0\.1/$ServIP/" /usr/share/sbcl/sbcl
 sed -i "s/127\.0\.0\.1/$ServIP/" /etc/sbd/sbd.ini
 
 

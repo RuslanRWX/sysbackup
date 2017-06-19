@@ -62,7 +62,7 @@ tChmy = "Backup mysql: "
 tMyDumpOpt = "MySQL dump options: "
 tMysqlLog = "MysqlLog: "
 tSbcltext = "Add a job in /etc/crontab, default: [ "
-tSbclCron = "0 0    * * * root /usr/sbin/sbcl.py mysqldump"
+tSbclCron = "0 0    * * * root /usr/sbin/sbcl mysqldump"
 tSbcltext2 = " ] You can add other job, format for crontab file : "
 tDateStartMysql = "Mysqldump start localtime: "
 tDateStopMysql = "Mysqldump stop localtime: "
@@ -87,7 +87,7 @@ ExampleDirEx = "example["+DirExDef+"] "
 ExampleIncDir = "example["+DirIncDef+"] " 
 ExampleExDB = "example["+DBexDef+"] "
 tStatus = "Status: "
-tDelCronResult = "Cron job sbcl.py has been removed on the remote host"
+tDelCronResult = "Cron job sbcl has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
 tEndofUpdate = "Configuration has been modified"
 tMysqlReady = "MySQL ready: "
@@ -245,7 +245,7 @@ def update():
     no = set(['no', 'n'])
     rm = set(['rm'])
     choice = ImCheck(tMysqlUpdate).lower()
-    cmdcrondel = "sed -i '/sbcl.py/d' /etc/crontab"
+    cmdcrondel = "sed -i '/sbcl/d' /etc/crontab"
     if choice in "rm":
         ChmyN="NO"
     elif choice in yes:
