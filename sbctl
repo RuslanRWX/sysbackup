@@ -501,7 +501,7 @@ def help():
     \trm or remove             - Remove host, example: delete w1.host.com
     \tho or host               - Send command to remote host, example: sbctl host w1.host.com "ls -al /var/backup"
     \tbackup                   - Start backup, example: sbctl backup w1.host.com
-    \tstatus                   - Status update, example: sbctl statup w1.host.com Done/Disabled/needbackup
+    \tstatus                   - Status update, example: sbctl status w1.host.com Done/Disabled/needbackup
     \t   status Done           - Backup is done
     \t   status Disabled       - Not backup this server
     \t   status needbackup     - Need to backup 

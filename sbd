@@ -189,7 +189,7 @@ class Backup:
 def CreateQ():
     ServersQ = {}
     SB.MongoCon()
-    Mq = SB.coll.find().sort('Priv',  1)
+    Mq = SB.coll.find({ "Status" : { "$ne": "Disabled" } }).sort('Priv',  1)
     allservers = list(Mq)
     return allservers
 
