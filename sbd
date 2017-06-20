@@ -84,6 +84,10 @@ class Backup:
         #print "Date End: ", DateEnd
         if DateEnd > chdate and self.Not_check == "NO" and Status == "Done" or Status == "running":
             return
+        if Status == "running":
+            tbackuprun="Backup already running"
+            log(tbackuprun)
+            print tbackuprun
         if Chmy == "YES" and self.Not_check == "YES":
             cmdsbcl="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl mysqldump\""
             os.system(cmdsbcl)
@@ -107,7 +111,7 @@ class Backup:
         text=text.format(time=datetime.datetime.now(), name=Name,user=User,ip=ServerIP,port=ServerPort,rsyncOpt=RsyncOpt,dirs=Dirs,dirE=DirsExclude,dateS=DateStart)
         #print text
         log(text)
-        DateUp = {"DateStart": ISODateStart ,  "Status": "running" }
+        DateUp = {"DateStart": ISODateStart ,  "Status": "running", "DateEnd": "" }
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
         DirB = SB.DirBackup + "/" + Name
         DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
@@ -122,7 +126,13 @@ class Backup:
             RD = re.sub(r'\/$', '', RD)
             cmdrsync = "/usr/bin/rsync  {rsopt} --relative --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
                 port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
-            os.system(cmdrsync)
+            code=os.system(cmdrsync)
+            if code > 0:
+                log(Name+" rsync error!")
+                DateUp = {"Status": "rsync error" }
+                SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
+                return
+            #   log("error")
             #print cmdrsync
         if Chmy == "YES":
             cmdrsyncmysql =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,

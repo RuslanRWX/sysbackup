@@ -39,7 +39,7 @@ tHavenot = "Haven't got any host !\nBye "
 tCheckInf = "Check information\nName: "
 tDir = "Directory :"
 tDirEx = "Exclude directory :"
-tDataCor = "Data are correct? yes|no: "
+tDataCor = "Are these data correct ? yes|no: "
 tBye = "Bye!"
 tPlease = "Please respond with 'yes' or 'no'"
 tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"
@@ -84,11 +84,22 @@ tDelCronResult = "Cron job sbcl has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
 tEndofUpdate = "Configuration has been modified"
 tMysqlReady = "MySQLdump ready: "
-
+tUsestat = "\n\nPlease, use Done/Disabled/needbackup. Examlpe: sbctl statup w1.host.com Done"
+tStatdone = "\n\nStatus has been updated"
 
 def Yellow(data):
     from colorama import Fore, Style
     return (Fore.YELLOW + data + Style.RESET_ALL)
+
+
+def Red(data): 
+    from colorama import Fore, Style
+    return (Fore.RED + data + Style.RESET_ALL)
+
+def White(data): 
+    from colorama import Fore, Style
+    return (Fore.WHITE + data + Style.RESET_ALL)
+
 
 
 def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt,
@@ -147,14 +158,18 @@ def List(allservers):
         MysqlReady = R["MysqlReady"]
         
         print tStart
-        print (Fore.YELLOW + tServName + ServerName)
-        print tServIP,  ServerIP
-        print(Style.RESET_ALL)
+        print White(tServName + ServerName)
+        print White(str(tServIP +  ServerIP+"\n"))
         print tUser, User
         print tServPort, ServerPort
         print tPriy, Priv
         print tOpR + RsyncOpt
-        print tStatus  + Status
+        if Status == "rsync error":
+            print Red(tStatus  + Status)
+        elif Status == "running":
+            print Yellow(tStatus  + Status)
+        else:
+            print tStatus  + Status
         if R['DateStart']:
             print tLastD + R['DateStart']
         if R['DateEnd']:
@@ -169,11 +184,11 @@ def List(allservers):
             print tDBex + DBex
             print tMyDumpOpt + MyDumpOpt
             if MysqlLog == "Error":
-                print (Fore.RED + tMysqlLog + MysqlLog + Style.RESET_ALL) 
+                print Red(tMysqlLog + MysqlLog) 
             if MysqlReady == "YES":
                 print tMysqlReady + MysqlReady
             else:
-                print (Fore.RED + tMysqlReady + MysqlReady + Style.RESET_ALL)
+                print Red(tMysqlReady + MysqlReady )
             print tDateStartMysql + R['DateStartMySQL']
             print tDateStopMysql + R['DateStopMySQL']+"\n"
     print tAOS, count
@@ -459,6 +474,23 @@ def Command(Serv, Args):
     except:
         return
     
+    
+def Status(Name, Stat):
+    SB.MongoCon()
+    allservers = list(SB.coll.find({"Name": Name}))
+    List(allservers)
+    if Stat == "Done":
+        Value="Done"
+    elif Stat == "Disabled":
+        Value="Disabled"
+    elif Stat == "needbackup":
+        Value="needbackup"
+    else:
+        return tUsestat
+    data = { "Status": Value }
+    SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
+    return tStatdone
+
 
 def help():
     return """Help function: Basic Usage:
@@ -469,6 +501,11 @@ def help():
     \trm or remove             - Remove host, example: delete w1.host.com
     \tho or host               - Send command to remote host, example: sbctl host w1.host.com "ls -al /var/backup"
     \tbackup                   - Start backup, example: sbctl backup w1.host.com
+    \tstatus                   - Status update, example: sbctl statup w1.host.com Done/Disabled/needbackup
+    \t   status Done           - Backup is done
+    \t   status Disabled       - Not backup this server
+    \t   status needbackup     - Need to backup 
+    \thelp                     - Help
     \n"""
 
 
@@ -489,6 +526,8 @@ def main():
         elif sys.argv[1] == "backup":
             cmd="sbd backup "+sys.argv[2]
             os.system(cmd)
+        elif sys.argv[1] == "status":
+            print Status(sys.argv[2], sys.argv[3])
         else:
             print help()
     except IndexError:
