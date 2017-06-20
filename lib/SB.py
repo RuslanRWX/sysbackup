@@ -13,6 +13,7 @@ global Num_thread
 global DirBackup
 global Pidfile
 global Log
+global LogError
 global LogDirListen
 global IP
 global Port
@@ -27,6 +28,7 @@ DirBackup = config.get('Main', 'DirBackup')
 Pidfile = config.get('Main', 'Pidfile')
 tmp = config.get('Main', 'tmp')
 Log = config.get('Main', 'Log')
+LogError = config.get('Main', 'LogError')
 LogDir = config.get('Main', 'LogDir')
 IP = config.get('Main', 'ListenIP')
 Port = config.get('Main', 'ListenPort')

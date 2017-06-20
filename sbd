@@ -39,10 +39,11 @@ def DateCheck(checkdate):
     #dateCh = "%s000000" % (date)
     return date
 
-def log(text):
-    logf = open(SB.Log,"a")
+def log(text, file):
+    logf = open(file,"a")
     logf.write(text)
     logf.close()
+    
 
 class Backup:
     def __init__(self, S, Not_check = "NO"):
@@ -85,8 +86,8 @@ class Backup:
         if DateEnd > chdate and self.Not_check == "NO" and Status == "Done" or Status == "running":
             return
         if Status == "running":
-            tbackuprun="Backup already running"
-            log(tbackuprun)
+            tbackuprun=Name+" Backup already running"
+            log(tbackuprun, SB.Log)
             print tbackuprun
         if Chmy == "YES" and self.Not_check == "YES":
             cmdsbcl="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl mysqldump\""
@@ -94,7 +95,7 @@ class Backup:
             time.sleep(3)
         if R["MysqlReady"] == "NO" and Chmy == "YES":
             text = "\n"+Name+": Mysqldump is not ready"
-            log(text)
+            log(text, SB.Log)
             print text
             return
         CreateTmpFiles(Name, Dirs, DirsExclude)
@@ -110,7 +111,7 @@ class Backup:
         DateStart : {dateS}\n"""
         text=text.format(time=datetime.datetime.now(), name=Name,user=User,ip=ServerIP,port=ServerPort,rsyncOpt=RsyncOpt,dirs=Dirs,dirE=DirsExclude,dateS=DateStart)
         #print text
-        log(text)
+        log(text, SB.Log)
         DateUp = {"DateStart": ISODateStart ,  "Status": "running", "DateEnd": "" }
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
         DirB = SB.DirBackup + "/" + Name
@@ -128,17 +129,19 @@ class Backup:
                 port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
             code=os.system(cmdrsync)
             if code > 0:
-                log(Name+" rsync error!")
+                log(Name+" rsync error!", SB.LogError)
                 DateUp = {"Status": "rsync error" }
                 SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
                 return
-            #   log("error")
-            #print cmdrsync
         if Chmy == "YES":
             cmdrsyncmysql =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
                 port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
-            #print cmdrsyncmysql
-            os.system(cmdrsyncmysql)
+            code=os.system(cmdrsyncmysql)
+            if code > 0:
+                log(Name+" rsync error, mysql directory!", SB.LogError)
+                DateUp = {"Status": "rsync error" }
+                SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
+                return
         #print DirBL
         #print DirB
         Link = DirB + "/" + "Latest"
@@ -158,7 +161,7 @@ class Backup:
         Server name: {name}
         DateEnd : {date}"""
         text=text.format(time=datetime.datetime.now(), name=Name, date=DateEnd)
-        log(text)
+        log(text, SB.Log)
         #cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
         #    DirB, CleanDate)
         Drs=set()
@@ -265,7 +268,7 @@ def Check():
         os.makedirs(LogDir)
     if os.path.isfile(SB.Pidfile):
         text="\n{pd} already exists, exiting \n".format(pd=SB.Pidfile)
-        log(text)
+        log(text, SB.Log)
         print text
         return sys.exit(1)
     else:
@@ -283,7 +286,7 @@ def help():
 
 def Stop():
     text="\nStoped sbd {date}\n".format(date=datetime.datetime.now())
-    log(text)
+    log(text, SB.Log)
     print text
     if os.path.isfile(SB.Pidfile):
         f=open(SB.Pidfile, "r")
@@ -299,17 +302,17 @@ def Stop():
 
 def Start():
     text="\nStart sbd version:{ver}, date: {date}\n".format(ver=Ver, date=datetime.datetime.now())
-    log(text)
+    log(text, SB.Log)
     print text
     t = threading.Thread(target=API)
     t.daemon = True
     t.start()
     while True:
         text="\nStart queue, date: {date}".format(date=datetime.datetime.now())
-        log(text)
+        log(text, SB.Log)
         Q()
         text="\nQueue is done, date: {date}\n".format(date=datetime.datetime.now())
-        log(text)
+        log(text, SB.Log)
         time.sleep(SB.TimeCheck)
 
 
