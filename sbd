@@ -194,7 +194,7 @@ def CreateQ():
     return allservers
 
 def API():
-    import socket
+    import socket, pickle
     SERVER_ADDRESS = SB.IP
     SERVER_PORT = int(SB.Port)
     s = socket.socket()
@@ -230,10 +230,10 @@ def API():
                     SB.coll.update({"ServerIP": addr[0] }, {"$set": DateUp}, upsert=False)
                     DataResult="End"
                 elif data[0] == "GetAll":
-                    DataResult = str(list(SB.coll.find({"ServerIP": addr[0]})))
+                    DataResult = list(SB.coll.find({"ServerIP": addr[0]}))
                 else:
                     DataResult="Error api: "
-                DataResult.encode()
+                DataResult=pickle.dumps(DataResult).encode()
                 c.send(DataResult)
             c.close()
         except:

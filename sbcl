@@ -164,65 +164,77 @@ def MysqlDump():
 
 
 def list():
-        global ServerName
-        ServerName = GetData("Get|Name")
-        global User
-        User = GetData("Get|User")
-        global ServerPort
-        ServerPort = GetData("Get|ServerPort")
-        global Priv
-        Priv = GetData("Get|Priv")
-        global RsyncOpt
-        RsyncOpt = GetData("Get|RsyncOpt")
-        global Dirs
-        Dirs = GetData("Get|Dirs")
-        global DirsExclude
-        DirsExclude = GetData("Get|DirsExclude")
-        global Frequency
-        Frequency = GetData("Get|Frequency")
-        global CleanDate
-        CleanDate = GetData("Get|CleanDate")
-        global Chmy
-        Chmy = GetData("Get|Chmy")
-        global DBex
-        DBex = GetData("Get|DBex")
-        global MyDumpOpt
-        MyDumpOpt = GetData("Get|MyDumpOpt")
-        global DirsInc
-        DirsInc = str(GetData("Get|DirsInc"))
-        global MysqlLog
-        MysqlLog = GetData("Get|MysqlLog")
-        global MysqlReady
-        MysqlReady  = GetData("Get|MysqlReady")
-        
-        print tStart
-        print tServName,  ServerName
-        print tUser,  User
-        print tServPort,  ServerPort
-        print tPriy,  Priv
-        print tOpR + RsyncOpt
-        print tStatus  + GetData("Get|Status")
-        print tLastD + GetData("Get|DateStart")
-        print tLastDN + GetData("Get|DateEnd")
-        print tDir + Dirs
-        print tDirEx + DirsExclude
-        print tFB,  Frequency
-        print tCleanB, CleanDate
-        print tChmy, Chmy
-        if Chmy == 'YES':
-            print tDirBInc + DirsInc
-            print tDBex + DBex
-            print tMyDumpOpt + MyDumpOpt
-            if MysqlLog == "Error":
-                print tMysqlLog + MysqlLog
-            print tMysqlReady + MysqlReady
-            print tDateStartMysql + GetData("Get|DateStartMySQL")
-            print tDateStopMysql + GetData("Get|DateStopMySQL")+"\n"
-        print tAOS
-
-def list2():
+    import pickle
     data = GetData("GetAll|None")
-    print data
+    R=pickle.loads(data)
+    global ServerName
+    ServerName = R[0]['Name']
+    global User
+    User = R[0]['User']
+    global ServerIP
+    ServerIP = R[0]['ServerIP']
+    global ServerPort
+    ServerPort = R[0]['ServerPort']
+    global Priv
+    Priv = R[0]['Priv']
+    global RsyncOpt
+    RsyncOpt = R[0]['RsyncOpt']
+    global Dirs
+    Dirs = R[0]['Dirs']
+    global DirsExclude
+    DirsExclude = R[0]['DirsExclude']
+    global Frequency
+    Frequency = str(R[0]['Frequency'])
+    global id
+    id = R[0]['_id']
+    global Status
+    Status = R[0]['Status']
+    global Chmy
+    Chmy = R[0]['Chmy']
+    global DBex
+    DBex = R[0]['DBex']
+    global MyDumpOpt
+    MyDumpOpt = R[0]["MyDumpOpt"]
+    global DirsInc
+    DirsInc = str(R[0]["DirsInc"])
+    global MysqlLog
+    MysqlLog = R[0]["MysqlLog"]
+    global MysqlReady
+    MysqlReady = R[0]["MysqlReady"]
+        
+    print tStart
+    print tServName + ServerName
+    print tUser, User
+    print tPriy, Priv
+    print tOpR + RsyncOpt
+    if Status == "rsync error":
+        print tStatus  + Status
+    elif Status == "running":
+        print tStatus  + Status
+    else:
+        print tStatus  + Status
+    if R[0]['DateStart']:
+        print tLastD + R[0]['DateStart']
+    if R[0]['DateEnd']:
+        print tLastDN + R[0]['DateEnd']
+    print tDir + Dirs
+    print tDirEx + DirsExclude
+    print tFB + str(Frequency)
+    print tChmy, Chmy
+    if Chmy == 'YES':
+        print tDirBInc + DirsInc
+        print tDBex + DBex
+        print tMyDumpOpt + MyDumpOpt
+        if MysqlLog == "Error":
+            print tMysqlLog + MysqlLog 
+        if MysqlReady == "YES":
+            print tMysqlReady + MysqlReady
+        else:
+            print tMysqlReady + MysqlReady
+        print tDateStartMysql + R[0]['DateStartMySQL']
+        print tDateStopMysql + R[0]['DateStopMySQL']+"\n"
+    print tAOS
+    
     
 def update():
     list()
@@ -332,7 +344,7 @@ def help():
     return """Help function: Basic Usage:
     \tmysqldump     - Start mysqldump
     \tlist          - list,show your configurations 
-    \tbackup        - Add status needbackup, it mean the backup server will start a backup script as fast as it can
+    \tbackup        - Add status needbackup, it mean the backup server will start a backup script as soon as possible
     \treconf        - Reconfiguration of backup settings 
     """
 

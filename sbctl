@@ -254,11 +254,11 @@ def MongoUpdate(Name):
     ServerNameN = ImCheck(
         tServName +Yellow(' [Now:' + ServerName + ']: '),  default=ServerName)
     ServerIPN = ImCheckIP(
-        tServIP + Yellow(' [Now:' + ServerIP + '] : '), default=ServerIP)
+        tServIP + Yellow(' [Now:' + ServerIP + ']: '), default=ServerIP)
     UserN = ImCheck(
         tUser + Defroot +Yellow(' [Now:' + User + ']: '),  default=User)
     ServerPortN = ImCheck(
-        tServPort + Defport +Yellow(' [Now: ' + str(ServerPort) + ' ] : '), default=ServerPort)
+        tServPort + Defport +Yellow(' [Now: ' + str(ServerPort) + ' ]: '), default=ServerPort)
     RsyncOptN = ImCheck(
         tOpR + Defop +Yellow(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt)
     PrivN = ImCheck(tPriy  + Yellow(' [ Now:' + str(Priv) + ' ]: '), default=Priv)
@@ -527,7 +527,10 @@ def main():
             cmd="sbd backup "+sys.argv[2]
             os.system(cmd)
         elif sys.argv[1] == "status":
-            print Status(sys.argv[2], sys.argv[3])
+            try:
+                print Status(sys.argv[2], sys.argv[3])
+            except:
+                pass
         else:
             print help()
     except IndexError:
