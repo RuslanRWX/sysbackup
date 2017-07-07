@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.3.0
+# Version 0.3.1
 global Ver
-Ver = "0.3.0"
+Ver = "0.3.1"
 import os
 import threading
 import Queue
@@ -93,6 +93,7 @@ class Backup:
             cmdsbcl="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl mysqldump\""
             os.system(cmdsbcl)
             time.sleep(3)
+            DirsExclude=DirsExclude +","+DirsInc
         if R["MysqlReady"] == "NO" and Chmy == "YES":
             text = "\n"+Name+": Mysqldump is not ready"
             log(text, SB.Log)
@@ -182,7 +183,7 @@ class Backup:
                 #print path
                 cmdrm="/bin/rm -rf {p}".format(p=path)
                 os.system(cmdrm)
-        #text="\nStart clean the backup server\nCommand: {com}".format(com=cmdclean)
+        #text="\nStart clean the back            print Rup server\nCommand: {com}".format(com=cmdclean)
         #log(text)
 
 

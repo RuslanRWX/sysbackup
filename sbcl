@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.3.0
+# Version 0.3.1
 
 SERVER_ADDRESS = '127.0.0.1'
 SERVER_PORT = 29029
@@ -127,46 +127,13 @@ def GetData(data):
     return data
     c.close()
 
-
-def MysqlDump():
-    GetData("Add|MysqlReady|NO")
-    Ex = GetData("Get|DBex")
-    Dir = GetData("Get|DirsInc")
-    Opt = GetData("Get|MyDumpOpt")
-    Ex = Ex.split(",")
-    ISODateStart = datetime.datetime.now().isoformat()
-    GetData("Add|DateStartMySQL|"+ISODateStart)
-    GetData("Add|DateStopMySQL|None")
-    if Dir == "Empty":
-        print "Not configured on the backup server for mysqldump"
-        return
-    print "Start backup"
-    cmd="mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(file=tmpfile)
-    os.system(cmd)
-    if Ex != "Empty":
-        for R in Ex:
-            cmd="sed -i\"\" \"/{line}/d\" {file}".format(line=R, file=tmpfile)
-            os.system(cmd)
-    file = open(tmpfile, "r")
-    for line in file:
-        line = line.strip('\n')
-        cmd = "mysqldump {opt} {line} > {dir}/{line}.sql 2>> {logdir}/sbclient.error.log ".format(
-            opt=Opt, line=line, dir=Dir, logdir=logdir)
-        os.system(cmd)
-    if os.stat(logdir+"/sbclient.error.log").st_size > 0:
-        GetData("Add|MysqlLog|Error")
-    else:
-        GetData("Add|MysqlLog|Not")
-    GetData("Add|MysqlReady|YES")
-    ISODateStop = datetime.datetime.now().isoformat()
-    GetData("Add|DateStopMySQL|"+ISODateStop)
-    print "Mysqldump has been done"
-
-
-def list():
+def Pikle():
     import pickle
     data = GetData("GetAll|None")
-    R=pickle.loads(data)
+    return pickle.loads(data)
+
+def list():
+    R=Pikle()
     global ServerName
     ServerName = R[0]['Name']
     global User
@@ -234,7 +201,40 @@ def list():
         print tDateStartMysql + R[0]['DateStartMySQL']
         print tDateStopMysql + R[0]['DateStopMySQL']+"\n"
     print tAOS
-    
+  
+
+def MysqlDump():
+    R=Pikle()
+    Ex = R[0]['DBex']
+    Dir = R[0]['DirsInc']
+    Opt = R[0]['MyDumpOpt']
+    ISODateStart = datetime.datetime.now().isoformat()
+    GetData("Add|DateStartMySQL|"+ISODateStart)
+    GetData("Add|DateStopMySQL|None")
+    if Dir == "Empty":
+        print "Not configured on the backup server for mysqldump"
+        return
+    print "Start backup"
+    cmd="mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(file=tmpfile)
+    os.system(cmd)
+    if Ex != "Empty":
+        for R in Ex.split(","):
+            cmd="sed -i \"/{line}/d\" {file}".format(line=R, file=tmpfile)
+            os.system(cmd)
+    file = open(tmpfile, "r")
+    for line in file:
+        line = line.strip('\n')
+        cmd = "mysqldump {opt} {line} > {dir}/{line}.sql 2>> {logdir}/sbclient.error.log ".format(
+            opt=Opt, line=line, dir=Dir, logdir=logdir)
+        os.system(cmd)
+    if os.stat(logdir+"/sbclient.error.log").st_size > 0:
+        GetData("Add|MysqlLog|Error")
+    else:
+        GetData("Add|MysqlLog|Not")
+    GetData("Add|MysqlReady|YES")
+    ISODateStop = datetime.datetime.now().isoformat()
+    GetData("Add|DateStopMySQL|"+ISODateStop)
+    print "Mysqldump has been done"  
     
 def update():
     list()
