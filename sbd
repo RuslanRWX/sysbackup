@@ -298,8 +298,12 @@ def Stop():
         os.system('/usr/bin/pkill rsync')
         f.close()
         print "sbd is stopped"
+        DateUp = {"Status": "Stopped" }
+        SB.coll.update({"Status": "running"}, {"$set": DateUp}, upsert=False)
+
     else:
         print "sbd is not running"
+    
 
 
 def Start():
