@@ -297,10 +297,10 @@ def Stop():
         os.remove(SB.Pidfile)
         os.system('/usr/bin/pkill rsync')
         f.close()
-        print "sbd is stopped"
+        SB.MongoCon()
         DateUp = {"Status": "Stopped" }
         SB.coll.update({"Status": "running"}, {"$set": DateUp}, upsert=False)
-
+        print "sbd is stopped"
     else:
         print "sbd is not running"
     
