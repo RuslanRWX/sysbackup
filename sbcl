@@ -109,6 +109,7 @@ def ImCheck(data, default=None, Empty=None):
 
 
 def GetData(data):
+    import pickle
     c = socket.socket()
     c.connect((SERVER_ADDRESS, SERVER_PORT))
     # Convert string to bytes. (No-op for python2)
@@ -123,17 +124,13 @@ def GetData(data):
         return
 
     # Convert back to string for python3
-    data = data.decode()
+    data = pickle.loads(data.decode())
     return data
     c.close()
 
-def Pikle():
-    import pickle
-    data = GetData("GetAll|None")
-    return pickle.loads(data)
 
 def list():
-    R=Pikle()
+    R = GetData("GetAll|None")
     global ServerName
     ServerName = R[0]['Name']
     global User
@@ -204,7 +201,7 @@ def list():
   
 
 def MysqlDump():
-    R=Pikle()
+    R=GetData("GetAll|None")
     Ex = R[0]['DBex']
     Dir = R[0]['DirsInc']
     Opt = R[0]['MyDumpOpt']
