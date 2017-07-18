@@ -109,62 +109,54 @@ def ImCheck(data, default=None, Empty=None):
 
 
 def GetData(data):
-    import pickle
     c = socket.socket()
     c.connect((SERVER_ADDRESS, SERVER_PORT))
     # Convert string to bytes. (No-op for python2)
     data = data.encode()
-
     # Send data to server
     c.send(data)
-
     # Receive response from server
     data = c.recv(2048)
     if not data:
         return
-
-    # Convert back to string for python3
-    data = pickle.loads(data.decode())
-    return data
+    data = data.decode()
     c.close()
+    return data
 
 
 def list():
-    R = GetData("GetAll|None")
     global ServerName
-    ServerName = R[0]['Name']
+    ServerName = GetData("Get|Name")
     global User
-    User = R[0]['User']
+    User = GetData("Get|User")
     global ServerIP
-    ServerIP = R[0]['ServerIP']
+    ServerIP = GetData("Get|ServerIP")
     global ServerPort
-    ServerPort = R[0]['ServerPort']
+    ServerPort = GetData("Get|ServerPort")
     global Priv
-    Priv = R[0]['Priv']
+    Priv =  GetData("Get|Priv")
     global RsyncOpt
-    RsyncOpt = R[0]['RsyncOpt']
+    RsyncOpt = GetData("Get|RsyncOpt")
     global Dirs
-    Dirs = R[0]['Dirs']
+    Dirs = GetData("Get|Dirs")
     global DirsExclude
-    DirsExclude = R[0]['DirsExclude']
+    DirsExclude = GetData("Get|DirsExclude")
     global Frequency
-    Frequency = str(R[0]['Frequency'])
-    global id
-    id = R[0]['_id']
+    Frequency = str(GetData("Get|Frequency"))
     global Status
-    Status = R[0]['Status']
+    Status = GetData("Get|Status")
     global Chmy
-    Chmy = R[0]['Chmy']
+    Chmy = GetData("Get|Chmy")
     global DBex
-    DBex = R[0]['DBex']
+    DBex = GetData("Get|DBex")
     global MyDumpOpt
-    MyDumpOpt = R[0]["MyDumpOpt"]
+    MyDumpOpt = GetData("Get|MyDumpOpt")
     global DirsInc
-    DirsInc = str(R[0]["DirsInc"])
+    DirsInc = str(GetData("Get|DirsInc"))
     global MysqlLog
-    MysqlLog = R[0]["MysqlLog"]
+    MysqlLog = GetData("Get|MysqlLog")
     global MysqlReady
-    MysqlReady = R[0]["MysqlReady"]
+    MysqlReady = GetData("Get|MysqlReady")
         
     print tStart
     print tServName + ServerName
@@ -177,10 +169,10 @@ def list():
         print tStatus  + Status
     else:
         print tStatus  + Status
-    if R[0]['DateStart']:
-        print tLastD + R[0]['DateStart']
-    if R[0]['DateEnd']:
-        print tLastDN + R[0]['DateEnd']
+    if  GetData("Get|DateStart"):
+        print tLastD + GetData("Get|DateStart")
+    if GetData("Get|DateEnd"):
+        print tLastDN + GetData("Get|DateEnd")
     print tDir + Dirs
     print tDirEx + DirsExclude
     print tFB + str(Frequency)
@@ -195,16 +187,15 @@ def list():
             print tMysqlReady + MysqlReady
         else:
             print tMysqlReady + MysqlReady
-        print tDateStartMysql + R[0]['DateStartMySQL']
-        print tDateStopMysql + R[0]['DateStopMySQL']+"\n"
+        print tDateStartMysql + GetData("Get|DateStartMySQL")
+        print tDateStopMysql + GetData("Get|DateStopMySQL")+"\n"
     print tAOS
   
 
 def MysqlDump():
-    R=GetData("GetAll|None")
-    Ex = R[0]['DBex']
-    Dir = R[0]['DirsInc']
-    Opt = R[0]['MyDumpOpt']
+    Ex = GetData("Get|DBex")
+    Dir = GetData("Get|DirsInc")
+    Opt = GetData("Get|MyDumpOpt")
     ISODateStart = datetime.datetime.now().isoformat()
     GetData("Add|DateStartMySQL|"+ISODateStart)
     GetData("Add|DateStopMySQL|None")
