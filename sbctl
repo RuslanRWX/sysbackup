@@ -494,19 +494,20 @@ def Status(Name, Stat):
 
 def help():
     return """Help function: Basic Usage:
-    \tadd or addhost           - Add host to backup
-    \tl or  list               - List all hosts
-    \tse or search             - Search host name, example:sbctl search w1.host.com
-    \tre or reconf             - Reconfiguration of backup settings, example:sbctl reconf w1.host.com
-    \trm or remove             - Remove host, example: delete w1.host.com
-    \tho or host               - Send command to remote host, example: sbctl host w1.host.com "ls -al /var/backup"
-    \tbackup                   - Start backup, example: sbctl backup w1.host.com
-    \tstatus                   - Status update, example: sbctl status w1.host.com Done/Disabled/needbackup
+    \t"""+White("add")+""" or addhost           - Add host to backup
+    \t"""+White("l")+""" or  list               - List all hosts
+    \t"""+White("se")+""" or search             - Search host name, example: """+Yellow("sbctl search w1.host.com")+"""
+    \t"""+White("re")+""" or reconf             - Reconfiguration of backup settings, example: """+Yellow("sbctl reconf w1.host.com")+"""
+    \t"""+White("rm")+""" or remove             - Remove host, example: """+Yellow("sbctl delete w1.host.com")+"""
+    \t"""+White("ho")+""" or host               - Send command to remote host, example: """+Yellow("sbctl host w1.host.com \"ls -al /var/backup\"")+"""
+    \t"""+White("backup")+"""                   - Start backup, example: """+Yellow("sbctl backup w1.host.com")+"""
+    \t"""+White("status")+"""                   - Status update, example: """+Yellow("sbctl status w1.host.com Done/Disabled/needbackup")+"""
     \t   status Done           - Backup is done
     \t   status Disabled       - Not backup this server
     \t   status needbackup     - Need to backup 
     \thelp                     - Help
     \n"""
+
 
 
 def main():
