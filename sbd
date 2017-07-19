@@ -16,16 +16,10 @@ import re
 #global Not_check
 #Not_check = "NO"
 
-def CreateTmpFiles(Name, Dirs, DirsEx):
-    Dirs = Dirs.replace(' ', '')
+def CreateTmpFiles(Name, DirsEx):
     DirsEx = DirsEx.replace(' ', '')
-    Dirs = Dirs.replace(',', '\n') + "\n"
     DirsEx = DirsEx.replace(',', '\n') + "\n"
-    FileNameIn = SB.tmp+"/" + Name + "_inc.txt"
     FileNameEx = SB.tmp+"/" + Name + "_ex.txt"
-    FileIn = open(FileNameIn,  "w")
-    FileIn.write(Dirs)
-    FileIn.close()
     FileEx = open(FileNameEx,  "w")
     FileEx.write(DirsEx)
     FileEx.close()
@@ -89,17 +83,18 @@ class Backup:
             tbackuprun=Name+" Backup already running"
             log(tbackuprun, SB.Log)
             print tbackuprun
+        if Chmy == "YES":
+            DirsExclude=DirsExclude +","+DirsInc
         if Chmy == "YES" and self.Not_check == "YES":
             cmdsbcl="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl mysqldump\""
             os.system(cmdsbcl)
             time.sleep(3)
-            DirsExclude=DirsExclude +","+DirsInc
         if R["MysqlReady"] == "NO" and Chmy == "YES":
             text = "\n"+Name+": Mysqldump is not ready"
             log(text, SB.Log)
             print text
             return
-        CreateTmpFiles(Name, Dirs, DirsExclude)
+        CreateTmpFiles(Name, DirsExclude)
         text="""\n###########Start Backup######
         Now TIME: {time}
         Server name: {name}
@@ -118,7 +113,6 @@ class Backup:
         DirB = SB.DirBackup + "/" + Name
         DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
         ExFile = SB.tmp+"/" + Name + "_ex.txt"
-        #InFile = SB.tmp+"/" + Name + "_inc.txt"
         #print "Start rsync ! "
         if not os.path.exists(DirB):
             os.makedirs(DirB)
