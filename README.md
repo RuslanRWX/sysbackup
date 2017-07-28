@@ -28,6 +28,7 @@ cd ServerBackup<br>
 Install sbd and sbctl<br> 
 ./install.sh
 <br>
+
 start daemon <br>
 systemctl start sbd
  
