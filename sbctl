@@ -194,7 +194,7 @@ def List(allservers):
     print tAOS, count
     if count == 0:
         print tHavenot        
-        return
+        exit(0)
 
 
 def MongoList():
