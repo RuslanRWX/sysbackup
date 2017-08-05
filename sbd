@@ -1,6 +1,7 @@
 #!/usr/bin/python
+# SySBackup
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.3.1
+# Version 0.3.2
 global Ver
 Ver = "0.3.1"
 import os
