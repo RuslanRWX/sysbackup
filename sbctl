@@ -1,7 +1,7 @@
 #!/usr/bin/python
-# SySBackup management program
+# sbctl - SySBackup management program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-# Version 0.3.2
+# Version 0.3.4
 import sys
 import SB
 import os
@@ -10,15 +10,15 @@ import re
 
 # mail variables 
 MysqlOptDef = "--opt  --routines"
-PortDef = 22
+PortDef = "22"
 UserDef = "root"
 RsyncOptDef = "-av"
-PrivDef = 20
+PrivDef = "20"
 DirsDef = "/etc,/var"
 DirIncDef = "/var/backup"
 DirExDef = "/etc/ssh,/var/log"
-FrequencyDef = 24
-CleanDateDef = 7
+FrequencyDef = "24"
+CleanDateDef = "7"
 DBexDef = "information_schema,performance_schema"
 
 # text
@@ -213,7 +213,7 @@ def MongoFindName(Name):
     SB.MongoCon()
     allservers = list(SB.coll.find({"Name": Name}))
     return List(allservers)
-
+    
 
 def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
     print tCheckInf + Name + "\n"+ tUser, User, "\n"+ tServIP, ServerIP, "\n"+tServPort,  ServerPort
@@ -259,17 +259,17 @@ def MongoUpdate(Name):
     UserN = ImCheck(
         tUser + Defroot +Yellow(' [Now:' + User + ']: '),  default=User)
     ServerPortN = ImCheck(
-        tServPort + Defport +Yellow(' [Now: ' + str(ServerPort) + ' ]: '), default=ServerPort)
+        tServPort + Defport +Yellow(' [Now: ' + ServerPort + ' ]: '), default=ServerPort)
     RsyncOptN = ImCheck(
         tOpR + Defop +Yellow(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt)
     PrivN = ImCheck(tPriy  + Yellow(' [ Now:' + str(Priv) + ' ]: '), default=Priv)
     DirsN = ImCheck(tDir + ExampleDir +Yellow(' [ Now:' + Dirs + ' ]: '), default=Dirs)
     DirsExcludeN = ImCheck(
         tDirEx + ExampleDirEx +Yellow(' [ Now:' + DirsExclude + ']: '), default=DirsExclude,  Empty="YES")
-    FrequencyN = int(ImCheck(
-        tFB +Yellow(' [ Now:' + str(Frequency) + ' ]: '), default=Frequency))
-    CleanDateN = int(ImCheck(
-        tCleanB + Yellow(' [ Now:' + str(CleanDate) + ' ]: '), default=CleanDate))
+    FrequencyN = ImCheck(
+        tFB +Yellow(' [ Now:' + str(Frequency) + ' ]: '), default=Frequency)
+    CleanDateN = ImCheck(
+        tCleanB + Yellow(' [ Now:' + str(CleanDate) + ' ]: '), default=CleanDate)
     #PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
     #        PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye'])
@@ -370,8 +370,7 @@ def add():
         return
     ServerName = ImCheck(tServName)
     ServerIP = ImCheckIP(tServIP)
-    User = ImCheck(
-        tUser + Defroot, default=UserDef)
+    User = ImCheck(tUser + Defroot, default=UserDef)
     ServerPort = ImCheck(tServPort + Defport,  default=PortDef)
  #   ServerPort = ServerPort.replace(' ', '')
     RsyncOpt = ImCheck(tOpR + Defop, default=RsyncOptDef)
@@ -379,10 +378,8 @@ def add():
     Dirs = ImCheck(tDirB + ExampleDir + ": ",  default=DirsDef)
     DirsExclude = ImCheck(
         tDirBx + ExampleDirEx + ": ",  default='',  Empty="YES")
-    Frequency = int(
-        ImCheck(tFB + DefFr,  default=FrequencyDef))
-    CleanDate = int(
-        ImCheck(tCleanB + DefClean,  default=CleanDateDef))
+    Frequency = ImCheck(tFB + DefFr,  default=FrequencyDef)
+    CleanDate = ImCheck(tCleanB + DefClean,  default=CleanDateDef)
     #PrCheck(ServerName, User,  ServerIP, ServerPort,
     #        RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
     choice = ImCheck(tDataCor).lower()
@@ -493,46 +490,96 @@ def Status(Name, Stat):
     return tStatdone
 
 
+def MongoFindParm(Parm, Obj, regex):
+    if regex == "find-regex":
+        Obj = { '$regex': Obj }
+    elif regex == "find-not":
+        Obj = { '$ne': [ Obj ] }
+    SB.MongoCon()
+    allservers = list(SB.coll.find({ Parm : Obj }))
+    return List(allservers)
+
+
+def FindHelp():    
+    return """\n\tUsing """+ White("find/find-not/find-regex") +""" with keys
+    \t"""+tServName + Yellow("\tName")+"""
+    \t"""+tServIP  + Yellow("\tServerIP")+"""
+    \t"""+tUser    + Yellow("\t\tUser")+"""
+    \t"""+tServPort + Yellow("\tServerPort")+"""
+    \t"""+tPriy    + Yellow("\t\tPriv")+"""
+    \t"""+tOpR     + Yellow("\tRsyncOpt")+"""
+    \t"""+tStatus  + Yellow("\t\tStatus")+"""
+    \t"""+tLastD   + Yellow("\tDateStart")+"""
+    \t"""+tLastDN  + Yellow("\tDateEnd")+"""
+    \t"""+tDirB    + Yellow("\tDirs")+"""
+    \t"""+tDirBx   + Yellow("\tDirsExclude")+"""
+    \t"""+tFB      + Yellow("\tFrequency")+"""
+    \t"""+tCleanB   + Yellow("\tCleanDate")+"""
+    \t"""+tChmy    + Yellow("\t\tChmy")+"""
+    \t"""+tDirBInc + Yellow("\tDirsInc")+"""
+    \t"""+tDBex    + Yellow("\tDBex")+"""
+    \t"""+tMyDumpOpt + Yellow("\tMyDumpOpt")+"""
+    \t"""+tMysqlReady + Yellow("\tMysqlReady")+"""
+    \t"""+tDateStartMysql + Yellow("\tDateStartMysql")+"""
+    \t"""+tDateStopMysql + Yellow("\tDateStopMySQL")+"""
+    \n
+    \tExamples: 
+    \tlist all servers with status rsync error: """+ Yellow("sbctl find Status \"rsync error\"") + """
+    \tlist all servers with \""""+ tChmy +"""NO\": """+ Yellow("sbctl find Chmy NO") + """
+    \n"""
+    
+
 def help():
     return """Help function: Basic Usage:
-    \t"""+White("add")+""" or addhost           - Add host to backup
-    \t"""+White("l")+""" or  list               - List all hosts
-    \t"""+White("se")+""" or search             - Search host name, example: """+Yellow("sbctl search w1.host.com")+"""
-    \t"""+White("re")+""" or reconf             - Reconfiguration of backup settings, example: """+Yellow("sbctl reconf w1.host.com")+"""
-    \t"""+White("rm")+""" or remove             - Remove host, example: """+Yellow("sbctl delete w1.host.com")+"""
-    \t"""+White("ho")+""" or host               - Send command to remote host, example: """+Yellow("sbctl host w1.host.com \"ls -al /var/backup\"")+"""
-    \t"""+White("backup")+"""                   - Start backup, example: """+Yellow("sbctl backup w1.host.com")+"""
-    \t"""+White("status")+"""                   - Status update, example: """+Yellow("sbctl status w1.host.com Done/Disabled/needbackup")+"""
-    \t   status Done           - Backup is done
-    \t   status Disabled       - Not backup this server
-    \t   status needbackup     - Need to backup 
-    \thelp                     - Help
+    \t"""+White("add")+""" or addhost \t\t- Add host to backup
+    \t"""+White("l")+""" or  list     \t\t- List all hosts
+    \t"""+White("se")+""" or search   \t\t- Search for the host name, example: """+Yellow("sbctl search w1.host.com")+"""
+    \t"""+White("re")+""" or reconf   \t\t- Reconfiguration of backup settings, example: """+Yellow("sbctl reconf w1.host.com")+"""
+    \t"""+White("rm")+""" or remove   \t\t- Remove host, example: """+Yellow("sbctl delete w1.host.com")+"""
+    \t"""+White("ho")+""" or host     \t\t- Send command to remote host, example: """+Yellow("sbctl host w1.host.com \"ls -al /var/backup\"")+"""
+    \t"""+White("backup")+"""         \t\t- Start backup, example: """+Yellow("sbctl backup w1.host.com")+"""
+    \t"""+White("status")+"""         \t\t- Status update, example: """+Yellow("sbctl status w1.host.com Done/Disabled/needbackup")+"""
+    \t   status Done         \t- Backup is done
+    \t   status Disabled     \t- Not backup this server
+    \t   status needbackup   \t- Need to backup
+    \t"""+White("find")+"""           \t\t- List the hosts matching parameters, example: """+Yellow("sbctl find Status \"rsync error\"")+"""
+    \t"""+White("find-not")+"""       \t\t- List the hosts invert-matching parameters, example: """+Yellow("sbctl find-not Chmy YES")+"""
+    \t"""+White("find-regex")+"""     \t\t- Use regular expression to find the hosts on their parameter, example: """+Yellow("sbctl find-regex Status error")+""" 
+    \t"""+White("find help") +"""     \t\t- List all parameter keys, example: """+Yellow("sbctl find help")+""" 
+    \t"""+ FindHelp()  +"""
+    \thelp     \t\t- Help
     \n"""
 
 
 
 def main():
     try:
-        if sys.argv[1] == 'addhost' or sys.argv[1] == 'add':
+        argv=sys.argv[1]
+        if argv == 'addhost' or argv == 'add':
             add()
-        elif sys.argv[1] == 'list' or sys.argv[1] == 'l':
+        elif argv == 'list' or argv == 'l':
             MongoList()
-        elif sys.argv[1] == 'search' or sys.argv[1] == 'se':
+        elif argv == 'search' or argv == 'se':
             MongoFind(sys.argv[2])
-        elif sys.argv[1] == 'reconf' or sys.argv[1] == 're':
+        elif argv == 'reconf' or argv == 're':
             MongoUpdate(sys.argv[2])
-        elif sys.argv[1] == 'remove' or sys.argv[1] == 'rm':
+        elif argv == 'remove' or argv == 'rm':
             Delete(sys.argv[2])
-        elif sys.argv[1] == 'host' or sys.argv[1] == 'ho':
+        elif argv == 'host' or argv == 'ho':
             Command(sys.argv[2], sys.argv[3])
-        elif sys.argv[1] == "backup":
+        elif argv == "backup":
             cmd="sbd backup "+sys.argv[2]
             os.system(cmd)
-        elif sys.argv[1] == "status":
+        elif argv == "status":
             try:
                 print Status(sys.argv[2], sys.argv[3])
             except:
                 pass
+        elif argv == "find" or argv == "find-regex" or argv == "find-not" :
+            if sys.argv[2] == "help":
+                print FindHelp()
+            else:
+                MongoFindParm(sys.argv[2], sys.argv[3], regex=argv)
         else:
             print help()
     except IndexError:

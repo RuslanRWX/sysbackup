@@ -1,5 +1,6 @@
 #!/usr/bin/python
-# Version 0.2.3
+# SysBackup module 
+# Version 0.3.0
 import ConfigParser
 
 Pathini="/etc/sbd/sbd.ini"
@@ -22,7 +23,7 @@ global PublickKey
 
 MongoConnect = config.get('Main', 'MongoConnect')
 DBs = config.get('Main',  'DBs')
-Collection = config.get('Main', 'Collection')
+CollectionMain = "servers"
 Num_thread = int(config.get('Main',  'Num_thread'))
 DirBackup = config.get('Main', 'DirBackup')
 Pidfile = config.get('Main', 'Pidfile')
@@ -41,4 +42,4 @@ def MongoCon():
     global cl
     global coll
     cl = MongoClient(MongoConnect)
-    coll = cl[DBs][Collection]
+    coll = cl[DBs][CollectionMain]

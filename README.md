@@ -1,4 +1,4 @@
-#Deploy the ServerBackup
+#Deploy the SySBackup
 
 Inatall mongodb on Debian/Ubunut
 
@@ -14,7 +14,7 @@ apt-get install git
 
 git clone
 
-git clone https://github.com/ruslansvs2/ServerBackup.git
+git clone  https://github.com/ruslansvs2/sysbackup.git
 
 Install python  module pymongo
 
