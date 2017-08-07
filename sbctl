@@ -494,7 +494,7 @@ def MongoFindParm(Parm, Obj, regex):
     if regex == "find-regex":
         Obj = { '$regex': Obj }
     elif regex == "find-not":
-        Obj = { '$ne': [ Obj ] }
+        Obj = { '$ne':  Obj  }
     SB.MongoCon()
     allservers = list(SB.coll.find({ Parm : Obj }))
     return List(allservers)
