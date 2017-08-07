@@ -540,7 +540,7 @@ def help():
     \t"""+White("backup")+"""         \t\t- Start backup, example: """+Yellow("sbctl backup w1.host.com")+"""
     \t"""+White("status")+"""         \t\t- Status update, example: """+Yellow("sbctl status w1.host.com Done/Disabled/needbackup")+"""
     \t   status Done         \t- Backup is done
-    \t   status Disabled     \t- Not backup this server
+    \t   status Disabled     \t- Turn backup off
     \t   status needbackup   \t- Need to backup
     \t"""+White("find")+"""           \t\t- List the hosts matching parameters, example: """+Yellow("sbctl find Status \"rsync error\"")+"""
     \t"""+White("find-not")+"""       \t\t- List the hosts invert-matching parameters, example: """+Yellow("sbctl find-not Chmy YES")+"""
