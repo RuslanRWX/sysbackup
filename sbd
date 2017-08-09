@@ -131,7 +131,7 @@ class Backup:
             cmdrsync = "/usr/bin/rsync  {rsopt} --relative --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
                                                                                                                                                                                                                                                              port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
             code = os.system(cmdrsync)
-            if code == "0":
+            if code > 0:
                 log(Name + " rsync error!\n", SB.LogError)
                 CodeRsync == "1"
         if Chmy == "YES":
