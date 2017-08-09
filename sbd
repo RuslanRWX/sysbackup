@@ -152,7 +152,7 @@ class Backup:
         #link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
         os.symlink(DirBL, Link)
         # os.system(link)
-        if CodeRsync == "1":
+        if CodeRsync is not None:
             Status = "rsync error"
         else:
             Status = "Done"
