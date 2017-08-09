@@ -51,6 +51,7 @@ class Backup:
         SB.MongoCon()
         Mq = SB.coll.find()
         Server = self.Server
+        CodeRsync = None
         #from random import randint
         #from time import sleep
         #SL = (randint(1, 20))
@@ -132,14 +133,14 @@ class Backup:
             code = os.system(cmdrsync)
             if code == "0":
                 log(Name + " rsync error!\n", SB.LogError)
-                CodeRes == 1
+                CodeRsync == "1"
         if Chmy == "YES":
             cmdrsyncmysql = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
                                                                                                                                                                                               port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
             code = os.system(cmdrsyncmysql)
             if code > 0:
                 log(Name + " rsync error, mysql directory!\n", SB.LogError)
-                CodeRes == 1
+                CodeRsync == "1"
         # print DirBL
         # print DirB
         Link = DirB + "/" + "Latest"
@@ -151,7 +152,7 @@ class Backup:
         #link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
         os.symlink(DirBL, Link)
         # os.system(link)
-        if CodeRes == "1":
+        if CodeRsync is not None:
             Status = "rsync error"
         else:
             Status = "Done"
