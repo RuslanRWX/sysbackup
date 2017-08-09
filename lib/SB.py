@@ -1,9 +1,9 @@
 #!/usr/bin/python
-# SysBackup module 
+# SysBackup module
 # Version 0.3.0
 import ConfigParser
 
-Pathini="/etc/sbd/sbd.ini"
+Pathini = "/etc/sbd/sbd.ini"
 
 config = ConfigParser.ConfigParser()
 config.read(Pathini)

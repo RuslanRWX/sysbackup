@@ -8,7 +8,7 @@ import os
 import re
 
 
-# mail variables 
+# mail variables
 MysqlOptDef = "--opt  --routines"
 PortDef = "22"
 UserDef = "root"
@@ -67,19 +67,20 @@ tCheckRsync = "Is the Rsync installed on your remote server ? ['yes' or 'no']: "
 tPlInR = "Please, install the rsync on your remote server !"
 tCheckMy = "Is the file ~/.my.cnf configured ?  ['yes' or 'no']: "
 tPlconfMy = "Please, configure the ~/.my.cnf for databases access "
-tDefMysqlOpt = " you can add --ignore-table=db.table [default: " + MysqlOptDef + " ]: "
-tdefExDb =  "[default: information_schema,performance_schema]: "
+tDefMysqlOpt = " you can add --ignore-table=db.table [default: " + \
+    MysqlOptDef + " ]: "
+tdefExDb = "[default: information_schema,performance_schema]: "
 tDuDel = "Do you want to purge ['yes' or 'on']: "
-Defroot = "[default:"+UserDef+"] "
-Defport = "[default: "+ str(PortDef) +" ] "
-Defop = "[default:"+RsyncOptDef+"] "
-Defpri = "[default: "+  str(PrivDef) +" ] "
-DefFr = "[default: "+ str(FrequencyDef) +"] "
-DefClean = "[default "+ str(CleanDateDef)+"] "
-ExampleDir = "example["+DirsDef+"] "
-ExampleDirEx = "example["+DirExDef+"] "
-ExampleIncDir = "example["+DirIncDef+"] " 
-ExampleExDB = "example["+DBexDef+"] "
+Defroot = "[default:" + UserDef + "] "
+Defport = "[default: " + str(PortDef) + " ] "
+Defop = "[default:" + RsyncOptDef + "] "
+Defpri = "[default: " + str(PrivDef) + " ] "
+DefFr = "[default: " + str(FrequencyDef) + "] "
+DefClean = "[default " + str(CleanDateDef) + "] "
+ExampleDir = "example[" + DirsDef + "] "
+ExampleDirEx = "example[" + DirExDef + "] "
+ExampleIncDir = "example[" + DirIncDef + "] "
+ExampleExDB = "example[" + DBexDef + "] "
 tStatus = "Status: "
 tDelCronResult = "Cron job sbcl has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
@@ -88,36 +89,37 @@ tMysqlReady = "MySQLdump ready: "
 tUsestat = "\n\nPlease, use Done/Disabled/needbackup. Examlpe: sbctl statup w1.host.com Done"
 tStatdone = "\n\nStatus has been updated"
 
+
 def Yellow(data):
     from colorama import Fore, Style
     return (Fore.YELLOW + data + Style.RESET_ALL)
 
 
-def Red(data): 
+def Red(data):
     from colorama import Fore, Style
     return (Fore.RED + data + Style.RESET_ALL)
 
-def White(data): 
+
+def White(data):
     from colorama import Fore, Style
     return (Fore.WHITE + data + Style.RESET_ALL)
 
 
-
 def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt,
-    Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex ):
+            Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex):
     SB.MongoCon()
-    data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort, 
-        "RsyncOpt": RsyncOpt, "Priv": Priv, "Dirs": Dirs, "DirsExclude": DirsExclude, "DateStart": "", 
-            "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, "Chmy": Chmy, "MyDumpOpt": MyDumpOpt, 
-                "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady":"Empty", "MysqlLog":"", "DateStartMySQL":"", 
-                    "DateStopMySQL":"", "Status":"Never"  }]
-                    
+    data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,
+             "RsyncOpt": RsyncOpt, "Priv": Priv, "Dirs": Dirs, "DirsExclude": DirsExclude, "DateStart": "",
+             "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, "Chmy": Chmy, "MyDumpOpt": MyDumpOpt,
+             "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady": "Empty", "MysqlLog": "", "DateStartMySQL": "",
+             "DateStopMySQL": "", "Status": "Never"}]
+
     SB.coll.insert(data, True)
 
 
 def List(allservers):
     from colorama import Fore, Style
-    global count 
+    global count
     count = 0
     for R in allservers:
         count = count + 1
@@ -157,20 +159,20 @@ def List(allservers):
         MysqlLog = R["MysqlLog"]
         global MysqlReady
         MysqlReady = R["MysqlReady"]
-        
+
         print tStart
         print White(tServName + ServerName)
-        print White(str(tServIP +  ServerIP+"\n"))
+        print White(str(tServIP + ServerIP + "\n"))
         print tUser, User
         print tServPort, ServerPort
         print tPriy, Priv
         print tOpR + RsyncOpt
         if Status == "rsync error":
-            print Red(tStatus  + Status)
+            print Red(tStatus + Status)
         elif Status == "running":
-            print Yellow(tStatus  + Status)
+            print Yellow(tStatus + Status)
         else:
-            print tStatus  + Status
+            print tStatus + Status
         if R['DateStart']:
             print tLastD + R['DateStart']
         if R['DateEnd']:
@@ -185,16 +187,16 @@ def List(allservers):
             print tDBex + DBex
             print tMyDumpOpt + MyDumpOpt
             if MysqlLog == "Error":
-                print Red(tMysqlLog + MysqlLog) 
+                print Red(tMysqlLog + MysqlLog)
             if MysqlReady == "YES":
                 print tMysqlReady + MysqlReady
             else:
-                print Red(tMysqlReady + MysqlReady )
+                print Red(tMysqlReady + MysqlReady)
             print tDateStartMysql + R['DateStartMySQL']
-            print tDateStopMysql + R['DateStopMySQL']+"\n"
+            print tDateStopMysql + R['DateStopMySQL'] + "\n"
     print tAOS, count
     if count == 0:
-        print tHavenot        
+        print tHavenot
         exit(0)
 
 
@@ -209,91 +211,97 @@ def MongoFind(Name):
     allservers = list(SB.coll.find({"Name": {'$regex': Name}}))
     return List(allservers)
 
+
 def MongoFindName(Name):
     SB.MongoCon()
     allservers = list(SB.coll.find({"Name": Name}))
     return List(allservers)
-    
+
 
 def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
-    print tCheckInf + Name + "\n"+ tUser, User, "\n"+ tServIP, ServerIP, "\n"+tServPort,  ServerPort
-    print tOpR + RsyncOpt + "\n"+tPriy,  Priv, "\n"+tDir + Dirs + "\n"+ tDirEx + DirsExclude 
-    print tFB, Frequency, "\n"+ tCleanB, CleanDate
+    print tCheckInf + Name + "\n" + tUser, User, "\n" + tServIP, ServerIP, "\n" + tServPort,  ServerPort
+    print tOpR + RsyncOpt + "\n" + tPriy,  Priv, "\n" + tDir + Dirs + "\n" + tDirEx + DirsExclude
+    print tFB, Frequency, "\n" + tCleanB, CleanDate
 
 
 def ImCheck(data, default=None, Empty=None):
     Check = None
     while Check is None:
-        Result=raw_input(data).replace(' ', '').replace('\t', '') or default
-        if Result != "" and Result is not None or Empty == "YES" :
-            Check="True"
+        Result = raw_input(data).replace(' ', '').replace('\t', '') or default
+        if Result != "" and Result is not None or Empty == "YES":
+            Check = "True"
     return Result
 
+
 def ImCheckIP(data, default=None):
-    checkip="True"
+    checkip = "True"
     while checkip:
-        Result=raw_input(data) or default
+        Result = raw_input(data) or default
         pat = re.compile("\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}")
-        resultip=pat.match(Result)
+        resultip = pat.match(Result)
         if resultip:
-            checkip=None
+            checkip = None
     return Result
+
 
 def MongoUpdate(Name):
     CronN = None
     ChmyNReal = None
     MongoFindName(Name)
-    MyDumpOptN=MyDumpOpt
-    DirsIncN=DirsInc
-    DBexN=DBex
-    ChmyN=Chmy
+    MyDumpOptN = MyDumpOpt
+    DirsIncN = DirsInc
+    DBexN = DBex
+    ChmyN = Chmy
     MysqlReadyN = MysqlReady
     if count == 0:
         return
     if Chmy == "NO":
         tRmDel = None
     ServerNameN = ImCheck(
-        tServName +Yellow(' [Now:' + ServerName + ']: '),  default=ServerName)
+        tServName + Yellow(' [Now:' + ServerName + ']: '),  default=ServerName)
     ServerIPN = ImCheckIP(
         tServIP + Yellow(' [Now:' + ServerIP + ']: '), default=ServerIP)
     UserN = ImCheck(
-        tUser + Defroot +Yellow(' [Now:' + User + ']: '),  default=User)
+        tUser + Defroot + Yellow(' [Now:' + User + ']: '),  default=User)
     ServerPortN = ImCheck(
-        tServPort + Defport +Yellow(' [Now: ' + ServerPort + ' ]: '), default=ServerPort)
+        tServPort + Defport + Yellow(' [Now: ' + ServerPort + ' ]: '), default=ServerPort)
     RsyncOptN = ImCheck(
-        tOpR + Defop +Yellow(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt)
-    PrivN = ImCheck(tPriy  + Yellow(' [ Now:' + str(Priv) + ' ]: '), default=Priv)
-    DirsN = ImCheck(tDir + ExampleDir +Yellow(' [ Now:' + Dirs + ' ]: '), default=Dirs)
+        tOpR + Defop + Yellow(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt)
+    PrivN = ImCheck(
+        tPriy + Yellow(' [ Now:' + str(Priv) + ' ]: '), default=Priv)
+    DirsN = ImCheck(tDir + ExampleDir +
+                    Yellow(' [ Now:' + Dirs + ' ]: '), default=Dirs)
     DirsExcludeN = ImCheck(
-        tDirEx + ExampleDirEx +Yellow(' [ Now:' + DirsExclude + ']: '), default=DirsExclude,  Empty="YES")
+        tDirEx + ExampleDirEx + Yellow(' [ Now:' + DirsExclude + ']: '), default=DirsExclude,  Empty="YES")
     FrequencyN = ImCheck(
-        tFB +Yellow(' [ Now:' + str(Frequency) + ' ]: '), default=Frequency)
+        tFB + Yellow(' [ Now:' + str(Frequency) + ' ]: '), default=Frequency)
     CleanDateN = ImCheck(
         tCleanB + Yellow(' [ Now:' + str(CleanDate) + ' ]: '), default=CleanDate)
-    #PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
+    # PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
     #        PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
     rm = set(['rm'])
     choice = ImCheck(tMysqlUpdate).lower()
-    connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPortN, User=UserN, IP=ServerIPN)
+    connect = "ssh -p{Port} {User}@{IP} ".format(
+        Port=ServerPortN, User=UserN, IP=ServerIPN)
     cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
     if choice in rm:
-        ChmyN="NO"
-        ChmyNReal="NO"
+        ChmyN = "NO"
+        ChmyNReal = "NO"
     elif choice in yes:
-        ChmyN="YES"
-        ChmyNReal="YES"
+        ChmyN = "YES"
+        ChmyNReal = "YES"
         choicech = ImCheck(Yellow(tCheckMy)).lower()
         if choicech in yes:
             pass
         else:
             print Yellow(tPlconfMy)
             return
-        cmdscp="scp -P{Port} /usr/share/sbcl/sbcl {User}@{IP}:/usr/sbin/".format(Port=ServerPortN,
-            User=UserN, IP=ServerIPN)
-        cmddb=connect+" \"mysql -e 'show databases;'\""
-        cmddf=connect+" \"df -h\""
+        cmdscp = "scp -P{Port} /usr/share/sbcl/sbcl {User}@{IP}:/usr/sbin/".format(Port=ServerPortN,
+                                                                                   User=UserN, IP=ServerIPN)
+        cmddb = connect + " \"mysql -e 'show databases;'\""
+        cmddf = connect + " \"df -h\""
         print tResdf
         os.system(cmddf)
         if DirsInc == "Empty":
@@ -301,8 +309,8 @@ def MongoUpdate(Name):
         else:
             DirsIncExample = DirsInc
         DirsIncN = ImCheck(
-                tDirBInc + ExampleIncDir  +Yellow(' [ Now:' + DirsInc + ' ]: '), 
-                    default=DirsIncExample)
+            tDirBInc + ExampleIncDir + Yellow(' [ Now:' + DirsInc + ' ]: '),
+            default=DirsIncExample)
         print (Yellow(tUdb))
         os.system(cmddb)
         print (Yellow(tAOS))
@@ -310,34 +318,36 @@ def MongoUpdate(Name):
             DBexExample = DBexDef
         else:
             DBexExample = DBex
-        DBexN = ImCheck(tDBex + ExampleExDB +Yellow('[Now: '+DBex+']: '), default=DBexExample,  Empty="YES")
+        DBexN = ImCheck(tDBex + ExampleExDB +
+                        Yellow('[Now: ' + DBex + ']: '), default=DBexExample,  Empty="YES")
         if MyDumpOpt == "Empty":
             MyDumpOptExample = MysqlOptDef
         else:
             MyDumpOptExample = MyDumpOpt
-        MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +Yellow('[Now:'+MyDumpOpt+']:' ), default=MyDumpOptExample)
+        MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +
+                             Yellow('[Now:' + MyDumpOpt + ']:'), default=MyDumpOptExample)
         CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
         cmdcrondel = connect + " \"sed -i /sbcl/d /etc/crontab \""
-        cmdcron = connect +" \"echo '" + CronN + "' >> /etc/crontab\""
+        cmdcron = connect + " \"echo '" + CronN + "' >> /etc/crontab\""
     else:
         pass
     if CronN is not None:
         print CronN + tAddtoCron
     if CronN is None and ChmyN == "NO":
-        MyDumpOptN="Empty"
-        DirsIncN="Empty"
-        DBexN="Empty"
-        MysqlReadyN="Empty"
+        MyDumpOptN = "Empty"
+        DirsIncN = "Empty"
+        DBexN = "Empty"
+        MysqlReadyN = "Empty"
     else:
         pass
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         # print id
-        data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN, 
-            "RsyncOpt": RsyncOptN, "Dirs": DirsN, "DirsExclude": DirsExcludeN, "Priv": PrivN,  
-                "Frequency": FrequencyN, "CleanDate": CleanDateN,"DirsInc": DirsIncN, "DBex": DBexN, 
-                    "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN, "MysqlReady": MysqlReadyN }
-                
+        data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN,
+                "RsyncOpt": RsyncOptN, "Dirs": DirsN, "DirsExclude": DirsExcludeN, "Priv": PrivN,
+                "Frequency": FrequencyN, "CleanDate": CleanDateN, "DirsInc": DirsIncN, "DBex": DBexN,
+                "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN, "MysqlReady": MysqlReadyN}
+
         SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
         if ChmyNReal == "YES":
             os.system(cmdscp)
@@ -359,7 +369,7 @@ def MongoUpdate(Name):
 def add():
     print Yellow(tNote)
     #import time
-    #time.sleep(3)
+    # time.sleep(3)
     yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
     choicech = ImCheck(tCheckRsync).lower()
@@ -380,17 +390,19 @@ def add():
         tDirBx + ExampleDirEx + ": ",  default='',  Empty="YES")
     Frequency = ImCheck(tFB + DefFr,  default=FrequencyDef)
     CleanDate = ImCheck(tCleanB + DefClean,  default=CleanDateDef)
-    #PrCheck(ServerName, User,  ServerIP, ServerPort,
+    # PrCheck(ServerName, User,  ServerIP, ServerPort,
     #        RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         print Yellow(tAddsshKey)
-        #time.sleep(3)
-        connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
-        cmd="cat "+SB.PublickKey+" | "+connect+" \"mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys\""
-        cmdscp="scp -P{Port} /usr/share/sbcl/sbcl {User}@{IP}:/usr/sbin/".format(Port=ServerPort,
-            User=User, IP=ServerIP)
-        cmdmklog=connect+"\"mkdir -p /var/log/sbclient\""
+        # time.sleep(3)
+        connect = "ssh -p{Port} {User}@{IP} ".format(
+            Port=ServerPort, User=User, IP=ServerIP)
+        cmd = "cat " + SB.PublickKey + " | " + connect + \
+            " \"mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys\""
+        cmdscp = "scp -P{Port} /usr/share/sbcl/sbcl {User}@{IP}:/usr/sbin/".format(Port=ServerPort,
+                                                                                   User=User, IP=ServerIP)
+        cmdmklog = connect + "\"mkdir -p /var/log/sbclient\""
         os.system(cmd)
         os.system(cmdscp)
         os.system(cmdmklog)
@@ -402,33 +414,36 @@ def add():
             else:
                 print Yellow(tPlconfMy)
                 return
-            Chmy="YES"
-            cmd=connect+" \"df -h\""
+            Chmy = "YES"
+            cmd = connect + " \"df -h\""
             print tResdf
             os.system(cmd)
-            DirsInc = ImCheck(tDirBInc + '[default /var/backup]: ', default=DirIncDef)
-            cmdmk=connect+"\"mkdir -p {dir}\"".format(dir=DirsInc)
-            cmdmklog=connect+"\"mkdir -p /var/log/sbclient\""
+            DirsInc = ImCheck(
+                tDirBInc + '[default /var/backup]: ', default=DirIncDef)
+            cmdmk = connect + "\"mkdir -p {dir}\"".format(dir=DirsInc)
+            cmdmklog = connect + "\"mkdir -p /var/log/sbclient\""
             choice = ImCheck(tDoUexdb).lower()
             if choice in yes:
-                cmd=connect+" \"mysql -e 'show databases;'\""
+                cmd = connect + " \"mysql -e 'show databases;'\""
                 print Yellow(tUdb)
                 os.system(cmd)
                 print (Yellow("##############"))
-                DBex = ImCheck(tDBex + tdefExDb,   default=DBexDef,  Empty="YES")
+                DBex = ImCheck(tDBex + tdefExDb,
+                               default=DBexDef,  Empty="YES")
             else:
-                DBex="Empty"
+                DBex = "Empty"
             MyDumpOpt = ImCheck(tMyDumpOpt + tDefMysqlOpt, default=MysqlOptDef)
-            Cron = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
-            cmdcron = connect +" \"echo '" + Cron + "' >> /etc/crontab\""
+            Cron = ImCheck(tSbcltext + tSbclCron +
+                           tSbcltext2, default=tSbclCron)
+            cmdcron = connect + " \"echo '" + Cron + "' >> /etc/crontab\""
         else:
-            Chmy="NO"
-            MyDumpOpt="Empty"
-            DirsInc="Empty"
-            DBex="Empty"
-        serv="^"+ServerName+"$"
+            Chmy = "NO"
+            MyDumpOpt = "Empty"
+            DirsInc = "Empty"
+            DBex = "Empty"
+        serv = "^" + ServerName + "$"
         MongoIn(ServerName, User, ServerIP, ServerPort, RsyncOpt,
-                Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex )
+                Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex)
         if Chmy == "YES":
             os.system(cmdmk)
             print tInstClient
@@ -453,9 +468,10 @@ def Delete(Name):
     choice = ImCheck(Yellow(tDuD)).lower()
     if choice in yes:
         SB.coll.remove({'_id': id})
-        choice = ImCheck(Yellow(tDuDel + SB.DirBackup+"/"+ServerName +" ")).lower()
+        choice = ImCheck(Yellow(tDuDel + SB.DirBackup +
+                                "/" + ServerName + " ")).lower()
         if choice in yes:
-            cmd="rm -fr {dir}".format(dir=SB.DirBackup+"/"+ServerName)
+            cmd = "rm -fr {dir}".format(dir=SB.DirBackup + "/" + ServerName)
             os.system(cmd)
     elif choice in no:
         print tBye
@@ -466,95 +482,95 @@ def Delete(Name):
 def Command(Serv, Args):
     MongoFindName(Serv)
     try:
-        connect="ssh -p{Port} {User}@{IP} ".format(Port=ServerPort, User=User, IP=ServerIP)
-        cmd = connect +"\""+Args+"\""
+        connect = "ssh -p{Port} {User}@{IP} ".format(
+            Port=ServerPort, User=User, IP=ServerIP)
+        cmd = connect + "\"" + Args + "\""
         return os.system(cmd)
     except:
         return
-    
-    
+
+
 def Status(Name, Stat):
     SB.MongoCon()
     allservers = list(SB.coll.find({"Name": Name}))
     List(allservers)
     if Stat == "Done":
-        Value="Done"
+        Value = "Done"
     elif Stat == "Disabled":
-        Value="Disabled"
+        Value = "Disabled"
     elif Stat == "needbackup":
-        Value="needbackup"
+        Value = "needbackup"
     else:
         return tUsestat
-    data = { "Status": Value }
+    data = {"Status": Value}
     SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
     return tStatdone
 
 
 def MongoFindParm(Parm, Obj, regex):
     if regex == "find-regex":
-        Obj = { '$regex': Obj }
+        Obj = {'$regex': Obj}
     elif regex == "find-not":
-        Obj = { '$ne':  Obj  }
+        Obj = {'$ne':  Obj}
     SB.MongoCon()
-    allservers = list(SB.coll.find({ Parm : Obj }))
+    allservers = list(SB.coll.find({Parm: Obj}))
     return List(allservers)
 
 
-def FindHelp():    
-    return """\n\tUsing """+ White("find/find-not/find-regex") +""" with keys
-    \t"""+tServName + Yellow("\tName")+"""
-    \t"""+tServIP  + Yellow("\tServerIP")+"""
-    \t"""+tUser    + Yellow("\t\tUser")+"""
-    \t"""+tServPort + Yellow("\tServerPort")+"""
-    \t"""+tPriy    + Yellow("\t\tPriv")+"""
-    \t"""+tOpR     + Yellow("\tRsyncOpt")+"""
-    \t"""+tStatus  + Yellow("\t\tStatus")+"""
-    \t"""+tLastD   + Yellow("\tDateStart")+"""
-    \t"""+tLastDN  + Yellow("\tDateEnd")+"""
-    \t"""+tDirB    + Yellow("\tDirs")+"""
-    \t"""+tDirBx   + Yellow("\tDirsExclude")+"""
-    \t"""+tFB      + Yellow("\tFrequency")+"""
-    \t"""+tCleanB   + Yellow("\tCleanDate")+"""
-    \t"""+tChmy    + Yellow("\t\tChmy")+"""
-    \t"""+tDirBInc + Yellow("\tDirsInc")+"""
-    \t"""+tDBex    + Yellow("\tDBex")+"""
-    \t"""+tMyDumpOpt + Yellow("\tMyDumpOpt")+"""
-    \t"""+tMysqlReady + Yellow("\tMysqlReady")+"""
-    \t"""+tDateStartMysql + Yellow("\tDateStartMysql")+"""
-    \t"""+tDateStopMysql + Yellow("\tDateStopMySQL")+"""
+def FindHelp():
+    return """\n\tUsing """ + White("find/find-not/find-regex") + """ with keys
+    \t""" + tServName + Yellow("\tName") + """
+    \t""" + tServIP + Yellow("\tServerIP") + """
+    \t""" + tUser + Yellow("\t\tUser") + """
+    \t""" + tServPort + Yellow("\tServerPort") + """
+    \t""" + tPriy + Yellow("\t\tPriv") + """
+    \t""" + tOpR + Yellow("\tRsyncOpt") + """
+    \t""" + tStatus + Yellow("\t\tStatus") + """
+    \t""" + tLastD + Yellow("\tDateStart") + """
+    \t""" + tLastDN + Yellow("\tDateEnd") + """
+    \t""" + tDirB + Yellow("\tDirs") + """
+    \t""" + tDirBx + Yellow("\tDirsExclude") + """
+    \t""" + tFB + Yellow("\tFrequency") + """
+    \t""" + tCleanB + Yellow("\tCleanDate") + """
+    \t""" + tChmy + Yellow("\t\tChmy") + """
+    \t""" + tDirBInc + Yellow("\tDirsInc") + """
+    \t""" + tDBex + Yellow("\tDBex") + """
+    \t""" + tMyDumpOpt + Yellow("\tMyDumpOpt") + """
+    \t""" + tMysqlReady + Yellow("\tMysqlReady") + """
+    \t""" + tDateStartMysql + Yellow("\tDateStartMysql") + """
+    \t""" + tDateStopMysql + Yellow("\tDateStopMySQL") + """
     \n
     \tExamples: 
-    \tlist all servers with status rsync error: """+ Yellow("sbctl find Status \"rsync error\"") + """
-    \tlist all servers with \""""+ tChmy +"""NO\": """+ Yellow("sbctl find Chmy NO") + """
+    \tlist all servers with status rsync error: """ + Yellow("sbctl find Status \"rsync error\"") + """
+    \tlist all servers with \"""" + tChmy + """NO\": """ + Yellow("sbctl find Chmy NO") + """
     \n"""
-    
+
 
 def help():
     return """Help function: Basic Usage:
-    \t"""+White("add")+""" or addhost \t\t- Add host to backup
-    \t"""+White("l")+""" or  list     \t\t- List all hosts
-    \t"""+White("se")+""" or search   \t\t- Search for the host name, example: """+Yellow("sbctl search w1.host.com")+"""
-    \t"""+White("re")+""" or reconf   \t\t- Reconfiguration of backup settings, example: """+Yellow("sbctl reconf w1.host.com")+"""
-    \t"""+White("rm")+""" or remove   \t\t- Remove host, example: """+Yellow("sbctl delete w1.host.com")+"""
-    \t"""+White("ho")+""" or host     \t\t- Send command to remote host, example: """+Yellow("sbctl host w1.host.com \"ls -al /var/backup\"")+"""
-    \t"""+White("backup")+"""         \t\t- Start backup, example: """+Yellow("sbctl backup w1.host.com")+"""
-    \t"""+White("status")+"""         \t\t- Status update, example: """+Yellow("sbctl status w1.host.com Done/Disabled/needbackup")+"""
+    \t""" + White("add") + """ or addhost \t\t- Add host to backup
+    \t""" + White("l") + """ or  list     \t\t- List all hosts
+    \t""" + White("se") + """ or search   \t\t- Search for the host name, example: """ + Yellow("sbctl search w1.host.com") + """
+    \t""" + White("re") + """ or reconf   \t\t- Reconfiguration of backup settings, example: """ + Yellow("sbctl reconf w1.host.com") + """
+    \t""" + White("rm") + """ or remove   \t\t- Remove host, example: """ + Yellow("sbctl delete w1.host.com") + """
+    \t""" + White("ho") + """ or host     \t\t- Send command to remote host, example: """ + Yellow("sbctl host w1.host.com \"ls -al /var/backup\"") + """
+    \t""" + White("backup") + """         \t\t- Start backup, example: """ + Yellow("sbctl backup w1.host.com") + """
+    \t""" + White("status") + """         \t\t- Status update, example: """ + Yellow("sbctl status w1.host.com Done/Disabled/needbackup") + """
     \t   status Done         \t- Backup is done
     \t   status Disabled     \t- Turn backup off
     \t   status needbackup   \t- Need to backup
-    \t"""+White("find")+"""           \t\t- List the hosts matching parameters, example: """+Yellow("sbctl find Status \"rsync error\"")+"""
-    \t"""+White("find-not")+"""       \t\t- List the hosts invert-matching parameters, example: """+Yellow("sbctl find-not Chmy YES")+"""
-    \t"""+White("find-regex")+"""     \t\t- Use regular expression to find the hosts on their parameter, example: """+Yellow("sbctl find-regex Status error")+""" 
-    \t"""+White("find help") +"""     \t\t- List all parameter keys, example: """+Yellow("sbctl find help")+""" 
-    \t"""+ FindHelp()  +"""
+    \t""" + White("find") + """           \t\t- List the hosts matching parameters, example: """ + Yellow("sbctl find Status \"rsync error\"") + """
+    \t""" + White("find-not") + """       \t\t- List the hosts invert-matching parameters, example: """ + Yellow("sbctl find-not Chmy YES") + """
+    \t""" + White("find-regex") + """     \t\t- Use regular expression to find the hosts on their parameter, example: """ + Yellow("sbctl find-regex Status error") + """ 
+    \t""" + White("find help") + """     \t\t- List all parameter keys, example: """ + Yellow("sbctl find help") + """ 
+    \t""" + FindHelp() + """
     \thelp     \t\t- Help
     \n"""
 
 
-
 def main():
     try:
-        argv=sys.argv[1]
+        argv = sys.argv[1]
         if argv == 'addhost' or argv == 'add':
             add()
         elif argv == 'list' or argv == 'l':
@@ -568,14 +584,14 @@ def main():
         elif argv == 'host' or argv == 'ho':
             Command(sys.argv[2], sys.argv[3])
         elif argv == "backup":
-            cmd="sbd backup "+sys.argv[2]
+            cmd = "sbd backup " + sys.argv[2]
             os.system(cmd)
         elif argv == "status":
             try:
                 print Status(sys.argv[2], sys.argv[3])
             except:
                 pass
-        elif argv == "find" or argv == "find-regex" or argv == "find-not" :
+        elif argv == "find" or argv == "find-regex" or argv == "find-not":
             if sys.argv[2] == "help":
                 print FindHelp()
             else:

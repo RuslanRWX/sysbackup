@@ -17,10 +17,11 @@ import re
 #global Not_check
 #Not_check = "NO"
 
+
 def CreateTmpFiles(Name, DirsEx):
     DirsEx = DirsEx.replace(' ', '')
     DirsEx = DirsEx.replace(',', '\n') + "\n"
-    FileNameEx = SB.tmp+"/" + Name + "_ex.txt"
+    FileNameEx = SB.tmp + "/" + Name + "_ex.txt"
     FileEx = open(FileNameEx,  "w")
     FileEx.write(DirsEx)
     FileEx.close()
@@ -34,14 +35,15 @@ def DateCheck(checkdate):
     #dateCh = "%s000000" % (date)
     return date
 
+
 def log(text, file):
-    logf = open(file,"a")
+    logf = open(file, "a")
     logf.write(text)
     logf.close()
-    
+
 
 class Backup:
-    def __init__(self, S, Not_check = "NO"):
+    def __init__(self, S, Not_check="NO"):
         self.Server = S
         self.Not_check = Not_check
 
@@ -75,28 +77,29 @@ class Backup:
         #ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         chdate = DateCheck(Frequency)
-        #print "Name", Name
-        #print "Check date: ", chdate
-        #print "Date End: ", DateEnd
+        # print "Name", Name
+        # print "Check date: ", chdate
+        # print "Date End: ", DateEnd
         if DateEnd > chdate and self.Not_check == "NO" and Status == "Done" or Status == "running":
             return
         if Status == "running":
-            tbackuprun=Name+" Backup already running"
+            tbackuprun = Name + " Backup already running"
             log(tbackuprun, SB.Log)
             print tbackuprun
         if Chmy == "YES":
-            DirsExclude=DirsExclude +","+DirsInc
+            DirsExclude = DirsExclude + "," + DirsInc
         if Chmy == "YES" and self.Not_check == "YES":
-            cmdsbcl="sbctl host "+sys.argv[2]+" \"/usr/sbin/sbcl mysqldump\""
+            cmdsbcl = "sbctl host " + \
+                sys.argv[2] + " \"/usr/sbin/sbcl mysqldump\""
             os.system(cmdsbcl)
             time.sleep(3)
         if R["MysqlReady"] == "NO" and Chmy == "YES":
-            text = "\n"+Name+": Mysqldump is not ready"
+            text = "\n" + Name + ": Mysqldump is not ready"
             log(text, SB.Log)
             print text
             return
         CreateTmpFiles(Name, DirsExclude)
-        text="""\n###########Start Backup######
+        text = """\n###########Start Backup######
         Now TIME: {time}
         Server name: {name}
         User: {user}
@@ -106,15 +109,17 @@ class Backup:
         Dirs : {dirs}
         Dirs exclude: {dirE}
         DateStart : {dateS}\n"""
-        text=text.format(time=datetime.datetime.now(), name=Name,user=User,ip=ServerIP,port=ServerPort,rsyncOpt=RsyncOpt,dirs=Dirs,dirE=DirsExclude,dateS=DateStart)
-        #print text
+        text = text.format(time=datetime.datetime.now(), name=Name, user=User, ip=ServerIP,
+                           port=ServerPort, rsyncOpt=RsyncOpt, dirs=Dirs, dirE=DirsExclude, dateS=DateStart)
+        # print text
         log(text, SB.Log)
-        DateUp = {"DateStart": ISODateStart ,  "Status": "running", "DateEnd": "" }
+        DateUp = {"DateStart": ISODateStart,
+                  "Status": "running", "DateEnd": ""}
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
         DirB = SB.DirBackup + "/" + Name
         DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
-        ExFile = SB.tmp+"/" + Name + "_ex.txt"
-        #print "Start rsync ! "
+        ExFile = SB.tmp + "/" + Name + "_ex.txt"
+        # print "Start rsync ! "
         if not os.path.exists(DirB):
             os.makedirs(DirB)
         if not os.path.exists(DirBL):
@@ -123,24 +128,24 @@ class Backup:
             if RD != "/":
                 RD = re.sub(r'\/$', '', RD)
             cmdrsync = "/usr/bin/rsync  {rsopt} --relative --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf} --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
-                port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
-            code=os.system(cmdrsync)
+                                                                                                                                                                                                                                                             port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=RD, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
+            code = os.system(cmdrsync)
             if code > 0:
-                log(Name+" rsync error!", SB.LogError)
-                Status="rsync error"
+                log(Name + " rsync error!", SB.LogError)
+                Status = "rsync error"
             else:
-                Status="Done"
+                Status = "Done"
         if Chmy == "YES":
-            cmdrsyncmysql =  "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
-                port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
-            code=os.system(cmdrsyncmysql)
+            cmdrsyncmysql = "/usr/bin/rsync  {rsopt} --log-file={logdir}/{serv}.log --progress -e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd}  {dirbl} ".format(rsopt=RsyncOpt,
+                                                                                                                                                                                              port=ServerPort, exf=ExFile, dir=DirB, user=User, ip=ServerIP, rd=DirsInc, dirbl=DirBL, logdir=SB.LogDir, serv=Name)
+            code = os.system(cmdrsyncmysql)
             if code > 0:
-                log(Name+" rsync error, mysql directory!", SB.LogError)
-                Status="rsync error"
+                log(Name + " rsync error, mysql directory!", SB.LogError)
+                Status = "rsync error"
             else:
-                Status="Done"
-        #print DirBL
-        #print DirB
+                Status = "Done"
+        # print DirBL
+        # print DirB
         Link = DirB + "/" + "Latest"
         try:
             os.remove(Link)
@@ -149,46 +154,48 @@ class Backup:
             pass
         #link="ln -s {dir} {lin}".format(dir=DirBL, lin=Link)
         os.symlink(DirBL, Link)
-        #os.system(link)
+        # os.system(link)
         ISODateEnd = datetime.datetime.now().isoformat()
-        DateUp = {"DateEnd": ISODateEnd , "Status": Status }
+        DateUp = {"DateEnd": ISODateEnd, "Status": Status}
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
-        text="""\n############End Backup  #######
+        text = """\n############End Backup  #######
         Now TIME: {time}
         Server name: {name}
         DateEnd : {date}"""
-        text=text.format(time=datetime.datetime.now(), name=Name, date=DateEnd)
+        text = text.format(time=datetime.datetime.now(),
+                           name=Name, date=DateEnd)
         log(text, SB.Log)
-        #cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
+        # cmdclean = "/usr/bin/find %s -maxdepth 1 -mtime +%s -exec rm -r '{}' \;" % (
         #    DirB, CleanDate)
-        Drs=set()
-        rDir=os.listdir(DirB)
+        Drs = set()
+        rDir = os.listdir(DirB)
         CleanD = int(CleanDate) * 24
-        #print CleanDate
-        #print CleanD
-        DCh=DateCheck(CleanD)
+        # print CleanDate
+        # print CleanD
+        DCh = DateCheck(CleanD)
         for rd in rDir:
             Drs.add(rd)
         Drs.discard("Latest")
         resultDir = filter(lambda x: DCh > x, Drs)
-        #print "Start check dir"
-        #print "Chekc date:",  DCh
+        # print "Start check dir"
+        # print "Chekc date:",  DCh
         if resultDir != []:
             for D in resultDir:
-                path=DirB+"/"+D
-                #print path
-                cmdrm="/bin/rm -rf {p}".format(p=path)
+                path = DirB + "/" + D
+                # print path
+                cmdrm = "/bin/rm -rf {p}".format(p=path)
                 os.system(cmdrm)
         #text="\nStart clean the back            print Rup server\nCommand: {com}".format(com=cmdclean)
-        #log(text)
+        # log(text)
 
 
 def CreateQ():
     ServersQ = {}
     SB.MongoCon()
-    Mq = SB.coll.find({ "Status" : { "$ne": "Disabled" } }).sort('Priv',  1)
+    Mq = SB.coll.find({"Status": {"$ne": "Disabled"}}).sort('Priv',  1)
     allservers = list(Mq)
     return allservers
+
 
 def API():
     import socket
@@ -199,7 +206,7 @@ def API():
     s.bind((SERVER_ADDRESS, SERVER_PORT))
     s.listen(255)
     print("Listening on address %s." %
-      str((SERVER_ADDRESS, SERVER_PORT)))
+          str((SERVER_ADDRESS, SERVER_PORT)))
     while True:
         c, addr = s.accept()
         print("\nConnection received from %s" % str(addr))
@@ -212,7 +219,7 @@ def API():
                     break
                 data = data.decode()
                 data = data.split("|")
-                #print data
+                # print data
                 print("Received '%s' from client " % data[0], str(addr))
                 if data[0] == "Get":
                     DataMongo = list(SB.coll.find({"ServerIP": addr[0]}))
@@ -221,20 +228,22 @@ def API():
                         if type(DataResult) == int:
                             DataResult = str(DataResult)
                         if DataResult == "":
-                            DataResult="Empty"
+                            DataResult = "Empty"
                 elif data[0] == "Add":
                     DateUp = {data[1]: data[2]}
-                    SB.coll.update({"ServerIP": addr[0] }, {"$set": DateUp}, upsert=False)
-                    DataResult="End"
+                    SB.coll.update({"ServerIP": addr[0]}, {
+                                   "$set": DateUp}, upsert=False)
+                    DataResult = "End"
                 elif data[0] == "GetAll":
                     DataResult = list(SB.coll.find({"ServerIP": addr[0]}))
                 else:
-                    DataResult="Error api: "
-                DataResult=DataResult.encode()
+                    DataResult = "Error api: "
+                DataResult = DataResult.encode()
                 c.send(DataResult)
             c.close()
         except:
             pass
+
 
 def worker():
     while True:
@@ -257,14 +266,14 @@ def Q():
 
 
 def Check():
-    tmp=SB.tmp
-    LogDir=SB.LogDir
+    tmp = SB.tmp
+    LogDir = SB.LogDir
     if not os.path.exists(tmp):
         os.makedirs(tmp)
     if not os.path.exists(LogDir):
         os.makedirs(LogDir)
     if os.path.isfile(SB.Pidfile):
-        text="\n{pd} already exists, exiting \n".format(pd=SB.Pidfile)
+        text = "\n{pd} already exists, exiting \n".format(pd=SB.Pidfile)
         log(text, SB.Log)
         print text
         return sys.exit(1)
@@ -282,37 +291,39 @@ def help():
 
 
 def Stop():
-    text="\nStoped sbd {date}\n".format(date=datetime.datetime.now())
+    text = "\nStoped sbd {date}\n".format(date=datetime.datetime.now())
     log(text, SB.Log)
     print text
     if os.path.isfile(SB.Pidfile):
-        f=open(SB.Pidfile, "r")
-        PID=int(f.read())
+        f = open(SB.Pidfile, "r")
+        PID = int(f.read())
         os.system('/usr/bin/pkill -TERM -P {pid}'.format(pid=PID))
         os.remove(SB.Pidfile)
         os.system('/usr/bin/pkill rsync')
         f.close()
         SB.MongoCon()
-        DateUp = {"Status": "Stopped" }
+        DateUp = {"Status": "Stopped"}
         SB.coll.update({"Status": "running"}, {"$set": DateUp}, upsert=False)
         print "sbd is stopped"
     else:
         print "sbd is not running"
-    
 
 
 def Start():
-    text="\nStart sbd version:{ver}, date: {date}\n".format(ver=Ver, date=datetime.datetime.now())
+    text = "\nStart sbd version:{ver}, date: {date}\n".format(
+        ver=Ver, date=datetime.datetime.now())
     log(text, SB.Log)
     print text
     t = threading.Thread(target=API)
     t.daemon = True
     t.start()
     while True:
-        text="\nStart queue, date: {date}".format(date=datetime.datetime.now())
+        text = "\nStart queue, date: {date}".format(
+            date=datetime.datetime.now())
         log(text, SB.Log)
         Q()
-        text="\nQueue is done, date: {date}\n".format(date=datetime.datetime.now())
+        text = "\nQueue is done, date: {date}\n".format(
+            date=datetime.datetime.now())
         log(text, SB.Log)
         time.sleep(SB.TimeCheck)
 
@@ -328,15 +339,15 @@ def main():
             Stop()
             Start()
         elif sys.argv[1] == 'backup':
-            tmp=SB.tmp
-            name=sys.argv[2]
+            tmp = SB.tmp
+            name = sys.argv[2]
             if not os.path.exists(tmp):
                 os.makedirs(tmp)
-            Back = Backup(name,Not_check="YES")
+            Back = Backup(name, Not_check="YES")
             try:
                 Back.run()
             except:
-               print "Error: have not host like "+ sys.argv[2] +" !"
+                print "Error: have not host like " + sys.argv[2] + " !"
         else:
             print help()
     except IndexError:

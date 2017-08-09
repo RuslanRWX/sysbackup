@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# cbcl - SySBackup client program  
+# cbcl - SySBackup client program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
 # Version 0.3.2
 
@@ -14,7 +14,7 @@ import os
 import datetime
 import sys
 
-# mail variables 
+# mail variables
 MysqlOptDef = "--opt  --routines"
 PortDef = "22"
 UserDef = "root"
@@ -74,19 +74,20 @@ tCheckRsync = "Is the Rsync installed on your remote server ? ['yes' or 'no']: "
 tPlInR = "Please, install the rsync on your remote server !"
 tCheckMy = "Is the file ~/.my.cnf configured ?  ['yes' or 'no']: "
 tPlconfMy = "Please, configure the ~/.my.cnf for databases access "
-tDefMysqlOpt = " you can add --ignore-table=db.table [default: " + MysqlOptDef + " ]: "
-tdefExDb =  "[default: information_schema,performance_schema]: "
+tDefMysqlOpt = " you can add --ignore-table=db.table [default: " + \
+    MysqlOptDef + " ]: "
+tdefExDb = "[default: information_schema,performance_schema]: "
 tDuDel = "Do you want to purge ['yes' or 'on']: "
-Defroot = "[default:"+UserDef+"] "
-Defport = "[default: "+ str(PortDef) +" ] "
-Defop = "[default:"+RsyncOptDef+"] "
-Defpri = "[default: "+  str(PrivDef) +" ] "
-DefFr = "[default: "+ str(FrequencyDef) +"] "
-DefClean = "[default "+ str(CleanDateDef)+"] "
-ExampleDir = "example["+DirsDef+"] "
-ExampleDirEx = "example["+DirExDef+"] "
-ExampleIncDir = "example["+DirIncDef+"] " 
-ExampleExDB = "example["+DBexDef+"] "
+Defroot = "[default:" + UserDef + "] "
+Defport = "[default: " + str(PortDef) + " ] "
+Defop = "[default:" + RsyncOptDef + "] "
+Defpri = "[default: " + str(PrivDef) + " ] "
+DefFr = "[default: " + str(FrequencyDef) + "] "
+DefClean = "[default " + str(CleanDateDef) + "] "
+ExampleDir = "example[" + DirsDef + "] "
+ExampleDirEx = "example[" + DirExDef + "] "
+ExampleIncDir = "example[" + DirIncDef + "] "
+ExampleExDB = "example[" + DBexDef + "] "
 tStatus = "Status: "
 tDelCronResult = "Cron job sbcl has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
@@ -97,15 +98,16 @@ tMysqlReady = "MySQLdump ready: "
 #print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
 if not os.path.exists(logdir):
     os.makedirs(logdir)
-with open(logdir+"/sbclient.error.log", 'w'): pass
+with open(logdir + "/sbclient.error.log", 'w'):
+    pass
 
 
 def ImCheck(data, default=None, Empty=None):
     Check = None
     while Check is None:
-        Result=raw_input(data).replace(' ', '').replace('\t', '') or default
-        if Result != "" and Result is not None or Empty == "YES" :
-            Check="True"
+        Result = raw_input(data).replace(' ', '').replace('\t', '') or default
+        if Result != "" and Result is not None or Empty == "YES":
+            Check = "True"
     return Result
 
 
@@ -135,7 +137,7 @@ def list():
     global ServerPort
     ServerPort = GetData("Get|ServerPort")
     global Priv
-    Priv =  GetData("Get|Priv")
+    Priv = GetData("Get|Priv")
     global RsyncOpt
     RsyncOpt = GetData("Get|RsyncOpt")
     global Dirs
@@ -158,19 +160,19 @@ def list():
     MysqlLog = GetData("Get|MysqlLog")
     global MysqlReady
     MysqlReady = GetData("Get|MysqlReady")
-        
+
     print tStart
     print tServName + ServerName
     print tUser, User
     print tPriy, Priv
     print tOpR + RsyncOpt
     if Status == "rsync error":
-        print tStatus  + Status
+        print tStatus + Status
     elif Status == "running":
-        print tStatus  + Status
+        print tStatus + Status
     else:
-        print tStatus  + Status
-    if  GetData("Get|DateStart"):
+        print tStatus + Status
+    if GetData("Get|DateStart"):
         print tLastD + GetData("Get|DateStart")
     if GetData("Get|DateEnd"):
         print tLastDN + GetData("Get|DateEnd")
@@ -183,15 +185,15 @@ def list():
         print tDBex + DBex
         print tMyDumpOpt + MyDumpOpt
         if MysqlLog == "Error":
-            print tMysqlLog + MysqlLog 
+            print tMysqlLog + MysqlLog
         if MysqlReady == "YES":
             print tMysqlReady + MysqlReady
         else:
             print tMysqlReady + MysqlReady
         print tDateStartMysql + GetData("Get|DateStartMySQL")
-        print tDateStopMysql + GetData("Get|DateStopMySQL")+"\n"
+        print tDateStopMysql + GetData("Get|DateStopMySQL") + "\n"
     print tAOS
-  
+
 
 def MysqlDump():
     Ex = GetData("Get|DBex")
@@ -202,17 +204,18 @@ def MysqlDump():
         os.mkdir(Dir)
     Opt = GetData("Get|MyDumpOpt")
     ISODateStart = datetime.datetime.now().isoformat()
-    GetData("Add|DateStartMySQL|"+ISODateStart)
+    GetData("Add|DateStartMySQL|" + ISODateStart)
     GetData("Add|DateStopMySQL|None")
     if Dir == "Empty":
         print "Not configured on the backup server for mysqldump"
         return
     print "Start backup"
-    cmd="mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(file=tmpfile)
+    cmd = "mysql -e \"SHOW DATABASES\" | sed '1d' > {file}".format(
+        file=tmpfile)
     os.system(cmd)
     if Ex != "Empty":
         for R in Ex.split(","):
-            cmd="sed -i \"/{line}/d\" {file}".format(line=R, file=tmpfile)
+            cmd = "sed -i \"/{line}/d\" {file}".format(line=R, file=tmpfile)
             os.system(cmd)
     file = open(tmpfile, "r")
     for line in file:
@@ -220,15 +223,16 @@ def MysqlDump():
         cmd = "mysqldump {opt} {line} > {dir}/{line}.sql 2>> {logdir}/sbclient.error.log ".format(
             opt=Opt, line=line, dir=Dir, logdir=logdir)
         os.system(cmd)
-    if os.stat(logdir+"/sbclient.error.log").st_size > 0:
+    if os.stat(logdir + "/sbclient.error.log").st_size > 0:
         GetData("Add|MysqlLog|Error")
     else:
         GetData("Add|MysqlLog|Not")
     GetData("Add|MysqlReady|YES")
     ISODateStop = datetime.datetime.now().isoformat()
-    GetData("Add|DateStopMySQL|"+ISODateStop)
-    print "Mysqldump has been done"  
-    
+    GetData("Add|DateStopMySQL|" + ISODateStop)
+    print "Mysqldump has been done"
+
+
 def update():
     list()
     ChmyN = None
@@ -240,8 +244,9 @@ def update():
         tServPort + Defport + ' [Now: ' + str(ServerPort) + ' ] : ', default=ServerPort)
     RsyncOptN = ImCheck(
         tOpR + Defop + ' [Now:' + RsyncOpt + ']: ', default=RsyncOpt)
-    PrivN = ImCheck(tPriy  + ' [ Now:' + str(Priv) + ' ]: ', default=Priv)
-    DirsN = ImCheck(tDir + ExampleDir +' [ Now:' + Dirs + ' ]: ', default=Dirs)
+    PrivN = ImCheck(tPriy + ' [ Now:' + str(Priv) + ' ]: ', default=Priv)
+    DirsN = ImCheck(tDir + ExampleDir +
+                    ' [ Now:' + Dirs + ' ]: ', default=Dirs)
     DirsExcludeN = ImCheck(
         tDirEx + ExampleDirEx + ' [ Now:' + DirsExclude + ']: ', default=DirsExclude, Empty="YES")
     FrequencyN = ImCheck(
@@ -252,17 +257,17 @@ def update():
     choice = ImCheck(tMysqlUpdate).lower()
     cmdcrondel = "sed -i '/sbcl/d' /etc/crontab"
     if choice in "rm":
-        ChmyN="NO"
+        ChmyN = "NO"
     elif choice in yes:
-        ChmyN="YES"
+        ChmyN = "YES"
         choicech = ImCheck(tCheckMy).lower()
         if choicech in yes:
             pass
         else:
             print tPlconfMy
             return
-        cmddb="mysql -e 'show databases;'"
-        cmddf="df -h"
+        cmddb = "mysql -e 'show databases;'"
+        cmddf = "df -h"
         print tResdf
         os.system(cmddf)
         if DirsInc == "Empty":
@@ -270,7 +275,7 @@ def update():
         else:
             DirsIncExample = DirsInc
         DirsIncN = ImCheck(
-            tDirBInc + ExampleIncDir  + ' [ Now:' + DirsInc + ' ]: ', default=DirsIncExample)
+            tDirBInc + ExampleIncDir + ' [ Now:' + DirsInc + ' ]: ', default=DirsIncExample)
         print tUdb
         os.system(cmddb)
         print tAOS
@@ -278,53 +283,55 @@ def update():
             DBexExample = DBexDef
         else:
             DBexExample = DBex
-        DBexN = ImCheck(tDBex + ExampleExDB + '[Now: '+DBex+']: ', DBexExample,  Empty="YES")
+        DBexN = ImCheck(tDBex + ExampleExDB +
+                        '[Now: ' + DBex + ']: ', DBexExample,  Empty="YES")
         if MyDumpOpt == "Empty":
             MyDumpOptExample = MysqlOptDef
         else:
             MyDumpOptExample = MyDumpOpt
-        MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt + '[Now:'+MyDumpOpt+']:', default=MyDumpOptExample)
+        MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +
+                             '[Now:' + MyDumpOpt + ']:', default=MyDumpOptExample)
         CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
         print CronN + tAddtoCron
-        cmdcron = "echo \"" + CronN + "\" >> /etc/crontab"    
+        cmdcron = "echo \"" + CronN + "\" >> /etc/crontab"
     else:
         pass
-    if  ChmyN == "NO":
-        MyDumpOptN="Empty"
-        DirsIncN="Empty"
-        DBexN="Empty"
+    if ChmyN == "NO":
+        MyDumpOptN = "Empty"
+        DirsIncN = "Empty"
+        DBexN = "Empty"
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         if ServerName != ServerNameN:
-            GetData("Add|Name|"+ServerNameN)
+            GetData("Add|Name|" + ServerNameN)
         if User != UserN:
-            GetData("Add|User|"+UserN)
+            GetData("Add|User|" + UserN)
         if ServerPort != ServerPortN:
-            GetData("Add|ServerPort|"+ServerPortN)
+            GetData("Add|ServerPort|" + ServerPortN)
         if RsyncOpt != RsyncOptN:
-            GetData("Add|RsyncOpt|"+RsyncOptN)
+            GetData("Add|RsyncOpt|" + RsyncOptN)
         if Dirs != DirsN:
-            GetData("Add|Dirs|"+DirsN)
+            GetData("Add|Dirs|" + DirsN)
         if DirsExclude != DirsExcludeN:
-            GetData("Add|DirsExclude|"+DirsExcludeN)
-        if Priv !=PrivN:
-            GetData("Add|Priv|"+PrivN)
+            GetData("Add|DirsExclude|" + DirsExcludeN)
+        if Priv != PrivN:
+            GetData("Add|Priv|" + PrivN)
         if Frequency != FrequencyN:
-            GetData("Add|Frequency|"+FrequencyN)
+            GetData("Add|Frequency|" + FrequencyN)
         if ChmyN is not None and Chmy != ChmyN:
-            GetData("Add|Chmy|"+ChmyN)
-        if  ChmyN == "YES":
+            GetData("Add|Chmy|" + ChmyN)
+        if ChmyN == "YES":
             if DirsInc != DirsIncN:
-                GetData("Add|DirsInc|"+DirsIncN)
+                GetData("Add|DirsInc|" + DirsIncN)
             if DBex != DBexN:
-                GetData("Add|DBex|"+DBexN)
+                GetData("Add|DBex|" + DBexN)
             if MyDumpOpt != MyDumpOptN:
-                GetData("Add|MyDumpOpt|"+MyDumpOptN)
+                GetData("Add|MyDumpOpt|" + MyDumpOptN)
             os.system(cmdcrondel)
             os.system(cmdcron)
         elif ChmyN == "NO" and Chmy == "YES":
             os.system(cmdcrondel)
-        else: 
+        else:
             pass
         print tEndofUpdate
     elif choice in no:
@@ -332,6 +339,7 @@ def update():
         return exit(1)
     else:
         sys.stdout.write(tPlease)
+
 
 def help():
     return """Help function: Basic Usage:
@@ -349,7 +357,7 @@ if __name__ == '__main__':
         elif sys.argv[1] == 'list':
             list()
         elif sys.argv[1] == 'backup':
-            
+
             print "Send command to backup"
             GetData("Add|Status|needbackup")
         elif sys.argv[1] == 'reconf':
@@ -358,4 +366,3 @@ if __name__ == '__main__':
             print help()
     except IndexError:
         print help()
-    
