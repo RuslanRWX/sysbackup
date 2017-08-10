@@ -52,9 +52,6 @@ class Backup:
         Mq = SB.coll.find()
         Server = self.Server
         CodeRsync = None
-        #from random import randint
-        #from time import sleep
-        #SL = (randint(1, 20))
         SD = list(SB.coll.find({"Name": Server}))
         for R in SD:
             Name = R["Name"]
@@ -75,13 +72,9 @@ class Backup:
             DirsInc = R["DirsInc"]
             Chmy = R["Chmy"]
             Status = R["Status"]
-        #ts = time.time()
         ISODateStart = datetime.datetime.now().isoformat()
         chdate = DateCheck(Frequency)
-        # print "Name", Name
-        # print "Check date: ", chdate
-        # print "Date End: ", DateEnd
-        if DateEnd > chdate and self.Not_check == "NO" and Status == "Done" or Status == "running":
+        if DateEnd > chdate and self.Not_check == "NO" or Status == "Done" or Status == "running":
             return
         if Status == "running":
             tbackuprun = Name + " Backup already running"
@@ -112,7 +105,6 @@ class Backup:
         DateStart : {dateS}\n"""
         text = text.format(time=datetime.datetime.now(), name=Name, user=User, ip=ServerIP,
                            port=ServerPort, rsyncOpt=RsyncOpt, dirs=Dirs, dirE=DirsExclude, dateS=DateStart)
-        # print text
         log(text, SB.Log)
         DateUp = {"DateStart": ISODateStart,
                   "Status": "running", "DateEnd": ""}
@@ -120,7 +112,7 @@ class Backup:
         DirB = SB.DirBackup + "/" + Name
         DirBL = SB.DirBackup + "/" + Name + "/" + ISODateStart
         ExFile = SB.tmp + "/" + Name + "_ex.txt"
-        # print "Start rsync ! "
+        # "Start rsync ! "
         if not os.path.exists(DirB):
             os.makedirs(DirB)
         if not os.path.exists(DirBL):
