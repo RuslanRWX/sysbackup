@@ -261,10 +261,13 @@ def Q():
 def Check():
     tmp = SB.tmp
     LogDir = SB.LogDir
+    DirBackup = SB.DirBackup
     if not os.path.exists(tmp):
         os.makedirs(tmp)
     if not os.path.exists(LogDir):
         os.makedirs(LogDir)
+    if not os.path.exists(DirBackup):
+        os.makedirs(DirBackup)
     if os.path.isfile(SB.Pidfile):
         text = "\n{pd} already exists, exiting \n".format(pd=SB.Pidfile)
         log(text, SB.Log)
