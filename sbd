@@ -74,7 +74,7 @@ class Backup:
             Status = R["Status"]
         ISODateStart = datetime.datetime.now().isoformat()
         chdate = DateCheck(Frequency)
-        if DateEnd > chdate and self.Not_check == "NO" or Status == "Done" or Status == "running":
+        if DateEnd > chdate and self.Not_check == "NO" and Status == "Done" or Status == "rsync error" or Status == "running":
             return
         if Status == "running":
             tbackuprun = Name + " Backup already running"
