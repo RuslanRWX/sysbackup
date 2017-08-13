@@ -13,6 +13,9 @@ import socket
 import os
 import datetime
 import sys
+import signal
+import pickle
+
 
 # mail variables
 MysqlOptDef = "--opt  --routines"
@@ -49,6 +52,7 @@ tDir = "Directory :"
 tDirEx = "Exclude directory :"
 tDataCor = "Data are correct? yes|no: "
 tBye = "Bye!"
+tctrlD = "\nYou pressed Ctrl+C!\nBye!"
 tPlease = "Please respond with 'yes' or 'no'"
 tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"
 tDuD = 'Do you really want to delete host? '
@@ -95,6 +99,29 @@ tEndofUpdate = "Configuration has been modified"
 tMysqlReady = "MySQLdump ready: "
 
 
+def signal_handler(signal, frame):
+            print tctrlD
+            sys.exit(0)
+
+
+signal.signal(signal.SIGINT, signal_handler)
+
+
+def Yellow(data):
+    from colorama import Fore, Style
+    return (Fore.YELLOW + data + Style.RESET_ALL)
+
+
+def Red(data):
+    from colorama import Fore, Style
+    return (Fore.RED + data + Style.RESET_ALL)
+
+
+def White(data):
+    from colorama import Fore, Style
+    return (Fore.WHITE + data + Style.RESET_ALL)
+
+
 #print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
 if not os.path.exists(logdir):
     os.makedirs(logdir)
@@ -125,42 +152,48 @@ def GetData(data):
     data = data.decode()
     c.close()
     return data
+    
+    
+def Pikle():
+    data = GetData("GetAll|None")
+    return pickle.loads(data)
 
 
 def list():
+    R=Pikle()
     global ServerName
-    ServerName = GetData("Get|Name")
+    ServerName = R[0]["Name"]
     global User
-    User = GetData("Get|User")
+    User = R[0]["User"]
     global ServerIP
-    ServerIP = GetData("Get|ServerIP")
+    ServerIP = R[0]["ServerIP"]
     global ServerPort
-    ServerPort = GetData("Get|ServerPort")
+    ServerPort = R[0]["ServerPort"]
     global Priv
-    Priv = GetData("Get|Priv")
+    Priv = R[0]["Priv"]
     global RsyncOpt
-    RsyncOpt = GetData("Get|RsyncOpt")
+    RsyncOpt = R[0]["RsyncOpt"]
     global Dirs
-    Dirs = GetData("Get|Dirs")
+    Dirs = R[0]["Dirs"]
     global DirsExclude
-    DirsExclude = GetData("Get|DirsExclude")
+    DirsExclude = R[0]["DirsExclude"]
     global Frequency
-    Frequency = str(GetData("Get|Frequency"))
+    Frequency = R[0]["Frequency"]
     global Status
-    Status = GetData("Get|Status")
+    Status = R[0]["Status"]
     global Chmy
-    Chmy = GetData("Get|Chmy")
+    Chmy = R[0]["Chmy"]
     global DBex
-    DBex = GetData("Get|DBex")
+    DBex = R[0]["DBex"]
     global MyDumpOpt
-    MyDumpOpt = GetData("Get|MyDumpOpt")
+    MyDumpOpt = R[0]["MyDumpOpt"]
     global DirsInc
-    DirsInc = str(GetData("Get|DirsInc"))
+    DirsInc = str(R[0]["DirsInc"])
     global MysqlLog
-    MysqlLog = GetData("Get|MysqlLog")
+    MysqlLog = R[0]["MysqlLog"]
     global MysqlReady
-    MysqlReady = GetData("Get|MysqlReady")
-
+    MysqlReady = R[0]["MysqlReady"]
+    
     print tStart
     print tServName + ServerName
     print tUser, User
@@ -172,10 +205,10 @@ def list():
         print tStatus + Status
     else:
         print tStatus + Status
-    if GetData("Get|DateStart"):
-        print tLastD + GetData("Get|DateStart")
-    if GetData("Get|DateEnd"):
-        print tLastDN + GetData("Get|DateEnd")
+    if R[0]["DateStart"]:
+        print tLastD + R[0]["DateStart"]
+    if R[0]["DateEnd"]:
+        print tLastDN + R[0]["DateEnd"]
     print tDir + Dirs
     print tDirEx + DirsExclude
     print tFB + str(Frequency)
@@ -190,19 +223,20 @@ def list():
             print tMysqlReady + MysqlReady
         else:
             print tMysqlReady + MysqlReady
-        print tDateStartMysql + GetData("Get|DateStartMySQL")
-        print tDateStopMysql + GetData("Get|DateStopMySQL") + "\n"
+        print tDateStartMysql + R[0]["DateStartMySQL"]
+        print tDateStopMysql + R[0]["DateStopMySQL"] + "\n"
     print tAOS
 
 
 def MysqlDump():
-    Ex = GetData("Get|DBex")
-    Dir = GetData("Get|DirsInc")
+    R=Pikle()
+    Ex = R[0]["DBex"]
+    Dir = R[0]["DirsInc"]
     try:
         os.stat(Dir)
     except:
         os.mkdir(Dir)
-    Opt = GetData("Get|MyDumpOpt")
+    Opt = R[0]["MyDumpOpt"]
     ISODateStart = datetime.datetime.now().isoformat()
     GetData("Add|DateStartMySQL|" + ISODateStart)
     GetData("Add|DateStopMySQL|None")
@@ -366,3 +400,6 @@ if __name__ == '__main__':
             print help()
     except IndexError:
         print help()
+    except EOFError:
+        print tBye
+

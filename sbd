@@ -192,6 +192,7 @@ def CreateQ():
 
 def API():
     import socket
+    import pickle
     SERVER_ADDRESS = SB.IP
     SERVER_PORT = int(SB.Port)
     s = socket.socket()
@@ -231,7 +232,7 @@ def API():
                     DataResult = list(SB.coll.find({"ServerIP": addr[0]}))
                 else:
                     DataResult = "Error api: "
-                DataResult = DataResult.encode()
+                DataResult = pickle.dumps(DataResult).encode()
                 c.send(DataResult)
             c.close()
         except:
