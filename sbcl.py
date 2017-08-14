@@ -208,12 +208,12 @@ def list():
     MysqlReady = R[0]["MysqlReady"]
     
     print tStart
-    print tServName + ServerName
-    print tUser, User
+    print White(tServName + ServerName)
+    print White(tUser +" "+ User)
     print tPriy, Priv
     print tOpR + RsyncOpt
     if Status == "rsync error":
-        print tStatus + Status
+        print Red(tStatus + Status)
     elif Status == "running":
         print tStatus + Status
     else:
@@ -221,7 +221,7 @@ def list():
     if R[0]["DateStart"]:
         print tLastD + R[0]["DateStart"]
     if R[0]["DateEnd"]:
-        print tLastDN + R[0]["DateEnd"]
+        print Yellow(tLastDN + R[0]["DateEnd"])
     print tDir + Dirs
     print tDirEx + DirsExclude
     print tFB + str(Frequency)
@@ -231,7 +231,7 @@ def list():
         print tDBex + DBex
         print tMyDumpOpt + MyDumpOpt
         if MysqlLog == "Error":
-            print tMysqlLog + MysqlLog
+            print Red(tMysqlLog + MysqlLog)
         if MysqlReady == "YES":
             print tMysqlReady + MysqlReady
         else:

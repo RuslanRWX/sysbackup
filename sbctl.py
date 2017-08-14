@@ -93,6 +93,7 @@ tEndofUpdate = "Configuration has been modified"
 tMysqlReady = "MySQLdump ready: "
 tUsestat = "\n\nPlease, use Done/Disabled/needbackup. Examlpe: sbctl statup w1.host.com Done"
 tStatdone = "\n\nStatus has been updated"
+tUpdateCl = "Start update sbcl : "
 
 
 def Yellow(data):
@@ -506,6 +507,20 @@ def Command(Serv, Args):
     except:
         return
 
+def UpdateCl():
+    SB.MongoCon()
+    allservers = list(SB.coll.find({}))
+    for R in allservers:
+        ServerName = R['Name']
+        User = R['User']
+        IP = R['ServerIP']
+        Port = R['ServerPort']
+        print tUpdateCl + ServerName
+        cmd="scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=User, 
+                                                                            port=Port, ip=IP)
+        return os.system(cmd)
+        
+
 
 def Status(Name, Stat):
     SB.MongoCon()
@@ -573,6 +588,7 @@ def help():
     \t""" + White("rm") + """ or remove   \t\t- Remove host, example: """ + Yellow("sbctl delete w1.host.com") + """
     \t""" + White("ho") + """ or host     \t\t- Send command to remote host, example: """ + Yellow("sbctl host w1.host.com \"ls -al /var/backup\"") + """
     \t""" + White("backup") + """         \t\t- Start backup, example: """ + Yellow("sbctl backup w1.host.com") + """
+    \t""" + White("update-sbcl") + """    \t\t- Start update clinet, example: sbctl update-sbcl
     \t""" + White("status") + """         \t\t- Status update, example: """ + Yellow("sbctl status w1.host.com Done/Disabled/needbackup") + """
     \t   status Done         \t- Backup is done
     \t   status Disabled     \t- Turn backup off
@@ -614,6 +630,8 @@ def main():
                 print FindHelp()
             else:
                 MongoFindParm(sys.argv[2], sys.argv[3], regex=argv)
+        elif argv == "update-sbcl":
+            UpdateCl()
         else:
             print help()
     except IndexError:
