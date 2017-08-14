@@ -142,8 +142,10 @@ with open(logdir + "/sbclient.error.log", 'w'):
     pass
 
 
-def ImCheck(data, default=None, Empty=None):
+def ImCheck(data, default=None, Empty=None, Space=None):
     Check = None
+    if Space is not None:
+        Result = raw_input(data) or default
     while Check is None:
         Result = raw_input(data).replace(' ', '').replace('\t', '') or default
         if Result != "" and Result is not None or Empty == "YES":
@@ -290,7 +292,7 @@ def update():
     ServerPortN = ImCheck(
         tServPort + Defport + ' [Now: ' + str(ServerPort) + ' ] : ', default=ServerPort)
     RsyncOptN = ImCheck(
-        tOpR + Defop + ' [Now:' + RsyncOpt + ']: ', default=RsyncOpt)
+        tOpR + Defop + ' [Now:' + RsyncOpt + ']: ', default=RsyncOpt, Space="True")
     PrivN = ImCheck(tPriy + ' [ Now:' + str(Priv) + ' ]: ', default=Priv)
     DirsN = ImCheck(tDir + ExampleDir +
                     ' [ Now:' + Dirs + ' ]: ', default=Dirs)
@@ -336,8 +338,8 @@ def update():
             MyDumpOptExample = MysqlOptDef
         else:
             MyDumpOptExample = MyDumpOpt
-        MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +
-                             '[Now:' + MyDumpOpt + ']:', default=MyDumpOptExample)
+        MyDumpOptN = ImCheck( 
+            tMyDumpOpt + tDefMysqlOpt + '[Now:' + MyDumpOpt + ']:', default=MyDumpOptExample, Space="True")
         CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
         print CronN + tAddtoCron
         cmdcron = "echo \"" + CronN + "\" >> /etc/crontab"

@@ -238,8 +238,11 @@ def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
     print tFB, Frequency, "\n" + tCleanB, CleanDate
 
 
-def ImCheck(data, default=None, Empty=None):
+def ImCheck(data, default=None, Empty=None,  Space=None):
     Check = None
+    if Space is not None:
+        Result = raw_input(data) or default
+        return Result
     while Check is None:
         Result = raw_input(data).replace(' ', '').replace('\t', '') or default
         if Result != "" and Result is not None or Empty == "YES":
@@ -280,7 +283,7 @@ def MongoUpdate(Name):
     ServerPortN = ImCheck(
         tServPort + Defport + Yellow(' [Now: ' + ServerPort + ' ]: '), default=ServerPort)
     RsyncOptN = ImCheck(
-        tOpR + Defop + Yellow(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt)
+        tOpR + Defop + Yellow(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt, Space = "True")
     PrivN = ImCheck(
         tPriy + Yellow(' [ Now:' + str(Priv) + ' ]: '), default=Priv)
     DirsN = ImCheck(tDir + ExampleDir +
@@ -324,7 +327,7 @@ def MongoUpdate(Name):
             DirsIncExample = DirsInc
         DirsIncN = ImCheck(
             tDirBInc + ExampleIncDir + Yellow(' [ Now:' + DirsInc + ' ]: '),
-            default=DirsIncExample)
+            default=DirsIncExample, Space = "True")
         print (Yellow(tUdb))
         os.system(cmddb)
         print (Yellow(tAOS))
