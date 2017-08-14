@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # SysBackup module
-# Version 0.3.0
+# Version 0.4.0
 import ConfigParser
 
 Pathini = "/etc/sbd/sbd.ini"
