@@ -146,6 +146,7 @@ def ImCheck(data, default=None, Empty=None, Space=None):
     Check = None
     if Space is not None:
         Result = raw_input(data) or default
+        return Result
     while Check is None:
         Result = raw_input(data).replace(' ', '').replace('\t', '') or default
         if Result != "" and Result is not None or Empty == "YES":
