@@ -518,8 +518,8 @@ def UpdateCl():
         print tUpdateCl + ServerName
         cmd="scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=User, 
                                                                             port=Port, ip=IP)
-        return os.system(cmd)
-        
+        os.system(cmd)
+    
 
 
 def Status(Name, Stat):
@@ -588,7 +588,7 @@ def help():
     \t""" + White("rm") + """ or remove   \t\t- Remove host, example: """ + Yellow("sbctl delete w1.host.com") + """
     \t""" + White("ho") + """ or host     \t\t- Send command to remote host, example: """ + Yellow("sbctl host w1.host.com \"ls -al /var/backup\"") + """
     \t""" + White("backup") + """         \t\t- Start backup, example: """ + Yellow("sbctl backup w1.host.com") + """
-    \t""" + White("update-sbcl") + """    \t\t- Start update clinet, example: sbctl update-sbcl
+    \t""" + White("update-sbcl") + """    \t\t- Update clinet, example: sbctl update-sbcl
     \t""" + White("status") + """         \t\t- Status update, example: """ + Yellow("sbctl status w1.host.com Done/Disabled/needbackup") + """
     \t   status Done         \t- Backup is done
     \t   status Disabled     \t- Turn backup off
