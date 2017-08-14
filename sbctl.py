@@ -210,7 +210,7 @@ def List(allservers):
     print tAOS, count
     if count == 0:
         print tHavenot
-        exit(0)
+        sys.exit(0)
 
 
 def MongoList():
@@ -374,7 +374,7 @@ def MongoUpdate(Name):
         print Yellow(tEndofUpdate)
     elif choice in no:
         print tBye
-        return exit(1)
+        return sys.exit(1)
     else:
         sys.stdout.write(tPlease)
 

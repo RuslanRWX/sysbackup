@@ -383,7 +383,7 @@ def update():
         print tEndofUpdate
     elif choice in no:
         print tBye
-        return exit(1)
+        return sys.exit(1)
     else:
         sys.stdout.write(tPlease)
 
