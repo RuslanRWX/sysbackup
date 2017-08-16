@@ -12,11 +12,11 @@ if [ ! -d /etc/sbd ]; then { mkdir -p /etc/sbd;  } fi
 cp sbd.ini /etc/sbd/
 
 echo "Install sbd"
-cp dist/sbd /usr/sbin/
-cp lib/* /usr/lib/python2.7/
+cp dist/sbd /usr/sbin/sbd
+cp lib/SB.py /usr/lib/python2.7/
 
 echo "install sbctl" 
-cp dist/sbctl /usr/sbin/
+cp dist/sbctl /usr/sbin/sbctl
 
 
 echo "create systemd unit"

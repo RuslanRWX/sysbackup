@@ -120,21 +120,10 @@ if not os.path.exists(logdir):
     os.makedirs(logdir)
 
 
-
-
-def Yellow(data):
+def Text_Style(data, color="YELLOW"):
     from colorama import Fore, Style
-    return (Fore.YELLOW + data + Style.RESET_ALL)
-
-
-def Red(data):
-    from colorama import Fore, Style
-    return (Fore.RED + data + Style.RESET_ALL)
-
-
-def White(data):
-    from colorama import Fore, Style
-    return (Fore.WHITE + data + Style.RESET_ALL)
+    Color = getattr(Fore, color)
+    return (Color + data + Style.RESET_ALL)
 
 
 #print("Connected to " + str((SERVER_ADDRESS, SERVER_PORT)))
@@ -211,12 +200,12 @@ def list():
     MysqlReady = R[0]["MysqlReady"]
     
     print tStart
-    print White(tServName + ServerName)
-    print White(tUser +" "+ User)
+    print Text_Style(tServName + ServerName, color="WHITE")
+    print Text_Style(tUser +" "+ User, color="WHITE")
     print tPriy, Priv
     print tOpR + RsyncOpt
     if Status == "rsync error":
-        print Red(tStatus + Status)
+        print Text_Style(tStatus + Status, color="RED")
     elif Status == "running":
         print tStatus + Status
     else:
@@ -224,7 +213,7 @@ def list():
     if R[0]["DateStart"]:
         print tLastD + R[0]["DateStart"]
     if R[0]["DateEnd"]:
-        print Yellow(tLastDN + R[0]["DateEnd"])
+        print Text_Style(tLastDN + R[0]["DateEnd"])
     print tDir + Dirs
     print tDirEx + DirsExclude
     print tFB + str(Frequency)
@@ -234,7 +223,7 @@ def list():
         print tDBex + DBex
         print tMyDumpOpt + MyDumpOpt
         if MysqlLog == "Error":
-            print Red(tMysqlLog + MysqlLog)
+            print Text_Style(tMysqlLog + MysqlLog, color="RED")
         if MysqlReady == "YES":
             print tMysqlReady + MysqlReady
         else:

@@ -73,7 +73,7 @@ class Backup:
             Status = R["Status"]
         ISODateStart = datetime.datetime.now().isoformat()
         chdate = DateCheck(Frequency)
-        if DateEnd > chdate and self.Not_check == "NO" and Status == "Done" or Status == "rsync error" or Status == "running":
+        if DateEnd > chdate and self.Not_check == "NO" and Status == "Done" or DateEnd > chdate and Status == "rsync error":
             return
         if Status == "running":
             tbackuprun = Name + " Backup already running"
@@ -92,7 +92,7 @@ class Backup:
             print text
             return
         CreateTmpFiles(Name, DirsExclude)
-        text = """\n###########Start Backup######
+        text = """\n########### Start Backup ######
         Now TIME: {time}
         Server name: {name}
         User: {user}
@@ -150,7 +150,7 @@ class Backup:
         ISODateEnd = datetime.datetime.now().isoformat()
         DateUp = {"DateEnd": ISODateEnd, "Status": Status}
         SB.coll.update({'_id': id}, {"$set": DateUp}, upsert=False)
-        text = """\n############End Backup  #######
+        text = """\n############ End Backup  #######
         Now TIME: {time}
         Server name: {name}
         DateEnd : {date}"""

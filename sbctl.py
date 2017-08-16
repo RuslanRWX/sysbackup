@@ -97,23 +97,14 @@ tStatdone = "\n\nStatus has been updated"
 tUpdateCl = "Start update sbcl : "
 
 
-def Yellow(data):
+def Text_Style(data, color="YELLOW"):
     from colorama import Fore, Style
-    return (Fore.YELLOW + data + Style.RESET_ALL)
-
-
-def Red(data):
-    from colorama import Fore, Style
-    return (Fore.RED + data + Style.RESET_ALL)
-
-
-def White(data):
-    from colorama import Fore, Style
-    return (Fore.WHITE + data + Style.RESET_ALL)
+    Color = getattr(Fore, color)
+    return (Color + data + Style.RESET_ALL)
 
 
 def signal_handler(signal, frame):
-            print Yellow(tctrlD)
+            print Text_Style(tctrlD)
             sys.exit(0)
 
 
@@ -128,7 +119,6 @@ def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt,
              "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, "Chmy": Chmy, "MyDumpOpt": MyDumpOpt,
              "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady": "Empty", "MysqlLog": "", "DateStartMySQL": "",
              "DateStopMySQL": "", "Status": "Never"}]
-
     SB.coll.insert(data, True)
 
 
@@ -175,25 +165,25 @@ def List(allservers):
         MysqlReady = R["MysqlReady"]
 
         print tStart
-        print White(tServName + ServerName)
-        print White(str(tServIP + ServerIP + "\n"))
+        print Text_Style(tServName + ServerName)
+        print Text_Style(str(tServIP + ServerIP + "\n"))
         print tUser, User
         print tServPort, ServerPort
         print tPriy, Priv
         print tOpR + RsyncOpt
         if Status == "rsync error":
-            print Red(tStatus + Status)
+            print Text_Style(tStatus + Status, color="RED")
         elif Status == "running":
-            print Yellow(tStatus + Status)
+            print Text_Style(tStatus + Status)
         else:
             print tStatus + Status
         if R['DateStart']:
             print tLastD + R['DateStart']
         if R['DateEnd']:
-            print Yellow(tLastDN + R['DateEnd'])
+            print Text_Style(tLastDN + R['DateEnd'])
         print tDir + Dirs
         print tDirEx + DirsExclude
-        print Yellow(tFB + str(Frequency))
+        print Text_Style(tFB + str(Frequency))
         print tCleanB, CleanDate
         print tChmy, Chmy
         if Chmy == 'YES':
@@ -201,11 +191,11 @@ def List(allservers):
             print tDBex + DBex
             print tMyDumpOpt + MyDumpOpt
             if MysqlLog == "Error":
-                print Red(tMysqlLog + MysqlLog)
+                print Text_Style(tMysqlLog + MysqlLog, color="RED")
             if MysqlReady == "YES":
                 print tMysqlReady + MysqlReady
             else:
-                print Red(tMysqlReady + MysqlReady)
+                print Text_Style(tMysqlReady + MysqlReady, color="RED")
             print tDateStartMysql + R['DateStartMySQL']
             print tDateStopMysql + R['DateStopMySQL'] + "\n"
     print tAOS, count
@@ -214,21 +204,9 @@ def List(allservers):
         sys.exit(0)
 
 
-def MongoList():
+def MongoList(pattern={}):
     SB.MongoCon()
-    allservers = list(SB.coll.find())
-    return List(allservers)
-
-
-def MongoFind(Name):
-    SB.MongoCon()
-    allservers = list(SB.coll.find({"Name": {'$regex': Name}}))
-    return List(allservers)
-
-
-def MongoFindName(Name):
-    SB.MongoCon()
-    allservers = list(SB.coll.find({"Name": Name}))
+    allservers = list(SB.coll.find(pattern))
     return List(allservers)
 
 
@@ -264,7 +242,7 @@ def ImCheckIP(data, default=""):
 def MongoUpdate(Name):
     CronN = None
     ChmyNReal = None
-    MongoFindName(Name)
+    MongoList(pattern={"Name": Name})
     MyDumpOptN = MyDumpOpt
     DirsIncN = DirsInc
     DBexN = DBex
@@ -275,25 +253,25 @@ def MongoUpdate(Name):
     if Chmy == "NO":
         tRmDel = None
     ServerNameN = ImCheck(
-        tServName + Yellow(' [Now:' + ServerName + ']: '),  default=ServerName)
+        tServName + Text_Style(' [Now:' + ServerName + ']: '),  default=ServerName)
     ServerIPN = ImCheckIP(
-        tServIP + Yellow(' [Now:' + ServerIP + ']: '), default=ServerIP)
+        tServIP + Text_Style(' [Now:' + ServerIP + ']: '), default=ServerIP)
     UserN = ImCheck(
-        tUser + Defroot + Yellow(' [Now:' + User + ']: '),  default=User)
+        tUser + Defroot + Text_Style(' [Now:' + User + ']: '),  default=User)
     ServerPortN = ImCheck(
-        tServPort + Defport + Yellow(' [Now: ' + ServerPort + ' ]: '), default=ServerPort)
+        tServPort + Defport + Text_Style(' [Now: ' + ServerPort + ' ]: '), default=ServerPort)
     RsyncOptN = ImCheck(
-        tOpR + Defop + Yellow(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt, Space = "True")
+        tOpR + Defop + Text_Style(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt, Space = "True")
     PrivN = ImCheck(
-        tPriy + Yellow(' [ Now:' + str(Priv) + ' ]: '), default=Priv)
+        tPriy + Text_Style(' [ Now:' + str(Priv) + ' ]: '), default=Priv)
     DirsN = ImCheck(tDir + ExampleDir +
-                    Yellow(' [ Now:' + Dirs + ' ]: '), default=Dirs)
+                    Text_Style(' [ Now:' + Dirs + ' ]: '), default=Dirs)
     DirsExcludeN = ImCheck(
-        tDirEx + ExampleDirEx + Yellow(' [ Now:' + DirsExclude + ']: '), default=DirsExclude,  Empty="YES")
+        tDirEx + ExampleDirEx + Text_Style(' [ Now:' + DirsExclude + ']: '), default=DirsExclude,  Empty="YES")
     FrequencyN = ImCheck(
-        tFB + Yellow(' [ Now:' + str(Frequency) + ' ]: '), default=Frequency)
+        tFB + Text_Style(' [ Now:' + str(Frequency) + ' ]: '), default=Frequency)
     CleanDateN = ImCheck(
-        tCleanB + Yellow(' [ Now:' + str(CleanDate) + ' ]: '), default=CleanDate)
+        tCleanB + Text_Style(' [ Now:' + str(CleanDate) + ' ]: '), default=CleanDate)
     # PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
     #        PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye'])
@@ -309,11 +287,11 @@ def MongoUpdate(Name):
     elif choice in yes:
         ChmyN = "YES"
         ChmyNReal = "YES"
-        choicech = ImCheck(Yellow(tCheckMy)).lower()
+        choicech = ImCheck(Text_Style(tCheckMy)).lower()
         if choicech in yes:
             pass
         else:
-            print Yellow(tPlconfMy)
+            print Text_Style(tPlconfMy)
             return
         cmdscp = "scp -P{Port} /usr/share/sbcl/sbcl {User}@{IP}:/usr/sbin/".format(Port=ServerPortN,
                                                                                    User=UserN, IP=ServerIPN)
@@ -326,23 +304,23 @@ def MongoUpdate(Name):
         else:
             DirsIncExample = DirsInc
         DirsIncN = ImCheck(
-            tDirBInc + ExampleIncDir + Yellow(' [ Now:' + DirsInc + ' ]: '),
+            tDirBInc + ExampleIncDir + Text_Style(' [ Now:' + DirsInc + ' ]: '),
             default=DirsIncExample, Space = "True")
-        print (Yellow(tUdb))
+        print (Text_Style(tUdb))
         os.system(cmddb)
-        print (Yellow(tAOS))
+        print (Text_Style(tAOS))
         if DBex == "Empty":
             DBexExample = DBexDef
         else:
             DBexExample = DBex
         DBexN = ImCheck(tDBex + ExampleExDB +
-                        Yellow('[Now: ' + DBex + ']: '), default=DBexExample,  Empty="YES")
+                        Text_Style('[Now: ' + DBex + ']: '), default=DBexExample,  Empty="YES")
         if MyDumpOpt == "Empty":
             MyDumpOptExample = MysqlOptDef
         else:
             MyDumpOptExample = MyDumpOpt
         MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +
-                             Yellow('[Now:' + MyDumpOpt + ']:'), default=MyDumpOptExample)
+                             Text_Style('[Now:' + MyDumpOpt + ']:'), default=MyDumpOptExample)
         CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
         cmdcrondel = connect + " \"sed -i /sbcl/d /etc/crontab \""
         cmdcron = connect + " \"echo '" + CronN + "' >> /etc/crontab\""
@@ -375,7 +353,7 @@ def MongoUpdate(Name):
             print tDelCronResult
         else:
             pass
-        print Yellow(tEndofUpdate)
+        print Text_Style(tEndofUpdate)
     elif choice in no:
         print tBye
         return sys.exit(1)
@@ -384,7 +362,7 @@ def MongoUpdate(Name):
 
 
 def add():
-    print Yellow(tNote)
+    print Text_Style(tNote)
     #import time
     # time.sleep(3)
     yes = set(['yes', 'y', 'ye'])
@@ -393,7 +371,7 @@ def add():
     if choicech in yes:
         pass
     else:
-        print Yellow(tPlInR)
+        print Text_Style(tPlInR)
         return
     ServerName = ImCheck(tServName)
     ServerIP = ImCheckIP(tServIP)
@@ -411,7 +389,7 @@ def add():
     #        RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
-        print Yellow(tAddsshKey)
+        print Text_Style(tAddsshKey)
         # time.sleep(3)
         connect = "ssh -p{Port} {User}@{IP} ".format(
             Port=ServerPort, User=User, IP=ServerIP)
@@ -430,11 +408,11 @@ def add():
         os.system(cmdscpini)
         choise = ImCheck(tDoUBackupMysql).lower()
         if choise in yes:
-            choicech = ImCheck((Yellow(tCheckMy))).lower()
+            choicech = ImCheck((Text_Style(tCheckMy))).lower()
             if choicech in yes:
                 pass
             else:
-                print Yellow(tPlconfMy)
+                print Text_Style(tPlconfMy)
                 return
             Chmy = "YES"
             cmd = connect + " \"df -h\""
@@ -447,9 +425,9 @@ def add():
             choice = ImCheck(tDoUexdb).lower()
             if choice in yes:
                 cmd = connect + " \"mysql -e 'show databases;'\""
-                print Yellow(tUdb)
+                print Text_Style(tUdb)
                 os.system(cmd)
-                print (Yellow("##############"))
+                print (Text_Style("##############"))
                 DBex = ImCheck(tDBex + tdefExDb,
                                default=DBexDef,  Empty="YES")
             else:
@@ -470,7 +448,7 @@ def add():
             os.system(cmdmk)
             print tInstClient
             os.system(cmdcron)
-        MongoFind(serv)
+        MongoList(pattern={"Name": {'$regex': serv}})
     elif choice in no:
         print tBye
         return
@@ -487,10 +465,10 @@ def Delete(Name):
     #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
     yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
-    choice = ImCheck(Yellow(tDuD)).lower()
+    choice = ImCheck(Text_Style(tDuD)).lower()
     if choice in yes:
         SB.coll.remove({'_id': id})
-        choice = ImCheck(Yellow(tDuDel + SB.DirBackup +
+        choice = ImCheck(Text_Style(tDuDel + SB.DirBackup +
                                 "/" + ServerName + " ")).lower()
         if choice in yes:
             cmd = "rm -fr {dir}".format(dir=SB.DirBackup + "/" + ServerName)
@@ -502,7 +480,7 @@ def Delete(Name):
 
 
 def Command(Serv, Args):
-    MongoFindName(Serv)
+    MongoList(pattern={"Name": Serv})
     try:
         connect = "ssh -p{Port} {User}@{IP} ".format(
             Port=ServerPort, User=User, IP=ServerIP)
@@ -554,54 +532,54 @@ def MongoFindParm(Parm, Obj, regex):
 
 
 def FindHelp():
-    return """\n\tUsing """ + White("find/find-not/find-regex") + """ with keys
-    \t""" + tServName + Yellow("\tName") + """
-    \t""" + tServIP + Yellow("\tServerIP") + """
-    \t""" + tUser + Yellow("\t\tUser") + """
-    \t""" + tServPort + Yellow("\tServerPort") + """
-    \t""" + tPriy + Yellow("\t\tPriv") + """
-    \t""" + tOpR + Yellow("\tRsyncOpt") + """
-    \t""" + tStatus + Yellow("\t\tStatus") + """
-    \t""" + tLastD + Yellow("\tDateStart") + """
-    \t""" + tLastDN + Yellow("\tDateEnd") + """
-    \t""" + tDirB + Yellow("\tDirs") + """
-    \t""" + tDirBx + Yellow("\tDirsExclude") + """
-    \t""" + tFB + Yellow("\tFrequency") + """
-    \t""" + tCleanB + Yellow("\tCleanDate") + """
-    \t""" + tChmy + Yellow("\t\tChmy") + """
-    \t""" + tDirBInc + Yellow("\tDirsInc") + """
-    \t""" + tDBex + Yellow("\tDBex") + """
-    \t""" + tMyDumpOpt + Yellow("\tMyDumpOpt") + """
-    \t""" + tMysqlReady + Yellow("\tMysqlReady") + """
-    \t""" + tMysqlLog   + Yellow("\tMysqlLog") + """
-    \t""" + tDateStartMysql + Yellow("\tDateStartMysql") + """
-    \t""" + tDateStopMysql + Yellow("\tDateStopMySQL") + """
+    return """\n\tUsing """ + Text_Style("find/find-not/find-regex") + """ with keys
+    \t""" + tServName + Text_Style("\tName") + """
+    \t""" + tServIP + Text_Style("\tServerIP") + """
+    \t""" + tUser + Text_Style("\t\tUser") + """
+    \t""" + tServPort + Text_Style("\tServerPort") + """
+    \t""" + tPriy + Text_Style("\t\tPriv") + """
+    \t""" + tOpR + Text_Style("\tRsyncOpt") + """
+    \t""" + tStatus + Text_Style("\t\tStatus") + """
+    \t""" + tLastD + Text_Style("\tDateStart") + """
+    \t""" + tLastDN + Text_Style("\tDateEnd") + """
+    \t""" + tDirB + Text_Style("\tDirs") + """
+    \t""" + tDirBx + Text_Style("\tDirsExclude") + """
+    \t""" + tFB + Text_Style("\tFrequency") + """
+    \t""" + tCleanB + Text_Style("\tCleanDate") + """
+    \t""" + tChmy + Text_Style("\t\tChmy") + """
+    \t""" + tDirBInc + Text_Style("\tDirsInc") + """
+    \t""" + tDBex + Text_Style("\tDBex") + """
+    \t""" + tMyDumpOpt + Text_Style("\tMyDumpOpt") + """
+    \t""" + tMysqlReady + Text_Style("\tMysqlReady") + """
+    \t""" + tMysqlLog   + Text_Style("\tMysqlLog") + """
+    \t""" + tDateStartMysql + Text_Style("\tDateStartMysql") + """
+    \t""" + tDateStopMysql + Text_Style("\tDateStopMySQL") + """
     \n
     \tExamples: 
-    \tlist all servers with status rsync error: """ + Yellow("sbctl find Status \"rsync error\"") + """
-    \tlist all servers with \"""" + tChmy + """NO\": """ + Yellow("sbctl find Chmy NO") + """
+    \tlist all servers with status rsync error: """ + Text_Style("sbctl find Status \"rsync error\"") + """
+    \tlist all servers with \"""" + tChmy + """NO\": """ + Text_Style("sbctl find Chmy NO") + """
     \n"""
 
 
 def help():
     return """Version """+Version+"""
     \nHelp function: Basic Usage:
-    \t""" + White("add") + """ or addhost \t\t- Add host to backup
-    \t""" + White("l") + """ or  list     \t\t- List all hosts
-    \t""" + White("se") + """ or search   \t\t- Search for the host name, example: """ + Yellow("sbctl search w1.host.com") + """
-    \t""" + White("re") + """ or reconf   \t\t- Reconfiguration of backup settings, example: """ + Yellow("sbctl reconf w1.host.com") + """
-    \t""" + White("rm") + """ or remove   \t\t- Remove host, example: """ + Yellow("sbctl delete w1.host.com") + """
-    \t""" + White("ho") + """ or host     \t\t- Send command to remote host, example: """ + Yellow("sbctl host w1.host.com \"ls -al /var/backup\"") + """
-    \t""" + White("backup") + """         \t\t- Start backup, example: """ + Yellow("sbctl backup w1.host.com") + """
-    \t""" + White("update-sbcl") + """    \t\t- Update clinet, example: sbctl update-sbcl
-    \t""" + White("status") + """         \t\t- Status update, example: """ + Yellow("sbctl status w1.host.com Done/Disabled/needbackup") + """
+    \t""" + Text_Style("add", color="WHITE") + """ or addhost \t\t- Add host to backup
+    \t""" + Text_Style("l", color="WHITE") + """ or  list     \t\t- List all hosts
+    \t""" + Text_Style("se", color="WHITE") + """ or search   \t\t- Search for the host name, example: """ + Text_Style("sbctl search w1.host.com") + """
+    \t""" + Text_Style("re", color="WHITE") + """ or reconf   \t\t- Reconfiguration of backup settings, example: """ + Text_Style("sbctl reconf w1.host.com") + """
+    \t""" + Text_Style("rm", color="WHITE") + """ or remove   \t\t- Remove host, example: """ + Text_Style("sbctl delete w1.host.com") + """
+    \t""" + Text_Style("ho", color="WHITE") + """ or host     \t\t- Send command to remote host, example: """ + Text_Style("sbctl host w1.host.com \"ls -al /var/backup\"") + """
+    \t""" + Text_Style("backup", color="WHITE") + """         \t\t- Start backup, example: """ + Text_Style("sbctl backup w1.host.com") + """
+    \t""" + Text_Style("update-sbcl", color="WHITE") + """    \t\t- Update clinet, example: sbctl update-sbcl
+    \t""" + Text_Style("status", color="WHITE") + """         \t\t- Status update, example: """ + Text_Style("sbctl status w1.host.com Done/Disabled/needbackup") + """
     \t   status Done         \t- Backup is done
     \t   status Disabled     \t- Turn backup off
     \t   status needbackup   \t- Need to backup
-    \t""" + White("find") + """           \t\t- List the hosts matching parameters, example: """ + Yellow("sbctl find Status \"rsync error\"") + """
-    \t""" + White("find-not") + """       \t\t- List the hosts invert-matching parameters, example: """ + Yellow("sbctl find-not Chmy YES") + """
-    \t""" + White("find-regex") + """     \t\t- Use regular expression to find the hosts on their parameter, example: """ + Yellow("sbctl find-regex Status error") + """ 
-    \t""" + White("find help") + """     \t\t- List all parameter keys, example: """ + Yellow("sbctl find help") + """ 
+    \t""" + Text_Style("find", color="WHITE") + """           \t\t- List the hosts matching parameters, example: """ + Text_Style("sbctl find Status \"rsync error\"") + """
+    \t""" + Text_Style("find-not", color="WHITE") + """       \t\t- List the hosts invert-matching parameters, example: """ + Text_Style("sbctl find-not Chmy YES") + """
+    \t""" + Text_Style("find-regex", color="WHITE") + """     \t\t- Use regular expression to find the hosts on their parameter, example: """ + Text_Style("sbctl find-regex Status error") + """ 
+    \t""" + Text_Style("find help", color="WHITE") + """     \t\t- List all parameter keys, example: """ + Text_Style("sbctl find help") + """ 
     \t""" + FindHelp() + """
     \thelp              \t\t- Help
     \n"""
@@ -615,7 +593,7 @@ def main():
         elif argv == 'list' or argv == 'l':
             MongoList()
         elif argv == 'search' or argv == 'se':
-            MongoFind(sys.argv[2])
+            MongoList(pattern={"Name": {'$regex': sys.argv[2]}})
         elif argv == 'reconf' or argv == 're':
             MongoUpdate(sys.argv[2])
         elif argv == 'remove' or argv == 'rm':
@@ -642,7 +620,7 @@ def main():
     except IndexError:
         print help()
     except EOFError:
-        print Yellow(tBye)
+        print Text_Style(tBye)
 
 
 if __name__ == '__main__':
