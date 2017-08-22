@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # sbctl - SySBackup management program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.0"
+Version = "0.4.1"
 
 
 import sys
@@ -95,6 +95,7 @@ tMysqlLog = "MysqlLog :"
 tUsestat = "\n\nPlease, use Done/Disabled/needbackup. Examlpe: sbctl statup w1.host.com Done"
 tStatdone = "\n\nStatus has been updated"
 tUpdateCl = "Start update sbcl : "
+tDesc = "Description :"
 
 
 def Text_Style(data, color="YELLOW"):
@@ -112,13 +113,13 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt,
-            Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex):
+            Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex, Desc):
     SB.MongoCon()
     data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,
              "RsyncOpt": RsyncOpt, "Priv": Priv, "Dirs": Dirs, "DirsExclude": DirsExclude, "DateStart": "",
              "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, "Chmy": Chmy, "MyDumpOpt": MyDumpOpt,
              "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady": "Empty", "MysqlLog": "", "DateStartMySQL": "",
-             "DateStopMySQL": "", "Status": "Never"}]
+             "DateStopMySQL": "", "Status": "Never", "Desc": Desc }]
     SB.coll.insert(data, True)
 
 
@@ -163,6 +164,8 @@ def List(allservers):
         MysqlLog = R["MysqlLog"]
         global MysqlReady
         MysqlReady = R["MysqlReady"]
+        global Desc
+        Desc = R["Desc"]
 
         print tStart
         print Text_Style(tServName + ServerName)
@@ -198,6 +201,8 @@ def List(allservers):
                 print Text_Style(tMysqlReady + MysqlReady, color="RED")
             print tDateStartMysql + R['DateStartMySQL']
             print tDateStopMysql + R['DateStopMySQL'] + "\n"
+        if Desc != "":
+            print Text_Style(tDesc+Desc)
     print tAOS, count
     if count == 0:
         print tHavenot
@@ -280,7 +285,7 @@ def MongoUpdate(Name):
     choice = ImCheck(tMysqlUpdate).lower()
     connect = "ssh -p{Port} {User}@{IP} ".format(
         Port=ServerPortN, User=UserN, IP=ServerIPN)
-    cmdcrondel = connect + " \"sed -i /sbcl\.py/d /etc/crontab \""
+    cmdcrondel = connect + " \"sed -i /sbcl/d /etc/crontab \""
     if choice in rm:
         ChmyN = "NO"
         ChmyNReal = "NO"
@@ -322,7 +327,6 @@ def MongoUpdate(Name):
         MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +
                              Text_Style('[Now:' + MyDumpOpt + ']:'), default=MyDumpOptExample)
         CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
-        cmdcrondel = connect + " \"sed -i /sbcl/d /etc/crontab \""
         cmdcron = connect + " \"echo '" + CronN + "' >> /etc/crontab\""
     else:
         pass
@@ -335,13 +339,16 @@ def MongoUpdate(Name):
         MysqlReadyN = "Empty"
     else:
         pass
+    print Text_Style(tDesc + Desc)
+    DescN = ImCheck(
+        tDesc,  default=Desc )
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         # print id
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN,
                 "RsyncOpt": RsyncOptN, "Dirs": DirsN, "DirsExclude": DirsExcludeN, "Priv": PrivN,
                 "Frequency": FrequencyN, "CleanDate": CleanDateN, "DirsInc": DirsIncN, "DBex": DBexN,
-                "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN, "MysqlReady": MysqlReadyN}
+                "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN, "MysqlReady": MysqlReadyN, "Desc": DescN}
 
         SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
         if ChmyNReal == "YES":
@@ -442,8 +449,10 @@ def add():
             DirsInc = "Empty"
             DBex = "Empty"
         serv = "^" + ServerName + "$"
+        Desc = ImCheck(
+        tDesc,  default='',  Empty="YES")
         MongoIn(ServerName, User, ServerIP, ServerPort, RsyncOpt,
-                Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex)
+                Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex, Desc )
         if Chmy == "YES":
             os.system(cmdmk)
             print tInstClient

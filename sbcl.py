@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # cbcl - SySBackup client program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.0"
+Version = "0.4.1"
 
 import socket
 import os
@@ -95,6 +95,7 @@ tDelCronResult = "Cron job sbcl has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
 tEndofUpdate = "Configuration has been modified"
 tMysqlReady = "MySQLdump ready: "
+tDesc = "Description :"
 
 
 def signal_handler(signal, frame):
@@ -198,6 +199,8 @@ def list():
     MysqlLog = R[0]["MysqlLog"]
     global MysqlReady
     MysqlReady = R[0]["MysqlReady"]
+    global Desc
+    Desc = R[0]["Desc"]
     
     print tStart
     print Text_Style(tServName + ServerName, color="WHITE")
@@ -230,6 +233,8 @@ def list():
             print tMysqlReady + MysqlReady
         print tDateStartMysql + R[0]["DateStartMySQL"]
         print tDateStopMysql + R[0]["DateStopMySQL"] + "\n"
+    if Desc != "":
+        print Text_Style(tDesc + Desc)
     print tAOS
 
 
@@ -339,6 +344,8 @@ def update():
         MyDumpOptN = "Empty"
         DirsIncN = "Empty"
         DBexN = "Empty"
+    DescN = ImCheck(
+        tDesc,  default=Desc )
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         if ServerName != ServerNameN:
@@ -359,6 +366,8 @@ def update():
             GetData("Add|Frequency|" + FrequencyN)
         if ChmyN is not None and Chmy != ChmyN:
             GetData("Add|Chmy|" + ChmyN)
+        if Desc != DescN:
+            GetData("Add|Desc|" + DescN)
         if ChmyN == "YES":
             if DirsInc != DirsIncN:
                 GetData("Add|DirsInc|" + DirsIncN)
