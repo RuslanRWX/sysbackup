@@ -46,6 +46,7 @@ def MongoCon():
     global cl
     global coll
     cl = MongoClient("mongodb://"+DBUser+":"+DBUserPass+"@"+MongoConnect)
+  #  cl = MongoClient(MongoConnect)
     coll = cl[DBs][CollectionMain]
 
 
