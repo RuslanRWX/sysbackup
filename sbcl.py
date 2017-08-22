@@ -335,7 +335,7 @@ def update():
             MyDumpOptExample = MyDumpOpt
         MyDumpOptN = ImCheck( 
             tMyDumpOpt + tDefMysqlOpt + '[Now:' + MyDumpOpt + ']:', default=MyDumpOptExample, Space="True")
-        CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
+        CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron, Space="True")
         print CronN + tAddtoCron
         cmdcron = "echo \"" + CronN + "\" >> /etc/crontab"
     else:

@@ -310,7 +310,7 @@ def MongoUpdate(Name):
             DirsIncExample = DirsInc
         DirsIncN = ImCheck(
             tDirBInc + ExampleIncDir + Text_Style(' [ Now:' + DirsInc + ' ]: '),
-            default=DirsIncExample, Space = "True")
+            default=DirsIncExample )
         print (Text_Style(tUdb))
         os.system(cmddb)
         print (Text_Style(tAOS))
@@ -325,8 +325,8 @@ def MongoUpdate(Name):
         else:
             MyDumpOptExample = MyDumpOpt
         MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +
-                             Text_Style('[Now:' + MyDumpOpt + ']:'), default=MyDumpOptExample)
-        CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron)
+                             Text_Style('[Now:' + MyDumpOpt + ']:'), default=MyDumpOptExample, Space = "True")
+        CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron, Space = "True")
         cmdcron = connect + " \"echo '" + CronN + "' >> /etc/crontab\""
     else:
         pass
@@ -341,7 +341,7 @@ def MongoUpdate(Name):
         pass
     print Text_Style(tDesc + Desc)
     DescN = ImCheck(
-        tDesc,  default=Desc )
+        tDesc,  default=Desc, Empty="YES" )
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         # print id
@@ -385,7 +385,7 @@ def add():
     User = ImCheck(tUser + Defroot, default=UserDef)
     ServerPort = ImCheck(tServPort + Defport,  default=PortDef)
  #   ServerPort = ServerPort.replace(' ', '')
-    RsyncOpt = ImCheck(tOpR + Defop, default=RsyncOptDef)
+    RsyncOpt = ImCheck(tOpR + Defop, default=RsyncOptDef, Space = "True")
     Priv = ImCheck(tPriy + Defpri,  default=PrivDef)
     Dirs = ImCheck(tDirB + ExampleDir + ": ",  default=DirsDef)
     DirsExclude = ImCheck(
@@ -439,9 +439,9 @@ def add():
                                default=DBexDef,  Empty="YES")
             else:
                 DBex = "Empty"
-            MyDumpOpt = ImCheck(tMyDumpOpt + tDefMysqlOpt, default=MysqlOptDef)
+            MyDumpOpt = ImCheck(tMyDumpOpt + tDefMysqlOpt, default=MysqlOptDef, Space = "True")
             Cron = ImCheck(tSbcltext + tSbclCron +
-                           tSbcltext2, default=tSbclCron)
+                           tSbcltext2, default=tSbclCron,  Space = "True" )
             cmdcron = connect + " \"echo '" + Cron + "' >> /etc/crontab\""
         else:
             Chmy = "NO"
