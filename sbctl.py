@@ -96,6 +96,7 @@ tUsestat = "\n\nPlease, use Done/Disabled/needbackup. Examlpe: sbctl statup w1.h
 tStatdone = "\n\nStatus has been updated"
 tUpdateCl = "Start update sbcl : "
 tDesc = "Description :"
+tDescrm = "Description [rm - for remove description]: "
 
 
 def Text_Style(data, color="YELLOW"):
@@ -201,7 +202,7 @@ def List(allservers):
                 print Text_Style(tMysqlReady + MysqlReady, color="RED")
             print tDateStartMysql + R['DateStartMySQL']
             print tDateStopMysql + R['DateStopMySQL'] + "\n"
-        if Desc != "" or Desc == "Empty":
+        if Desc != "":
             print Text_Style(tDesc+Desc)
     print tAOS, count
     if count == 0:
@@ -341,7 +342,8 @@ def MongoUpdate(Name):
         pass
     print Text_Style(tDesc + Desc)
     DescN = ImCheck(
-        tDesc,  default=Desc, Empty="YES", Space="True" )
+        tDescrm,  default=Desc, Empty="YES", Space="True" )
+    if DescN == "rm": DescN = ""
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         # print id

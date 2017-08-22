@@ -96,6 +96,7 @@ tAddtoCron = " add to /etc/crontab"
 tEndofUpdate = "Configuration has been modified"
 tMysqlReady = "MySQLdump ready: "
 tDesc = "Description :"
+tDescrm = "Description [rm - for remove description]: "
 
 
 def signal_handler(signal, frame):
@@ -345,7 +346,8 @@ def update():
         DirsIncN = "Empty"
         DBexN = "Empty"
     DescN = ImCheck(
-        tDesc,  default=Desc, Space="True" )
+        tDescrm,  default=Desc, Space="True" )
+    if DescN == "rm": DescN = ""
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         if ServerName != ServerNameN:
