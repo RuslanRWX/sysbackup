@@ -258,25 +258,25 @@ def MongoUpdate(Name):
     if Chmy == "NO":
         tRmDel = None
     ServerNameN = ImCheck(
-        tServName + Text_Style(' [Now:' + ServerName + ']: '),  default=ServerName)
+        tServName + ' [Now:' + ServerName + ']: ',  default=ServerName)
     ServerIPN = ImCheckIP(
-        tServIP + Text_Style(' [Now:' + ServerIP + ']: '), default=ServerIP)
+        tServIP + ' [Now:' + ServerIP + ']: ', default=ServerIP)
     UserN = ImCheck(
-        tUser + Defroot + Text_Style(' [Now:' + User + ']: '),  default=User)
+        tUser + Defroot + ' [Now:' + User + ']: ',  default=User)
     ServerPortN = ImCheck(
-        tServPort + Defport + Text_Style(' [Now: ' + ServerPort + ' ]: '), default=ServerPort)
+        tServPort + Defport + ' [Now: ' + ServerPort + ' ]: ', default=ServerPort)
     RsyncOptN = ImCheck(
-        tOpR + Defop + Text_Style(' [Now:' + RsyncOpt + ']: '), default=RsyncOpt, Space = "True")
+        tOpR + Defop + ' [Now:' + RsyncOpt + ']: ', default=RsyncOpt, Space = "True")
     PrivN = ImCheck(
-        tPriy + Text_Style(' [ Now:' + str(Priv) + ' ]: '), default=Priv)
+        tPriy + ' [ Now:' + str(Priv) + ' ]: ', default=Priv)
     DirsN = ImCheck(tDir + ExampleDir +
-                    Text_Style(' [ Now:' + Dirs + ' ]: '), default=Dirs)
+                    ' [ Now:' + Dirs + ' ]: ', default=Dirs)
     DirsExcludeN = ImCheck(
-        tDirEx + ExampleDirEx + Text_Style(' [ Now:' + DirsExclude + ']: '), default=DirsExclude,  Empty="YES")
+        tDirEx + ExampleDirEx + ' [ Now:' + DirsExclude + ']: ', default=DirsExclude,  Empty="YES")
     FrequencyN = ImCheck(
-        tFB + Text_Style(' [ Now:' + str(Frequency) + ' ]: '), default=Frequency)
+        tFB + ' [ Now:' + str(Frequency) + ' ]: ', default=Frequency)
     CleanDateN = ImCheck(
-        tCleanB + Text_Style(' [ Now:' + str(CleanDate) + ' ]: '), default=CleanDate)
+        tCleanB + ' [ Now:' + str(CleanDate) + ' ]: ', default=CleanDate)
     # PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
     #        PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye'])
@@ -309,7 +309,7 @@ def MongoUpdate(Name):
         else:
             DirsIncExample = DirsInc
         DirsIncN = ImCheck(
-            tDirBInc + ExampleIncDir + Text_Style(' [ Now:' + DirsInc + ' ]: '),
+            tDirBInc + ExampleIncDir + ' [ Now:' + DirsInc + ' ]: ',
             default=DirsIncExample )
         print (Text_Style(tUdb))
         os.system(cmddb)
@@ -319,13 +319,13 @@ def MongoUpdate(Name):
         else:
             DBexExample = DBex
         DBexN = ImCheck(tDBex + ExampleExDB +
-                        Text_Style('[Now: ' + DBex + ']: '), default=DBexExample,  Empty="YES")
+                        '[Now: ' + DBex + ']: ', default=DBexExample,  Empty="YES")
         if MyDumpOpt == "Empty":
             MyDumpOptExample = MysqlOptDef
         else:
             MyDumpOptExample = MyDumpOpt
         MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +
-                             Text_Style('[Now:' + MyDumpOpt + ']:'), default=MyDumpOptExample, Space = "True")
+                             '[Now:' + MyDumpOpt + ']:', default=MyDumpOptExample, Space = "True")
         CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron, Space = "True")
         cmdcron = connect + " \"echo '" + CronN + "' >> /etc/crontab\""
     else:
