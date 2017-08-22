@@ -201,7 +201,7 @@ def List(allservers):
                 print Text_Style(tMysqlReady + MysqlReady, color="RED")
             print tDateStartMysql + R['DateStartMySQL']
             print tDateStopMysql + R['DateStopMySQL'] + "\n"
-        if Desc != "":
+        if Desc != "" or Desc != "Empty":
             print Text_Style(tDesc+Desc)
     print tAOS, count
     if count == 0:
