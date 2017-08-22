@@ -341,7 +341,7 @@ def MongoUpdate(Name):
         pass
     print Text_Style(tDesc + Desc)
     DescN = ImCheck(
-        tDesc,  default=Desc, Empty="YES" )
+        tDesc,  default=Desc, Empty="YES", Space="True" )
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         # print id
@@ -450,7 +450,7 @@ def add():
             DBex = "Empty"
         serv = "^" + ServerName + "$"
         Desc = ImCheck(
-        tDesc,  default='',  Empty="YES")
+        tDesc,  default='',  Empty="YES", Space="True")
         MongoIn(ServerName, User, ServerIP, ServerPort, RsyncOpt,
                 Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex, Desc )
         if Chmy == "YES":

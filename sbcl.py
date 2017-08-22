@@ -345,7 +345,7 @@ def update():
         DirsIncN = "Empty"
         DBexN = "Empty"
     DescN = ImCheck(
-        tDesc,  default=Desc )
+        tDesc,  default=Desc, Space="True" )
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
         if ServerName != ServerNameN:
