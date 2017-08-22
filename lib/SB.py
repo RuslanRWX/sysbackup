@@ -10,6 +10,8 @@ config.read(Pathini)
 global MongoConnect
 global DBs
 global Collection
+global DBUser
+global DBUserPass
 global Num_thread
 global DirBackup
 global Pidfile
@@ -23,6 +25,8 @@ global PublickKey
 
 MongoConnect = config.get('Main', 'MongoConnect')
 DBs = config.get('Main',  'DBs')
+DBUser = config.get('Main',  'DBUser')
+DBUserPass = config.get('Main',  'DBUserPass')
 CollectionMain = "servers"
 Num_thread = int(config.get('Main',  'Num_thread'))
 DirBackup = config.get('Main', 'DirBackup')
@@ -41,5 +45,7 @@ def MongoCon():
     from pymongo import MongoClient
     global cl
     global coll
-    cl = MongoClient(MongoConnect)
+    cl = MongoClient("mongodb://"+DBUser+":"+DBUserPass+"@"+MongoConnect)
     coll = cl[DBs][CollectionMain]
+
+
