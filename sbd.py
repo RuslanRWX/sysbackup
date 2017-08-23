@@ -8,10 +8,11 @@ import threading
 import Queue
 import time
 import sys
-import SB
 import datetime
 pid = str(os.getpid())
 import re
+sys.path.append("lib/")
+import SB
 
 #global Not_check
 #Not_check = "NO"

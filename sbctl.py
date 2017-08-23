@@ -5,11 +5,12 @@ Version = "0.4.1"
 
 
 import sys
-import SB
 import os
 import re
 import signal
 import readline
+sys.path.append("lib/")
+import SB
 
 
 # mail variables

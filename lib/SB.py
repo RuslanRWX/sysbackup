@@ -23,8 +23,9 @@ global Port
 global TimeCheck
 global PublickKey
 
-MongoConnect = config.get('Main', 'MongoConnect')
+Connect = config.get('Main', 'MongoConnect')
 DBs = config.get('Main',  'DBs')
+AuthMechanism = config.get('Main',  'AuthMechanism')
 DBUser = config.get('Main',  'DBUser')
 DBUserPass = config.get('Main',  'DBUserPass')
 CollectionMain = "servers"
@@ -43,10 +44,12 @@ PublickKey = config.get('Main', 'PublickKey')
 
 def MongoCon():
     from pymongo import MongoClient
+    from urllib import quote_plus
     global cl
     global coll
-  #  cl = MongoClient("mongodb://"+DBUser+":"+DBUserPass+"@"+MongoConnect)
-    cl = MongoClient(MongoConnect)
+    cl = MongoClient("mongodb://"+DBUser+":"
+                     +DBUserPass+"@"+Connect+"/"
+                     +DBs+"?authMechanism="+AuthMechanism)
     coll = cl[DBs][CollectionMain]
 
 
