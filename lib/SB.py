@@ -25,6 +25,7 @@ global PublickKey
 
 Connect = config.get('Main', 'MongoConnect')
 DBs = config.get('Main',  'DBs')
+AuthMechanism = config.get('Main',  'AuthMechanism')
 DBUser = config.get('Main',  'DBUser')
 DBUserPass = config.get('Main',  'DBUserPass')
 CollectionMain = "servers"
