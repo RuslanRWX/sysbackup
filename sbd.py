@@ -12,7 +12,7 @@ import sys
 import datetime
 pid = str(os.getpid())
 import re
-sys.path.append("lib/")
+#sys.path.append("lib/")
 import SB
 
 

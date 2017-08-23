@@ -9,7 +9,7 @@ import os
 import re
 import signal
 import readline
-sys.path.append("lib/")
+#sys.path.append("lib/")
 import SB
 
 
