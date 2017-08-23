@@ -14,9 +14,6 @@ import re
 sys.path.append("lib/")
 import SB
 
-#global Not_check
-#Not_check = "NO"
-
 
 def CreateTmpFiles(Name, DirsEx):
     DirsEx = DirsEx.replace(' ', '')
