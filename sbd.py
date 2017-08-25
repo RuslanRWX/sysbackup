@@ -313,8 +313,8 @@ def Stop():
 
 
 def Start():
-    text = "\nStart sbd version:{ver}, date: {date}\n".format(
-        ver=Version, date=datetime.datetime.now())
+    text = "\nStart sbd version:{ver}, date: {date}\nNode name:{node}\n".format(
+        ver=Version, date=datetime.datetime.now(), node=SB.Node)
     log(text, SB.Log)
     print text
     t = threading.Thread(target=API)
