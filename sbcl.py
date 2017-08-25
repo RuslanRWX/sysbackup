@@ -115,8 +115,6 @@ SERVER_PORT = int(config.get("Main", "PORT"))
 tmpfile = config.get("Main", "tmpfile")
 logdir = config.get("Main", "logdir")
 
-if not os.path.exists(tmpfile):
-    os.makedirs(tmpfile)
 
 if not os.path.exists(logdir):
     os.makedirs(logdir)

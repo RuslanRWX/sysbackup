@@ -13,7 +13,7 @@ cp sbd.ini /etc/sbd/
 
 echo "Install sbd"
 cp dist/sbd /usr/sbin/sbd
-cp lib/SB.py /usr/lib/python2.7/
+#cp lib/SB.py /usr/lib/python2.7/
 
 echo "install sbctl" 
 cp dist/sbctl /usr/sbin/sbctl
