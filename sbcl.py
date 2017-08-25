@@ -97,6 +97,7 @@ tEndofUpdate = "Configuration has been modified"
 tMysqlReady = "MySQLdump ready: "
 tDesc = "Description :"
 tDescrm = "Description [rm - for remove description]: "
+tNodeName = "Backup node name: "
 
 
 def signal_handler(signal, frame):
@@ -200,6 +201,8 @@ def list():
     MysqlReady = R[0]["MysqlReady"]
     global Desc
     Desc = R[0]["Desc"]
+    global NodeName
+    NodeName = R[0]["NodeName"]
     
     print tStart
     print Text_Style(tServName + ServerName, color="WHITE")
@@ -234,6 +237,7 @@ def list():
         print tDateStopMysql + R[0]["DateStopMySQL"] + "\n"
     if Desc != "":
         print Text_Style(tDesc + Desc)
+    print Text_Style(tNodeName + NodeName)
     print tAOS
 
 

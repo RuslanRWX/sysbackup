@@ -13,6 +13,12 @@ import readline
 import SB
 
 
+def Text_Style(data, color="YELLOW"):
+    from colorama import Fore, Style
+    Color = getattr(Fore, color)
+    return (Color + data + Style.RESET_ALL)
+
+
 # mail variables
 MysqlOptDef = "--opt  --routines"
 PortDef = "22"
@@ -27,6 +33,7 @@ CleanDateDef = "7"
 DBexDef = "information_schema,performance_schema"
 
 # text
+tVersion = "Version :"+Version
 tStart = "##########################\n"
 tServName = "Server name: "
 tServIP = "Server IP: "
@@ -87,6 +94,7 @@ ExampleDir = "example[" + DirsDef + "] "
 ExampleDirEx = "example[" + DirExDef + "] "
 ExampleIncDir = "example[" + DirIncDef + "] "
 ExampleExDB = "example[" + DBexDef + "] "
+DefaultNodeName = "[default is your hostname "+SB.Node+"] :"
 tStatus = "Status: "
 tDelCronResult = "Cron job sbcl has been removed on the remote host"
 tAddtoCron = " add to /etc/crontab"
@@ -98,13 +106,13 @@ tStatdone = "\n\nStatus has been updated"
 tUpdateCl = "Start update sbcl : "
 tDesc = "Description :"
 tDescrm = "Description [rm - for remove description]: "
-
-
-def Text_Style(data, color="YELLOW"):
-    from colorama import Fore, Style
-    Color = getattr(Fore, color)
-    return (Color + data + Style.RESET_ALL)
-
+tNodeName = "Backup node name: "
+tNode = "Node :"
+tCluster = "Cluster :" + Text_Style(SB.NameCluster)
+tNodes = "Hosts of node "
+tNodeCount = "amount of nodes "
+tNodeNot = "Not found"
+tNodehostCount = "amount of hosts "
 
 def signal_handler(signal, frame):
             print Text_Style(tctrlD)
@@ -115,21 +123,22 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt,
-            Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex, Desc):
+            Priv, Dirs, DirsExclude, Frequency, CleanDate,
+            Chmy, MyDumpOpt, DirsInc, DBex, Desc, NodeName):
     SB.MongoCon()
-    data = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,
+    DataServer = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,
              "RsyncOpt": RsyncOpt, "Priv": Priv, "Dirs": Dirs, "DirsExclude": DirsExclude, "DateStart": "",
              "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, "Chmy": Chmy, "MyDumpOpt": MyDumpOpt,
              "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady": "Empty", "MysqlLog": "", "DateStartMySQL": "",
-             "DateStopMySQL": "", "Status": "Never", "Desc": Desc }]
-    SB.coll.insert(data, True)
+             "DateStopMySQL": "", "Status": "Never", "Desc": Desc, "NodeName": NodeName }]
+    SB.coll.insert(DataServer, True)
 
 
 def List(allservers):
     global count
     count = 0
     for R in allservers:
-        count = count + 1
+        count += 1
         global ServerName
         ServerName = R['Name']
         global User
@@ -168,6 +177,8 @@ def List(allservers):
         MysqlReady = R["MysqlReady"]
         global Desc
         Desc = R["Desc"]
+        global NodeName
+        NodeName = R["NodeName"]
 
         print tStart
         print Text_Style(tServName + ServerName)
@@ -205,16 +216,45 @@ def List(allservers):
             print tDateStopMysql + R['DateStopMySQL'] + "\n"
         if Desc != "":
             print Text_Style(tDesc+Desc)
+        print tNodeName + NodeName
     print tAOS, count
     if count == 0:
         print tHavenot
         sys.exit(0)
 
 
+def NodeList(ClusterData):
+    global count
+    count = 0
+    SB.MongoCon()
+    print tVersion
+    print tCluster
+    for R in ClusterData:
+        count += 1
+        print tNode + Text_Style(R["Node"])
+        nodelist=list(SB.coll.find({"NodeName": R["Node"]}))
+        nodes=""
+        countnodes = 0
+        for N in nodelist:
+            countnodes += 1
+            nodes = nodes + " " + N["Name"] +","
+        print tNodes + R["Node"] + " :"+ nodes[:-1]
+        print tNodehostCount, countnodes, "\n"
+    if count > 1: print tNodeCount, count
+    if count == 0: print tNodeNot
+
+
 def MongoList(pattern={}):
     SB.MongoCon()
     allservers = list(SB.coll.find(pattern))
     return List(allservers)
+
+
+def MongoNodeinfo(pattern={}):
+    SB.MongoCon()
+    ClusterData = list(SB.collCluster.find(pattern))
+    return NodeList(ClusterData)
+
 
 
 def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
@@ -344,6 +384,8 @@ def MongoUpdate(Name):
     print Text_Style(tDesc + Desc)
     DescN = ImCheck(
         tDescrm,  default=Desc, Empty="YES", Space="True" )
+    NodeNameN = ImCheck(
+        tNodeName+ ' [ Now:' + NodeName + ']: ',  default=NodeName, Space="True" )
     if DescN == "rm": DescN = ""
     choice = ImCheck(tDataCor).lower()
     if choice in yes:
@@ -351,7 +393,8 @@ def MongoUpdate(Name):
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN,
                 "RsyncOpt": RsyncOptN, "Dirs": DirsN, "DirsExclude": DirsExcludeN, "Priv": PrivN,
                 "Frequency": FrequencyN, "CleanDate": CleanDateN, "DirsInc": DirsIncN, "DBex": DBexN,
-                "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN, "MysqlReady": MysqlReadyN, "Desc": DescN}
+                "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN, "MysqlReady": MysqlReadyN,
+                "Desc": DescN, "NodeName": NodeNameN}
 
         SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
         if ChmyNReal == "YES":
@@ -429,7 +472,7 @@ def add():
             print tResdf
             os.system(cmd)
             DirsInc = ImCheck(
-                tDirBInc + '[default /var/backup]: ', default=DirIncDef)
+                tDirBInc + DefaultNodeName, default=DirIncDef)
             cmdmk = connect + "\"mkdir -p {dir}\"".format(dir=DirsInc)
             cmdmklog = connect + "\"mkdir -p /var/log/sbclient\""
             choice = ImCheck(tDoUexdb).lower()
@@ -453,9 +496,11 @@ def add():
             DBex = "Empty"
         serv = "^" + ServerName + "$"
         Desc = ImCheck(
-        tDesc,  default='',  Empty="YES", Space="True")
+        tDesc,  default="",  Empty="YES", Space="True")
+        NodeName = ImCheck(tNodeName+" [default is your hostname "+SB.Node+" ]: ", default=SB.Node, Space="True")
         MongoIn(ServerName, User, ServerIP, ServerPort, RsyncOpt,
-                Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy, MyDumpOpt, DirsInc, DBex, Desc )
+                Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy,
+                MyDumpOpt, DirsInc, DBex, Desc, NodeName )
         if Chmy == "YES":
             os.system(cmdmk)
             print tInstClient
@@ -574,10 +619,11 @@ def FindHelp():
 
 
 def help():
-    return """Version """+Version+"""
+    return tVersion+"""
     \nHelp function: Basic Usage:
     \t""" + Text_Style("add", color="WHITE") + """ or addhost \t\t- Add host to backup
     \t""" + Text_Style("l", color="WHITE") + """ or  list     \t\t- List all hosts
+    \t""" + Text_Style("lmy", color="WHITE") + """ or  list-my     \t- List the backup hosts only my node
     \t""" + Text_Style("se", color="WHITE") + """ or search   \t\t- Search for the host name, example: """ + Text_Style("sbctl search w1.host.com") + """
     \t""" + Text_Style("re", color="WHITE") + """ or reconf   \t\t- Reconfiguration of backup settings, example: """ + Text_Style("sbctl reconf w1.host.com") + """
     \t""" + Text_Style("rm", color="WHITE") + """ or remove   \t\t- Remove host, example: """ + Text_Style("sbctl delete w1.host.com") + """
@@ -593,7 +639,9 @@ def help():
     \t""" + Text_Style("find-regex", color="WHITE") + """     \t\t- Use regular expression to find the hosts on their parameter, example: """ + Text_Style("sbctl find-regex Status error") + """ 
     \t""" + Text_Style("find help", color="WHITE") + """     \t\t- List all parameter keys, example: """ + Text_Style("sbctl find help") + """ 
     \t""" + FindHelp() + """
-    \thelp              \t\t- Help
+    \t""" + Text_Style("node", color="WHITE") + """      \t\t- Print the nodes of cluster 
+    \t\t""" + Text_Style("node name", color="WHITE") + """      \t- Print information just one node, example: """ + Text_Style("sbctl node mynode") + """
+    \thelp              \t- Help
     \n"""
 
 
@@ -604,6 +652,8 @@ def main():
             add()
         elif argv == 'list' or argv == 'l':
             MongoList()
+        elif argv == 'list-my' or argv == 'lmy':
+            MongoList(pattern={"NodeName": SB.Node})
         elif argv == 'search' or argv == 'se':
             MongoList(pattern={"Name": {'$regex': sys.argv[2]}})
         elif argv == 'reconf' or argv == 're':
@@ -627,6 +677,12 @@ def main():
                 MongoFindParm(sys.argv[2], sys.argv[3], regex=argv)
         elif argv == "update-sbcl":
             UpdateCl()
+        elif argv == "node":
+            try:
+                MongoNodeinfo(pattern={"Node": sys.argv[2]})
+            except:
+
+                MongoNodeinfo()
         else:
             print help()
     except IndexError:

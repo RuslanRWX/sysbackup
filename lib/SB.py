@@ -7,6 +7,8 @@ Pathini = "/etc/sbd/sbd.ini"
 
 config = ConfigParser.ConfigParser()
 config.read(Pathini)
+global NameCluster
+global Node
 global MongoConnect
 global DBs
 global Collection
@@ -23,12 +25,15 @@ global Port
 global TimeCheck
 global PublickKey
 
+NameCluster = config.get('Main', 'NameCluster')
+Node = config.get('Main', 'Node')
 Connect = config.get('Main', 'MongoConnect')
 DBs = config.get('Main',  'DBs')
 AuthMechanism = config.get('Main',  'AuthMechanism')
 DBUser = config.get('Main',  'DBUser')
 DBUserPass = config.get('Main',  'DBUserPass')
-CollectionMain = "servers"
+Servers = "servers"
+Cluster = "cluster"
 Num_thread = int(config.get('Main',  'Num_thread'))
 DirBackup = config.get('Main', 'DirBackup')
 Pidfile = config.get('Main', 'Pidfile')
@@ -45,11 +50,13 @@ PublickKey = config.get('Main', 'PublickKey')
 def MongoCon():
     from pymongo import MongoClient
     from urllib import quote_plus
-    global cl
-    global coll
+    global cl, coll, collCluster
     cl = MongoClient("mongodb://"+DBUser+":"
                      +DBUserPass+"@"+Connect+"/"
                      +DBs+"?authMechanism="+AuthMechanism)
-    coll = cl[DBs][CollectionMain]
+    coll = cl[DBs][Servers]
+    collCluster = cl[DBs][Cluster]
+
+
 
 

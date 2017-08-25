@@ -183,7 +183,7 @@ class Backup:
 def CreateQ():
     ServersQ = {}
     SB.MongoCon()
-    Mq = SB.coll.find({"Status": {"$ne": "Disabled"}}).sort('Priv',  1)
+    Mq = SB.coll.find({"Status": {"$ne": "Disabled"}, "NodeName": SB.Node}).sort("Priv",  1)
     allservers = list(Mq)
     return allservers
 
@@ -261,6 +261,14 @@ def Check():
     tmp = SB.tmp
     LogDir = SB.LogDir
     DirBackup = SB.DirBackup
+    SB.MongoCon()
+    result = list(SB.collCluster.find({"Node": SB.Node }))
+    if result == [] or result[0]["Node"] == "":
+        text = "Add node to MongoDB\n"
+        log(text, SB.Log)
+        data = [{"Node": SB.Node}]
+        SB.collCluster.insert(data, True)
+    del result
     if not os.path.exists(tmp):
         os.makedirs(tmp)
     if not os.path.exists(LogDir):
