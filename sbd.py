@@ -269,8 +269,6 @@ def Check():
         data = [{"Node": SB.Node}]
         SB.collCluster.insert(data, True)
     del result
-    if not os.path.exists(tmp):
-        os.makedirs(tmp)
     if not os.path.exists(LogDir):
         os.makedirs(LogDir)
     if not os.path.exists(DirBackup):
