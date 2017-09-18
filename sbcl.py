@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # cbcl - SySBackup client program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.1"
+Version = "0.4.2"
 
 import socket
 import os
@@ -49,7 +49,7 @@ tCheckInf = "Check information\nName: "
 tDir = "Directory :"
 tDirEx = "Exclude directory :"
 tDataCor = "Data are correct? yes|no: "
-tBye = "Bye!"
+tBye = "\nBye!"
 tctrlD = "\nYou pressed Ctrl+C!\nBye!"
 tPlease = "Please respond with 'yes' or 'no'"
 tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"

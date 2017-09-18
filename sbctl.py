@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # sbctl - SySBackup management program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.1"
+Version = "0.4.2"
 
 
 import sys
@@ -53,12 +53,12 @@ tCheckInf = "Check information\nName: "
 tDir = "Directory :"
 tDirEx = "Exclude directory :"
 tDataCor = "Are these data correct ? yes|no: "
-tBye = "Bye!"
+tBye = "\nBye!"
 tctrlD = "\nYou pressed Ctrl+C!\nBye!"
 tPlease = "Please respond with 'yes' or 'no'"
 tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"
-tDuD = "Do you really want to delete host 'yes' or 'no'? "
-tDirBInc = "Mysqlump directory: "
+tDuD = "Do you really want to remove this host 'yes' or 'no'? "
+tDirBInc = "Mysqldump directory: "
 tDoUBackupMysql = "Do you want to backup MySQL? yes|no: "
 tResdf = "Result of \"df -h\" on your remote server"
 tInstClient = "A client for MySQL backuping has been installed to the remote host, sbcl"
@@ -113,25 +113,13 @@ tNodes = "Hosts of node "
 tNodeCount = "amount of nodes "
 tNodeNot = "Not found"
 tNodehostCount = "amount of hosts "
+tHaveNotNode = "\nYou have not node!\n"
+tRmNodeResult = "\nNode has been removed successfully!\n"
+
 
 def signal_handler(signal, frame):
             print Text_Style(tctrlD)
             sys.exit(0)
-
-
-signal.signal(signal.SIGINT, signal_handler)
-
-
-def MongoIn(Name, User, ServerIP, ServerPort, RsyncOpt,
-            Priv, Dirs, DirsExclude, Frequency, CleanDate,
-            Chmy, MyDumpOpt, DirsInc, DBex, Desc, NodeName):
-    SB.MongoCon()
-    DataServer = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,
-             "RsyncOpt": RsyncOpt, "Priv": Priv, "Dirs": Dirs, "DirsExclude": DirsExclude, "DateStart": "",
-             "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, "Chmy": Chmy, "MyDumpOpt": MyDumpOpt,
-             "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady": "Empty", "MysqlLog": "", "DateStartMySQL": "",
-             "DateStopMySQL": "", "Status": "Never", "Desc": Desc, "NodeName": NodeName }]
-    SB.coll.insert(DataServer, True)
 
 
 def List(allservers):
@@ -223,38 +211,109 @@ def List(allservers):
         sys.exit(0)
 
 
-def NodeList(ClusterData):
-    global count
-    count = 0
+class Mongo:
+#    def __init__(self, ):
+#        self.pattern=pattern
+
     SB.MongoCon()
-    print tVersion
-    print tCluster
-    for R in ClusterData:
-        count += 1
-        print tNode + Text_Style(R["Node"])
-        nodelist=list(SB.coll.find({"NodeName": R["Node"]}))
-        nodes=""
-        countnodes = 0
-        for N in nodelist:
-            countnodes += 1
-            nodes = nodes + " " + N["Name"] +","
-        print tNodes + R["Node"] + " :"+ nodes[:-1]
-        print tNodehostCount, countnodes, "\n"
-    if count > 1: print tNodeCount, count
-    if count == 0: print tNodeNot
+    def insert(self, **kwargs):
+        Mongo.insert.__globals__.update(kwargs)
+        DataServer = [{"Name": Name, "User": User,  "ServerIP": ServerIP, "ServerPort": ServerPort,
+             "RsyncOpt": RsyncOpt, "Priv": Priv, "Dirs": Dirs, "DirsExclude": DirsExclude, "DateStart": "",
+             "DateEnd": "", "Frequency": Frequency,  "CleanDate": CleanDate, "Chmy": Chmy, "MyDumpOpt": MyDumpOpt,
+             "DirsInc": DirsInc, "DBex": DBex,  "MysqlReady": "Empty", "MysqlLog": "", "DateStartMySQL": "",
+             "DateStopMySQL": "", "Status": "Never", "Desc": Desc, "NodeName": NodeName }]
+        SB.coll.insert(DataServer, True)
 
+    def List(self, pattern={}):
+        allservers = list(SB.coll.find(pattern))
+        return List(allservers)
 
-def MongoList(pattern={}):
-    SB.MongoCon()
-    allservers = list(SB.coll.find(pattern))
-    return List(allservers)
+    def FindParm(self, Parm, Obj, regex):
+        if regex == "find-regex":
+            Obj = {'$regex': Obj}
+        elif regex == "find-not":
+            Obj = {'$ne':  Obj}
+        allservers = list(SB.coll.find({Parm: Obj}))
+        return List(allservers)
 
+    def RmNode(self, Node):
+        Remove=SB.collCluster.remove({"Node" : Node}, )
+        if Remove["n"] > 1:
+            print Text_Style(tRmNodeResult)
+        else:
+           print Text_Style(tHaveNotNode)
 
-def MongoNodeinfo(pattern={}):
-    SB.MongoCon()
-    ClusterData = list(SB.collCluster.find(pattern))
-    return NodeList(ClusterData)
+    def ChangeStatus(self, Name, Stat):
+        allservers = list(SB.coll.find({"Name": Name}))
+        List(allservers)
+        if Stat == "Done":
+            Value = "Done"
+        elif Stat == "Disabled":
+            Value = "Disabled"
+        elif Stat == "needbackup":
+            Value = "needbackup"
+        else:
+            return  Text_Style(tUsestat)
+        data = {"Status": Value}
+        SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
+        return tStatdone
 
+    def Delete(self, Name):
+        allservers = list(SB.coll.find({"Name": Name}))
+        List(allservers)
+        if count == 0:
+            return
+        #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
+        yes = set(['yes', 'y', 'ye'])
+        no = set(['no', 'n'])
+        choice = InCheck(Text_Style(tDuD)).lower()
+        if choice in yes:
+            SB.coll.remove({'_id': id})
+            choice = InCheck(Text_Style(tDuDel + SB.DirBackup +
+                                    "/" + ServerName + " ")).lower()
+            if choice in yes:
+                cmd = "rm -fr {dir}".format(dir=SB.DirBackup + "/" + ServerName)
+                os.system(cmd)
+        elif choice in no:
+            print tBye
+        else:
+            sys.stdout.write(tPlease)
+
+    def UpdateCl(self):
+        allservers = list(SB.coll.find({}))
+        for R in allservers:
+            ServerName = R['Name']
+            User = R['User']
+            IP = R['ServerIP']
+            Port = R['ServerPort']
+            print tUpdateCl + ServerName
+            cmd="scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=User,
+                                                                                  port=Port, ip=IP)
+            os.system(cmd)
+
+    def NodeList(self, ClusterData):
+        global count
+        count = 0
+        print tVersion
+        print tCluster
+        for R in ClusterData:
+            count += 1
+            print tNode + Text_Style(R["Node"])
+            nodelist = list(SB.coll.find({"NodeName": R["Node"]}))
+            nodes = ""
+            countnodes = 0
+            for N in nodelist:
+                countnodes += 1
+                nodes = nodes + " " + N["Name"] + ","
+            print tNodes + R["Node"] + " :" + nodes[:-1]
+            print tNodehostCount, countnodes, "\n"
+        if count > 1: print tNodeCount, count
+        if count == 0: print tNodeNot
+
+    def Nodeinfo(self, pattern={}):
+        ClusterData = list(SB.collCluster.find(pattern))
+        return Mongo().NodeList(ClusterData)
 
 
 def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
@@ -263,7 +322,7 @@ def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude,
     print tFB, Frequency, "\n" + tCleanB, CleanDate
 
 
-def ImCheck(data, default=None, Empty=None,  Space=None):
+def InCheck(data, default=None, Empty=None,  Space=None):
     Check = None
     if Space is not None:
         Result = raw_input(data) or default
@@ -275,7 +334,7 @@ def ImCheck(data, default=None, Empty=None,  Space=None):
     return Result
 
 
-def ImCheckIP(data, default=""):
+def InCheckIP(data, default=""):
     checkip = "True"
     while checkip:
         Result = raw_input(data) or default
@@ -286,10 +345,10 @@ def ImCheckIP(data, default=""):
     return Result
 
 
-def MongoUpdate(Name):
+def Update(Name):
     CronN = None
     ChmyNReal = None
-    MongoList(pattern={"Name": Name})
+    M.List(pattern={"Name": Name})
     MyDumpOptN = MyDumpOpt
     DirsIncN = DirsInc
     DBexN = DBex
@@ -299,32 +358,32 @@ def MongoUpdate(Name):
         return
     if Chmy == "NO":
         tRmDel = None
-    ServerNameN = ImCheck(
+    ServerNameN = InCheck(
         tServName + ' [Now:' + ServerName + ']: ',  default=ServerName)
-    ServerIPN = ImCheckIP(
+    ServerIPN = InCheckIP(
         tServIP + ' [Now:' + ServerIP + ']: ', default=ServerIP)
-    UserN = ImCheck(
+    UserN = InCheck(
         tUser + Defroot + ' [Now:' + User + ']: ',  default=User)
-    ServerPortN = ImCheck(
+    ServerPortN = InCheck(
         tServPort + Defport + ' [Now: ' + ServerPort + ' ]: ', default=ServerPort)
-    RsyncOptN = ImCheck(
+    RsyncOptN = InCheck(
         tOpR + Defop + ' [Now:' + RsyncOpt + ']: ', default=RsyncOpt, Space = "True")
-    PrivN = ImCheck(
+    PrivN = InCheck(
         tPriy + ' [ Now:' + str(Priv) + ' ]: ', default=Priv)
-    DirsN = ImCheck(tDir + ExampleDir +
+    DirsN = InCheck(tDir + ExampleDir +
                     ' [ Now:' + Dirs + ' ]: ', default=Dirs)
-    DirsExcludeN = ImCheck(
+    DirsExcludeN = InCheck(
         tDirEx + ExampleDirEx + ' [ Now:' + DirsExclude + ']: ', default=DirsExclude,  Empty="YES")
-    FrequencyN = ImCheck(
+    FrequencyN = InCheck(
         tFB + ' [ Now:' + str(Frequency) + ' ]: ', default=Frequency)
-    CleanDateN = ImCheck(
+    CleanDateN = InCheck(
         tCleanB + ' [ Now:' + str(CleanDate) + ' ]: ', default=CleanDate)
     # PrCheck(ServerNameN, UserN, ServerIPN, ServerPortN, RsyncOptN,
     #        PrivN, DirsN, DirsExcludeN, FrequencyN, CleanDateN)
     yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
     rm = set(['rm'])
-    choice = ImCheck(tMysqlUpdate).lower()
+    choice = InCheck(tMysqlUpdate).lower()
     connect = "ssh -p{Port} {User}@{IP} ".format(
         Port=ServerPortN, User=UserN, IP=ServerIPN)
     cmdcrondel = connect + " \"sed -i /sbcl/d /etc/crontab \""
@@ -334,7 +393,7 @@ def MongoUpdate(Name):
     elif choice in yes:
         ChmyN = "YES"
         ChmyNReal = "YES"
-        choicech = ImCheck(Text_Style(tCheckMy)).lower()
+        choicech = InCheck(Text_Style(tCheckMy)).lower()
         if choicech in yes:
             pass
         else:
@@ -350,7 +409,7 @@ def MongoUpdate(Name):
             DirsIncExample = DirIncDef
         else:
             DirsIncExample = DirsInc
-        DirsIncN = ImCheck(
+        DirsIncN = InCheck(
             tDirBInc + ExampleIncDir + ' [ Now:' + DirsInc + ' ]: ',
             default=DirsIncExample )
         print (Text_Style(tUdb))
@@ -360,15 +419,15 @@ def MongoUpdate(Name):
             DBexExample = DBexDef
         else:
             DBexExample = DBex
-        DBexN = ImCheck(tDBex + ExampleExDB +
+        DBexN = InCheck(tDBex + ExampleExDB +
                         '[Now: ' + DBex + ']: ', default=DBexExample,  Empty="YES")
         if MyDumpOpt == "Empty":
             MyDumpOptExample = MysqlOptDef
         else:
             MyDumpOptExample = MyDumpOpt
-        MyDumpOptN = ImCheck(tMyDumpOpt + tDefMysqlOpt +
+        MyDumpOptN = InCheck(tMyDumpOpt + tDefMysqlOpt +
                              '[Now:' + MyDumpOpt + ']:', default=MyDumpOptExample, Space = "True")
-        CronN = ImCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron, Space = "True")
+        CronN = InCheck(tSbcltext + tSbclCron + tSbcltext2, default=tSbclCron, Space = "True")
         cmdcron = connect + " \"echo '" + CronN + "' >> /etc/crontab\""
     else:
         pass
@@ -382,12 +441,12 @@ def MongoUpdate(Name):
     else:
         pass
     print Text_Style(tDesc + Desc)
-    DescN = ImCheck(
+    DescN = InCheck(
         tDescrm,  default=Desc, Empty="YES", Space="True" )
-    NodeNameN = ImCheck(
+    NodeNameN = InCheck(
         tNodeName+ ' [ Now:' + NodeName + ']: ',  default=NodeName, Space="True" )
     if DescN == "rm": DescN = ""
-    choice = ImCheck(tDataCor).lower()
+    choice = InCheck(tDataCor).lower()
     if choice in yes:
         # print id
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN,
@@ -420,27 +479,27 @@ def add():
     # time.sleep(3)
     yes = set(['yes', 'y', 'ye'])
     no = set(['no', 'n'])
-    choicech = ImCheck(tCheckRsync).lower()
+    choicech = InCheck(tCheckRsync).lower()
     if choicech in yes:
         pass
     else:
         print Text_Style(tPlInR)
         return
-    ServerName = ImCheck(tServName)
-    ServerIP = ImCheckIP(tServIP)
-    User = ImCheck(tUser + Defroot, default=UserDef)
-    ServerPort = ImCheck(tServPort + Defport,  default=PortDef)
+    ServerName = InCheck(tServName)
+    ServerIP = InCheckIP(tServIP)
+    User = InCheck(tUser + Defroot, default=UserDef)
+    ServerPort = InCheck(tServPort + Defport,  default=PortDef)
  #   ServerPort = ServerPort.replace(' ', '')
-    RsyncOpt = ImCheck(tOpR + Defop, default=RsyncOptDef, Space = "True")
-    Priv = ImCheck(tPriy + Defpri,  default=PrivDef)
-    Dirs = ImCheck(tDirB + ExampleDir + ": ",  default=DirsDef)
-    DirsExclude = ImCheck(
+    RsyncOpt = InCheck(tOpR + Defop, default=RsyncOptDef, Space = "True")
+    Priv = InCheck(tPriy + Defpri,  default=PrivDef)
+    Dirs = InCheck(tDirB + ExampleDir + ": ",  default=DirsDef)
+    DirsExclude = InCheck(
         tDirBx + ExampleDirEx + ": ",  default='',  Empty="YES")
-    Frequency = ImCheck(tFB + DefFr,  default=FrequencyDef)
-    CleanDate = ImCheck(tCleanB + DefClean,  default=CleanDateDef)
+    Frequency = InCheck(tFB + DefFr,  default=FrequencyDef)
+    CleanDate = InCheck(tCleanB + DefClean,  default=CleanDateDef)
     # PrCheck(ServerName, User,  ServerIP, ServerPort,
     #        RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
-    choice = ImCheck(tDataCor).lower()
+    choice = InCheck(tDataCor).lower()
     if choice in yes:
         print Text_Style(tAddsshKey)
         # time.sleep(3)
@@ -459,9 +518,9 @@ def add():
         os.system(cmd)
         os.system(cmdscp)
         os.system(cmdscpini)
-        choise = ImCheck(tDoUBackupMysql).lower()
+        choise = InCheck(tDoUBackupMysql).lower()
         if choise in yes:
-            choicech = ImCheck((Text_Style(tCheckMy))).lower()
+            choicech = InCheck((Text_Style(tCheckMy))).lower()
             if choicech in yes:
                 pass
             else:
@@ -471,22 +530,22 @@ def add():
             cmd = connect + " \"df -h\""
             print tResdf
             os.system(cmd)
-            DirsInc = ImCheck(
+            DirsInc = InCheck(
                 tDirBInc + DefaultNodeName, default=DirIncDef)
             cmdmk = connect + "\"mkdir -p {dir}\"".format(dir=DirsInc)
             cmdmklog = connect + "\"mkdir -p /var/log/sbclient\""
-            choice = ImCheck(tDoUexdb).lower()
+            choice = InCheck(tDoUexdb).lower()
             if choice in yes:
                 cmd = connect + " \"mysql -e 'show databases;'\""
                 print Text_Style(tUdb)
                 os.system(cmd)
                 print (Text_Style("##############"))
-                DBex = ImCheck(tDBex + tdefExDb,
+                DBex = InCheck(tDBex + tdefExDb,
                                default=DBexDef,  Empty="YES")
             else:
                 DBex = "Empty"
-            MyDumpOpt = ImCheck(tMyDumpOpt + tDefMysqlOpt, default=MysqlOptDef, Space = "True")
-            Cron = ImCheck(tSbcltext + tSbclCron +
+            MyDumpOpt = InCheck(tMyDumpOpt + tDefMysqlOpt, default=MysqlOptDef, Space = "True")
+            Cron = InCheck(tSbcltext + tSbclCron +
                            tSbcltext2, default=tSbclCron,  Space = "True" )
             cmdcron = connect + " \"echo '" + Cron + "' >> /etc/crontab\""
         else:
@@ -495,49 +554,27 @@ def add():
             DirsInc = "Empty"
             DBex = "Empty"
         serv = "^" + ServerName + "$"
-        Desc = ImCheck(
+        Desc = InCheck(
         tDesc,  default="",  Empty="YES", Space="True")
-        NodeName = ImCheck(tNodeName+" [default is your hostname "+SB.Node+" ]: ", default=SB.Node, Space="True")
-        MongoIn(ServerName, User, ServerIP, ServerPort, RsyncOpt,
-                Priv, Dirs, DirsExclude, Frequency, CleanDate, Chmy,
-                MyDumpOpt, DirsInc, DBex, Desc, NodeName )
+        NodeName = InCheck(tNodeName+" [default is your hostname "+SB.Node+" ]: ", default=SB.Node, Space="True")
+        M.insert(Name=ServerName, User=User, ServerIP=ServerIP, ServerPort=ServerPort, RsyncOpt=RsyncOpt,
+                Priv=Priv, Dirs=Dirs, DirsExclude=DirsExclude, Frequency=Frequency, CleanDate=CleanDate,
+                    Chmy=Chmy, MyDumpOpt=MyDumpOpt, DirsInc=DirsInc, DBex=DBex,
+                        Desc=Desc, NodeName=NodeName )
         if Chmy == "YES":
             os.system(cmdmk)
             print tInstClient
             os.system(cmdcron)
-        MongoList(pattern={"Name": {'$regex': serv}})
+        M.List(pattern={"Name": {'$regex': serv}})
     elif choice in no:
         print tBye
         return
-    else:
-        sys.stdout.write(tPlease)
-
-
-def Delete(Name):
-    SB.MongoCon()
-    allservers = list(SB.coll.find({"Name": Name}))
-    List(allservers)
-    if count == 0:
-        return
-    #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
-    yes = set(['yes', 'y', 'ye'])
-    no = set(['no', 'n'])
-    choice = ImCheck(Text_Style(tDuD)).lower()
-    if choice in yes:
-        SB.coll.remove({'_id': id})
-        choice = ImCheck(Text_Style(tDuDel + SB.DirBackup +
-                                "/" + ServerName + " ")).lower()
-        if choice in yes:
-            cmd = "rm -fr {dir}".format(dir=SB.DirBackup + "/" + ServerName)
-            os.system(cmd)
-    elif choice in no:
-        print tBye
     else:
         sys.stdout.write(tPlease)
 
 
 def Command(Serv, Args):
-    MongoList(pattern={"Name": Serv})
+    M.List(pattern={"Name": Serv})
     try:
         connect = "ssh -p{Port} {User}@{IP} ".format(
             Port=ServerPort, User=User, IP=ServerIP)
@@ -545,47 +582,6 @@ def Command(Serv, Args):
         return os.system(cmd)
     except:
         return
-
-def UpdateCl():
-    SB.MongoCon()
-    allservers = list(SB.coll.find({}))
-    for R in allservers:
-        ServerName = R['Name']
-        User = R['User']
-        IP = R['ServerIP']
-        Port = R['ServerPort']
-        print tUpdateCl + ServerName
-        cmd="scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=User, 
-                                                                            port=Port, ip=IP)
-        os.system(cmd)
-    
-
-
-def Status(Name, Stat):
-    SB.MongoCon()
-    allservers = list(SB.coll.find({"Name": Name}))
-    List(allservers)
-    if Stat == "Done":
-        Value = "Done"
-    elif Stat == "Disabled":
-        Value = "Disabled"
-    elif Stat == "needbackup":
-        Value = "needbackup"
-    else:
-        return tUsestat
-    data = {"Status": Value}
-    SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
-    return tStatdone
-
-
-def MongoFindParm(Parm, Obj, regex):
-    if regex == "find-regex":
-        Obj = {'$regex': Obj}
-    elif regex == "find-not":
-        Obj = {'$ne':  Obj}
-    SB.MongoCon()
-    allservers = list(SB.coll.find({Parm: Obj}))
-    return List(allservers)
 
 
 def FindHelp():
@@ -626,7 +622,7 @@ def help():
     \t""" + Text_Style("lmy", color="WHITE") + """ or  list-my     \t- List the backup hosts only my node
     \t""" + Text_Style("se", color="WHITE") + """ or search   \t\t- Search for the host name, example: """ + Text_Style("sbctl search w1.host.com") + """
     \t""" + Text_Style("re", color="WHITE") + """ or reconf   \t\t- Reconfiguration of backup settings, example: """ + Text_Style("sbctl reconf w1.host.com") + """
-    \t""" + Text_Style("rm", color="WHITE") + """ or remove   \t\t- Remove host, example: """ + Text_Style("sbctl delete w1.host.com") + """
+    \t""" + Text_Style("rm", color="WHITE") + """ or remove   \t\t- Remove host, example: """ + Text_Style("sbctl remove w1.host.com") + """
     \t""" + Text_Style("ho", color="WHITE") + """ or host     \t\t- Send command to remote host, example: """ + Text_Style("sbctl host w1.host.com \"ls -al /var/backup\"") + """
     \t""" + Text_Style("backup", color="WHITE") + """         \t\t- Start backup, example: """ + Text_Style("sbctl backup w1.host.com") + """
     \t""" + Text_Style("update-sbcl", color="WHITE") + """    \t\t- Update clinet, example: sbctl update-sbcl
@@ -651,15 +647,15 @@ def main():
         if argv == 'addhost' or argv == 'add':
             add()
         elif argv == 'list' or argv == 'l':
-            MongoList()
+            M.List()
         elif argv == 'list-my' or argv == 'lmy':
-            MongoList(pattern={"NodeName": SB.Node})
+            M.List(pattern={"NodeName": SB.Node})
         elif argv == 'search' or argv == 'se':
-            MongoList(pattern={"Name": {'$regex': sys.argv[2]}})
+            M.List(pattern={"Name": {'$regex': sys.argv[2]}})
         elif argv == 'reconf' or argv == 're':
-            MongoUpdate(sys.argv[2])
+            Update(sys.argv[2])
         elif argv == 'remove' or argv == 'rm':
-            Delete(sys.argv[2])
+            M.Delete(sys.argv[2])
         elif argv == 'host' or argv == 'ho':
             Command(sys.argv[2], sys.argv[3])
         elif argv == "backup":
@@ -667,22 +663,23 @@ def main():
             os.system(cmd)
         elif argv == "status":
             try:
-                print Status(sys.argv[2], sys.argv[3])
+                print M.ChangeStatus(sys.argv[2], sys.argv[3])
             except:
                 pass
         elif argv == "find" or argv == "find-regex" or argv == "find-not":
             if sys.argv[2] == "help":
                 print FindHelp()
             else:
-                MongoFindParm(sys.argv[2], sys.argv[3], regex=argv)
+                M.FindParm(sys.argv[2], sys.argv[3], regex=argv)
         elif argv == "update-sbcl":
-            UpdateCl()
+            M.UpdateCl()
         elif argv == "node":
             try:
-                MongoNodeinfo(pattern={"Node": sys.argv[2]})
+                M.Nodeinfo(pattern={"Node": sys.argv[2]})
             except:
-
-                MongoNodeinfo()
+                M.Nodeinfo()
+        elif argv == "rm-node":
+            M.RmNode(sys.argv[2])
         else:
             print help()
     except IndexError:
@@ -692,4 +689,6 @@ def main():
 
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, signal_handler)
+    M=Mongo()
     main()

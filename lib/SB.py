@@ -2,6 +2,7 @@
 # SysBackup module
 # Version 0.4.0
 import ConfigParser
+import os
 
 Pathini = "/etc/sbd/sbd.ini"
 
@@ -24,6 +25,9 @@ global IP
 global Port
 global TimeCheck
 global PublickKey
+global pid
+pid = str(os.getpid())
+
 
 NameCluster = config.get('Main', 'NameCluster')
 Node = config.get('Main', 'Node')
@@ -56,6 +60,8 @@ def MongoCon():
                      +DBs+"?authMechanism="+AuthMechanism)
     coll = cl[DBs][Servers]
     collCluster = cl[DBs][Cluster]
+
+
 
 
 
