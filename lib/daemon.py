@@ -8,6 +8,8 @@ import os
 import re
 sys.path.append(".")
 import SB
+import socket
+import pickle
 
 
 def log(text, file):
@@ -50,9 +52,8 @@ def create_queue():
     servers = list(Mq)
     return servers
 
+
 def API():
-    import socket
-    import pickle
     SERVER_ADDRESS = SB.IP
     SERVER_PORT = int(SB.Port)
     s = socket.socket()
@@ -107,11 +108,17 @@ def create_tmp_file(Name, DirsEx):
     FileEx.write(DirsEx)
     FileEx.close()
 
+
 def date_check(checkdate):
     checkdate = int(checkdate)
     date0 = datetime.datetime.now() - datetime.timedelta(hours=checkdate)
     date = date0.isoformat()
     return date
+
+
+class daemon_supper(object):
+    def __getitem__(self,key):
+        return key
 
 
 class backup_function:
@@ -120,52 +127,36 @@ class backup_function:
         self.Not_check = Not_check
         SB.MongoCon()
         self.CodeRsync = None
-        SD = list(SB.coll.find({"Name": self.Server}))
-        for R in SD:
-            self.Name = R["Name"]
-            self.CleanDate = R["CleanDate"]
-            self.Frequency = R["Frequency"]
-            self.DirsExclude = R["DirsExclude"]
-            self.Dirs = R["Dirs"]
-            self.User = R["User"]
-            self.id = R["_id"]
-            self.ServerIP = R["ServerIP"]
-            self.ServerPort = R["ServerPort"]
-            self.RsyncOpt = R["RsyncOpt"]
-            self.Dirs = R["Dirs"]
-            self.Dirs = R["Dirs"]
-            self.DirsExclude = R["DirsExclude"]
-            self.DateStart = R["DateStart"]
-            self.DateEnd = R["DateEnd"]
-            self.DirsInc = R["DirsInc"]
-            self.Chmy = R["Chmy"]
-            self.Status = R["Status"]
-            self.MysqlReady = R["MysqlReady"]
+        server_list = list(SB.coll.find({"Name": self.Server}))
+        getkey=daemon_supper()
+        for R in server_list:
+            self.data=getkey.__getitem__(R)
+
         self.ISODateStart = datetime.datetime.now().isoformat()
-        self.chdate = date_check(self.Frequency)
-        if self.Chmy == "YES":
-            self.DirsExclude = self.DirsExclude + "," + self.DirsInc
-        if self.Chmy == "YES" and self.Not_check == "YES":
+        self.chdate = date_check(self.data["Frequency"])
+        if self.data["Chmy"] == "YES":
+            self.data["DirsExclude"] = self.data["DirsExclude"] + "," + self.data["DirsInc"]
+        if self.data["Chmy"] == "YES" and self.Not_check == "YES":
             backup_function.mysqldump(self.Server)
-        create_tmp_file(self.Name, self.DirsExclude)
-        self.DirB = SB.DirBackup + "/" + self.Name
-        self.DirBL = SB.DirBackup + "/" + self.Name + "/" + self.ISODateStart
-        self.ExFile = SB.tmp + "/" + self.Name + "_ex.txt"
+        create_tmp_file(self.data["Name"], self.data["DirsExclude"])
+        self.DirB = SB.DirBackup + "/" + self.data["Name"]
+        self.DirBL = SB.DirBackup + "/" + self.data["Name"] + "/" + self.ISODateStart
+        self.ExFile = SB.tmp + "/" + self.data["Name"] + "_ex.txt"
         self.Link = self.DirB + "/" + "Latest"
 
     def skip_backup(self):
-        if self.DateEnd > self.chdate and \
-                        self.Not_check == "NO" and self.Status == "Done":
+        if self.data["DateEnd"] > self.chdate and \
+                        self.Not_check == "NO" and self.data["Status"] == "Done":
             return 1
-        elif  self.DateEnd > self.chdate and \
-                        self.Status == "rsync error":
+        elif  self.data["DateEnd"] > self.chdate and \
+                        self.data["Status"] == "rsync error":
             return 1
-        elif self.Status == "running":
-            tbackuprun = self.Name + " Backup already running"
+        elif self.data["Status"] == "running":
+            tbackuprun = self.data["Name"] + " Backup already running"
             log(tbackuprun, SB.Log)
             return 1
-        elif self.MysqlReady == "NO" and self.Chmy == "YES":
-            text = "\n" + self.Name + ": Mysqldump is not ready"
+        elif self.data["MysqlReady"] == "NO" and self.data["Chmy"] == "YES":
+            text = "\n" + self.data["Name"] + ": Mysqldump is not ready"
             log(text, SB.Log)
             print text
             return
@@ -188,21 +179,21 @@ class backup_function:
         Dirs exclude: {dirE}
         DateStart : {dateS}\n"""
         text = text.format(time=datetime.datetime.now(),
-                    name=self.Name, user=self.User, ip=self.ServerIP,
-                        port=self.ServerPort, rsyncOpt=self.RsyncOpt, dirs=self.Dirs,
-                           dirE=self.DirsExclude, dateS=self.DateStart)
+                    name=self.data["Name"], user=self.data["User"], ip=self.data["ServerIP"],
+                        port=self.data["ServerPort"], rsyncOpt=self.data["RsyncOpt"], dirs=self.data["Dirs"],
+                           dirE=self.data["DirsExclude"], dateS=self.data["DateStart"])
         log(text, SB.Log)
 
     def update_status_start(self):
         self.ISODateStart = datetime.datetime.now().isoformat()
         Data = {"DateStart": self.ISODateStart,
                   "Status": "running", "DateEnd": ""}
-        SB.coll.update({'_id': self.id}, {"$set": Data}, upsert=False)
+        SB.coll.update({'_id': self.data["id"]}, {"$set": Data}, upsert=False)
 
     def update_status_end(self, status):
         self.ISODateEnd = datetime.datetime.now().isoformat()
         Data = {"DateEnd": self.ISODateEnd, "Status": status}
-        SB.coll.update({'_id': self.id}, {"$set": Data}, upsert=False)
+        SB.coll.update({'_id': self.data["id"]}, {"$set": Data}, upsert=False)
 
     def create_path(self):
         if not os.path.exists(self.DirB):
@@ -212,49 +203,49 @@ class backup_function:
 
     def create_rsync_dirs(self):
         cmd=[]
-        for RD in self.Dirs.split(","):
+        for RD in self.data["Dirs"].split(","):
             if RD != "/":
                 RD = re.sub(r'\/$', '', RD)
         cmd.append("/usr/bin/rsync  {rsopt} --relative --log-file={logdir}/{serv}.log --progress" \
                    " -e \"/usr/bin/ssh -p {port}\"  --delete  --timeout=600 --ignore-errors --exclude-from={exf}" \
-                   " --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=self.RsyncOpt,
-                                                                                 port=self.ServerPort,
+                   " --link-dest={dir}/Latest {user}@{ip}:{rd}  {dirbl} ".format(rsopt=self.data["RsyncOpt"],
+                                                                                 port=self.data["ServerPort"],
                                                                                  exf=self.ExFile,
                                                                                  dir=self.DirB,
-                                                                                 user=self.User,
-                                                                                 ip=self.ServerIP,
+                                                                                 user=self.data["User"],
+                                                                                 ip=self.data["ServerIP"],
                                                                                  rd=RD,
                                                                                  dirbl=self.DirBL,
                                                                                  logdir=SB.LogDir,
-                                                                                 serv=self.Name))
+                                                                                 serv=self.data["Name"]))
         return cmd
 
     def rsync_dirs(self, dirs):
         for dir in dirs:
             code = os.system(dir)
             if code > 0:
-                log(self.Name + " rsync error!\n", SB.LogError)
+                log(self.data["Name"] + " rsync error!\n", SB.LogError)
                 self.CodeRsync = "1"
 
     def create_rsync_mysql_dir(self):
         cmd = "/usr/bin/rsync  {rsopt} --relative --log-file={logdir}/{serv}.log --progress " \
                             "-e \"/usr/bin/ssh -p {port}\" --timeout=600 --ignore-errors {user}@{ip}:{rd} " \
-                            " {dirbl} ".format(rsopt=self.RsyncOpt,
-                                               port=self.ServerPort,
+                            " {dirbl} ".format(rsopt=self.data["RsyncOpt"],
+                                               port=self.data["ServerPort"],
                                                exf=self.ExFile,
                                                dir=self.DirB,
-                                               user=self.User,
-                                               ip=self.ServerIP,
-                                               rd=self.DirsInc,
+                                               user=self.data["User"],
+                                               ip=self.data["ServerIP"],
+                                               rd=self.data["DirsInc"],
                                                dirbl=self.DirBL,
                                                logdir=SB.LogDir,
-                                               serv=self.Name)
+                                               serv=self.data["Name"])
         return cmd
 
     def rsync_mysql_dir(self, dir):
         code = os.system(dir)
         if code > 0:
-            log(self.Name + " rsync error, mysql directory!\n", SB.LogError)
+            log(self.data["Name"] + " rsync error, mysql directory!\n", SB.LogError)
             self.CodeRsync = "1"
 
     def remove_link(self):
@@ -277,13 +268,13 @@ class backup_function:
         Server name: {name}
         DateEnd : {date}"""
         text = text.format(time=datetime.datetime.now(),
-                           name=self.Name, date=self.DateEnd)
+                           name=self.data["Name"], date=self.data["DateEnd"])
         log(text, SB.Log)
 
     def clean_local_store(self):
         Drs = set()
         rDir = os.listdir(self.DirB)
-        CleanD = int(self.CleanDate) * 24
+        CleanD = int(self.data["CleanDate"]) * 24
         DCh = date_check(CleanD)
         for rd in rDir:
             Drs.add(rd)
@@ -321,6 +312,4 @@ class backup:
         self.bf.update_status_end(Status)
         self.bf.end_text()
         self.bf.clean_local_store()
-
-
 

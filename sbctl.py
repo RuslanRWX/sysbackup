@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # sbctl - SySBackup management program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.2"
+Version = "0.4.3"
 
 
 import sys
@@ -11,110 +11,14 @@ import signal
 import readline
 #sys.path.append("lib/")
 import SB
+import variablessbctl
+from variablessbctl import *
 
 
 def Text_Style(data, color="YELLOW"):
     from colorama import Fore, Style
     Color = getattr(Fore, color)
     return (Color + data + Style.RESET_ALL)
-
-
-# mail variables
-MysqlOptDef = "--opt  --routines"
-PortDef = "22"
-UserDef = "root"
-RsyncOptDef = "-av"
-PrivDef = "20"
-DirsDef = "/etc,/var"
-DirIncDef = "/var/backup"
-DirExDef = "/etc/ssh,/var/log"
-FrequencyDef = "24"
-CleanDateDef = "7"
-DBexDef = "information_schema,performance_schema"
-
-# text
-tVersion = "Version :"+Version
-tStart = "##########################\n"
-tServName = "Server name: "
-tServIP = "Server IP: "
-tUser = "User:"
-tServPort = "Server ssh port: "
-tPriy = "Priority: "
-tOpR = "Options of rsync: "
-tLastD = "Last backup start time: "
-tLastDN = "Last backup finish time: "
-tDirB = "Directories of backup "
-tDirBx = "Directories of exclude "
-tFB = "Frequency of backup, hours: "
-tCleanB = "Clean the backup server, days: "
-tAOS = "##########################    amount of servers "
-tHavenot = "Haven't got any host !\nBye "
-tCheckInf = "Check information\nName: "
-tDir = "Directory :"
-tDirEx = "Exclude directory :"
-tDataCor = "Are these data correct ? yes|no: "
-tBye = "\nBye!"
-tctrlD = "\nYou pressed Ctrl+C!\nBye!"
-tPlease = "Please respond with 'yes' or 'no'"
-tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"
-tDuD = "Do you really want to remove this host 'yes' or 'no'? "
-tDirBInc = "Mysqldump directory: "
-tDoUBackupMysql = "Do you want to backup MySQL? yes|no: "
-tResdf = "Result of \"df -h\" on your remote server"
-tInstClient = "A client for MySQL backuping has been installed to the remote host, sbcl"
-tDoUexdb = "Do you want to exclude any databases? yes|no: "
-tUdb = "Your databases: "
-tDBex = "Exclude databases: "
-tChmy = "Backup mysql: "
-tMyDumpOpt = "MySQL dump options: "
-tMysqlLog = "MysqlLog: "
-tSbcltext = "Add a job in /etc/crontab, default: [ "
-tSbclCron = "0 0    * * * root /usr/sbin/sbcl mysqldump"
-tSbcltext2 = " ] You can add other job, format for crontab file : "
-tDateStartMysql = "Mysqldump start localtime: "
-tDateStopMysql = "Mysqldump stop localtime: "
-tMysqlUpdate = "Do you want to reconfiguration mysqldump on the remote host ? ['yes','no' or 'rm' (for remove) ]: "
-tNote = """Note that rsync must be installed on your remote server.
-If you using mysql backup, please, check that mysqldump is installed and a local configuration file ~/.my.cnf is configured """
-tCheckRsync = "Is the Rsync installed on your remote server ? ['yes' or 'no']: "
-tPlInR = "Please, install the rsync on your remote server !"
-tCheckMy = "Is the file ~/.my.cnf configured ?  ['yes' or 'no']: "
-tPlconfMy = "Please, configure the ~/.my.cnf for databases access "
-tDefMysqlOpt = " you can add --ignore-table=db.table [default: " + \
-    MysqlOptDef + " ]: "
-tdefExDb = "[default: information_schema,performance_schema]: "
-tDuDel = "Do you want to purge ['yes' or 'on']: "
-Defroot = "[default:" + UserDef + "] "
-Defport = "[default: " + str(PortDef) + " ] "
-Defop = "[default:" + RsyncOptDef + "] "
-Defpri = "[default: " + str(PrivDef) + " ] "
-DefFr = "[default: " + str(FrequencyDef) + "] "
-DefClean = "[default " + str(CleanDateDef) + "] "
-ExampleDir = "example[" + DirsDef + "] "
-ExampleDirEx = "example[" + DirExDef + "] "
-ExampleIncDir = "example[" + DirIncDef + "] "
-ExampleExDB = "example[" + DBexDef + "] "
-DefaultNodeName = "[default is your hostname "+SB.Node+"] :"
-tStatus = "Status: "
-tDelCronResult = "Cron job sbcl has been removed on the remote host"
-tAddtoCron = " add to /etc/crontab"
-tEndofUpdate = "Configuration has been modified"
-tMysqlReady = "MySQLdump ready: "
-tMysqlLog = "MysqlLog :"
-tUsestat = "\n\nPlease, use Done/Disabled/needbackup. Examlpe: sbctl statup w1.host.com Done"
-tStatdone = "\n\nStatus has been updated"
-tUpdateCl = "Start update sbcl : "
-tDesc = "Description :"
-tDescrm = "Description [rm - for remove description]: "
-tNodeName = "Backup node name: "
-tNode = "Node :"
-tCluster = "Cluster :" + Text_Style(SB.NameCluster)
-tNodes = "Hosts of node "
-tNodeCount = "amount of nodes "
-tNodeNot = "Not found"
-tNodehostCount = "amount of hosts "
-tHaveNotNode = "\nYou have not node!\n"
-tRmNodeResult = "\nNode has been removed successfully!\n"
 
 
 def signal_handler(signal, frame):
