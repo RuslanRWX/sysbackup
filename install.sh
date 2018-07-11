@@ -20,7 +20,7 @@ cp sbd.ini /etc/sbd/
 
 echo "Install sbd"
 cp dist/sbd /usr/sbin/sbd
-#cp lib/SB.py /usr/lib/python2.7/
+cp lib/SB.py /usr/lib/python2.7/
 
 echo "install sbctl" 
 cp dist/sbctl /usr/sbin/sbctl
@@ -44,4 +44,5 @@ sed -i "s/hostname/$host/" /etc/sbd/sbd.ini
 echo "ServerBackup has been installed. You can start and stop by using systemd; systemctl status sbd "
 echo "Configuration file: /etc/sbd/sbd.ini"
 echo "Your configuration parameters"
+mkdir /var/log/sbd
 cat /etc/sbd/sbd.ini

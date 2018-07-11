@@ -1,9 +1,12 @@
 /var/log/sbd/*.log {
-  size 20M
-  rotate 10
-  daily
-  compress
-  missingok
-  notifempty
+	size 20M
+	rotate 10
+	daily
+	create
+	compress
+	delaycompress
+	missingok
+	notifempty
+	olddir /var/log/sbd/oldlog
 }
 

@@ -14,7 +14,7 @@ apt-get install git
 
 git clone
 
-git clone  https://github.com/ruslansvs2/sysbackup.git
+git clone  https://user@bitbucket.org:host4biz-pl/sysbackup.git
 
 Install python  module pymongo
 

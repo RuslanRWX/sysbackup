@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # sbctl - SySBackup management program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.3"
+Version = "0.4.10"
 
 
 import sys
@@ -15,6 +15,11 @@ import variablessbctl
 from variablessbctl import *
 
 
+class daemon_supper(object):
+    def __getitem__(self,key):
+        return key
+
+
 def Text_Style(data, color="YELLOW"):
     from colorama import Fore, Style
     Color = getattr(Fore, color)
@@ -26,54 +31,21 @@ def signal_handler(signal, frame):
             sys.exit(0)
 
 
-def List(allservers):
+def List(allservers, mute=None):
+    if  not allservers:
+        print tHavenot
+        sys.exit(0)
     global count
     count = 0
+    getkey=daemon_supper()
     for R in allservers:
         count += 1
-        global ServerName
-        ServerName = R['Name']
-        global User
-        User = R['User']
-        global ServerIP
-        ServerIP = R['ServerIP']
-        global ServerPort
-        ServerPort = R['ServerPort']
-        global Priv
-        Priv = R['Priv']
-        global RsyncOpt
-        RsyncOpt = R['RsyncOpt']
-        global Dirs
-        Dirs = R['Dirs']
-        global DirsExclude
-        DirsExclude = R['DirsExclude']
-        global Frequency
-        Frequency = R['Frequency']
-        global CleanDate
-        CleanDate = R['CleanDate']
-        global id
-        id = R['_id']
-        global Status
-        Status = R['Status']
-        global Chmy
-        Chmy = R['Chmy']
-        global DBex
-        DBex = R['DBex']
-        global MyDumpOpt
-        MyDumpOpt = R["MyDumpOpt"]
-        global DirsInc
-        DirsInc = str(R["DirsInc"])
-        global MysqlLog
-        MysqlLog = R["MysqlLog"]
-        global MysqlReady
-        MysqlReady = R["MysqlReady"]
-        global Desc
-        Desc = R["Desc"]
-        global NodeName
-        NodeName = R["NodeName"]
-
+        data=getkey.__getitem__(R)
+        globals().update(data)
+        if mute is True:
+            return
         print tStart
-        print Text_Style(tServName + ServerName)
+        print Text_Style(tServName + Name)
         print Text_Style(str(tServIP + ServerIP + "\n"))
         print tUser, User
         print tServPort, ServerPort
@@ -85,10 +57,10 @@ def List(allservers):
             print Text_Style(tStatus + Status)
         else:
             print tStatus + Status
-        if R['DateStart']:
-            print tLastD + R['DateStart']
-        if R['DateEnd']:
-            print Text_Style(tLastDN + R['DateEnd'])
+        if DateStart:
+            print tLastD + DateStart
+        if DateEnd:
+            print Text_Style(tLastDN + DateEnd)
         print tDir + Dirs
         print tDirEx + DirsExclude
         print Text_Style(tFB + str(Frequency))
@@ -104,15 +76,12 @@ def List(allservers):
                 print tMysqlReady + MysqlReady
             else:
                 print Text_Style(tMysqlReady + MysqlReady, color="RED")
-            print tDateStartMysql + R['DateStartMySQL']
-            print tDateStopMysql + R['DateStopMySQL'] + "\n"
+            print tDateStartMysql + DateStartMySQL
+            print tDateStopMysql + DateStopMySQL + "\n"
         if Desc != "":
             print Text_Style(tDesc+Desc)
         print tNodeName + NodeName
     print tAOS, count
-    if count == 0:
-        print tHavenot
-        sys.exit(0)
 
 
 class Mongo:
@@ -129,9 +98,9 @@ class Mongo:
              "DateStopMySQL": "", "Status": "Never", "Desc": Desc, "NodeName": NodeName }]
         SB.coll.insert(DataServer, True)
 
-    def List(self, pattern={}):
+    def List(self, pattern={}, mute=None):
         allservers = list(SB.coll.find(pattern))
-        return List(allservers)
+        return List(allservers, mute)
 
     def FindParm(self, Parm, Obj, regex):
         if regex == "find-regex":
@@ -149,8 +118,6 @@ class Mongo:
            print Text_Style(tHaveNotNode)
 
     def ChangeStatus(self, Name, Stat):
-        allservers = list(SB.coll.find({"Name": Name}))
-        List(allservers)
         if Stat == "Done":
             Value = "Done"
         elif Stat == "Disabled":
@@ -159,8 +126,13 @@ class Mongo:
             Value = "needbackup"
         else:
             return  Text_Style(tUsestat)
-        data = {"Status": Value}
-        SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
+        data_local = {"Status": Value}
+        if Name.lower() == "all":
+            SB.coll.update({}, {"$set": data_local}, upsert=False, multi=True )
+        else:
+            M.List({"Name": Name}, mute=True)
+            SB.coll.update({'_id': _id}, {"$set": data_local}, upsert=False)
+            M.List({"Name": Name})
         return tStatdone
 
     def Delete(self, Name):
@@ -168,16 +140,16 @@ class Mongo:
         List(allservers)
         if count == 0:
             return
-        #PrCheck(ServerName,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
+        #PrCheck(Name,ServerIP,ServerPort, RsyncOpt,Priv,Dirs, DirsExclude )
         yes = set(['yes', 'y', 'ye'])
         no = set(['no', 'n'])
         choice = InCheck(Text_Style(tDuD)).lower()
         if choice in yes:
-            SB.coll.remove({'_id': id})
+            SB.coll.remove({'_id': _id})
             choice = InCheck(Text_Style(tDuDel + SB.DirBackup +
-                                    "/" + ServerName + " ")).lower()
+                                    "/" + Name + " ")).lower()
             if choice in yes:
-                cmd = "rm -fr {dir}".format(dir=SB.DirBackup + "/" + ServerName)
+                cmd = "rm -fr {dir}".format(dir=SB.DirBackup + "/" + Name)
                 os.system(cmd)
         elif choice in no:
             print tBye
@@ -186,15 +158,12 @@ class Mongo:
 
     def UpdateCl(self):
         allservers = list(SB.coll.find({}))
-        for R in allservers:
-            ServerName = R['Name']
-            User = R['User']
-            IP = R['ServerIP']
-            Port = R['ServerPort']
-            print tUpdateCl + ServerName
-            cmd="scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=User,
-                                                                                  port=Port, ip=IP)
-            os.system(cmd)
+        List(allservers, mute=True)
+        print tUpdateCl + Name
+        cmd="scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=Name,
+                                                                                  port=ServerIP,
+                                                                                  ip=ServerPort)
+        os.system(cmd)
 
     def NodeList(self, ClusterData):
         global count
@@ -218,6 +187,13 @@ class Mongo:
     def Nodeinfo(self, pattern={}):
         ClusterData = list(SB.collCluster.find(pattern))
         return Mongo().NodeList(ClusterData)
+
+    def MoveNode(self, Name, Server):
+        M.List({"Name": Name}, mute=True)
+        data_local = {"NodeName": Server}
+        SB.coll.update({'_id': _id}, {"$set": data_local}, upsert=False)
+        M.List({"Name": Name})
+        return tStatdone_Move_Node
 
 
 def PrCheck(Name, User, ServerIP, ServerPort, RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate):
@@ -263,7 +239,7 @@ def Update(Name):
     if Chmy == "NO":
         tRmDel = None
     ServerNameN = InCheck(
-        tServName + ' [Now:' + ServerName + ']: ',  default=ServerName)
+        tServName + ' [Now:' + Name + ']: ',  default=Name)
     ServerIPN = InCheckIP(
         tServIP + ' [Now:' + ServerIP + ']: ', default=ServerIP)
     UserN = InCheck(
@@ -271,7 +247,7 @@ def Update(Name):
     ServerPortN = InCheck(
         tServPort + Defport + ' [Now: ' + ServerPort + ' ]: ', default=ServerPort)
     RsyncOptN = InCheck(
-        tOpR + Defop + ' [Now:' + RsyncOpt + ']: ', default=RsyncOpt, Space = "True")
+        tOpR + Defop + ' [Now:' + RsyncOpt + ']: ', default=RsyncOpt, Space="True")
     PrivN = InCheck(
         tPriy + ' [ Now:' + str(Priv) + ' ]: ', default=Priv)
     DirsN = InCheck(tDir + ExampleDir +
@@ -304,7 +280,8 @@ def Update(Name):
             print Text_Style(tPlconfMy)
             return
         cmdscp = "scp -P{Port} /usr/share/sbcl/sbcl {User}@{IP}:/usr/sbin/".format(Port=ServerPortN,
-                                                                                   User=UserN, IP=ServerIPN)
+                                                                                   User=UserN,
+                                                                                   IP=ServerIPN)
         cmddb = connect + " \"mysql -e 'show databases;'\""
         cmddf = connect + " \"df -h\""
         print tResdf
@@ -348,18 +325,18 @@ def Update(Name):
     DescN = InCheck(
         tDescrm,  default=Desc, Empty="YES", Space="True" )
     NodeNameN = InCheck(
-        tNodeName+ ' [ Now:' + NodeName + ']: ',  default=NodeName, Space="True" )
+        tNodeName+ ' [ Now:' + NodeName + ']: ',  default=NodeName )
     if DescN == "rm": DescN = ""
     choice = InCheck(tDataCor).lower()
     if choice in yes:
-        # print id
+        # print _id
         data = {"Name":  ServerNameN, "User": UserN,  "ServerIP": ServerIPN, "ServerPort": ServerPortN,
                 "RsyncOpt": RsyncOptN, "Dirs": DirsN, "DirsExclude": DirsExcludeN, "Priv": PrivN,
                 "Frequency": FrequencyN, "CleanDate": CleanDateN, "DirsInc": DirsIncN, "DBex": DBexN,
                 "MyDumpOpt": MyDumpOptN,  "Chmy": ChmyN, "MysqlReady": MysqlReadyN,
                 "Desc": DescN, "NodeName": NodeNameN}
 
-        SB.coll.update({'_id': id}, {"$set": data}, upsert=False)
+        SB.coll.update({'_id': _id}, {"$set": data}, upsert=False)
         if ChmyNReal == "YES":
             os.system(cmdscp)
             os.system(cmdcrondel)
@@ -389,7 +366,7 @@ def add():
     else:
         print Text_Style(tPlInR)
         return
-    ServerName = InCheck(tServName)
+    Name = InCheck(tServName)
     ServerIP = InCheckIP(tServIP)
     User = InCheck(tUser + Defroot, default=UserDef)
     ServerPort = InCheck(tServPort + Defport,  default=PortDef)
@@ -401,7 +378,7 @@ def add():
         tDirBx + ExampleDirEx + ": ",  default='',  Empty="YES")
     Frequency = InCheck(tFB + DefFr,  default=FrequencyDef)
     CleanDate = InCheck(tCleanB + DefClean,  default=CleanDateDef)
-    # PrCheck(ServerName, User,  ServerIP, ServerPort,
+    # PrCheck(Name, User,  ServerIP, ServerPort,
     #        RsyncOpt, Priv, Dirs, DirsExclude, Frequency, CleanDate)
     choice = InCheck(tDataCor).lower()
     if choice in yes:
@@ -457,11 +434,12 @@ def add():
             MyDumpOpt = "Empty"
             DirsInc = "Empty"
             DBex = "Empty"
-        serv = "^" + ServerName + "$"
+        serv = "^" + Name + "$"
         Desc = InCheck(
-        tDesc,  default="",  Empty="YES", Space="True")
-        NodeName = InCheck(tNodeName+" [default is your hostname "+SB.Node+" ]: ", default=SB.Node, Space="True")
-        M.insert(Name=ServerName, User=User, ServerIP=ServerIP, ServerPort=ServerPort, RsyncOpt=RsyncOpt,
+            tDesc,  default="",  Empty="YES", Space="True")
+        NodeName = InCheck(
+            tNodeName+" [default is your hostname "+SB.Node+" ]: ", default=SB.Node)
+        M.insert(Name=Name, User=User, ServerIP=ServerIP, ServerPort=ServerPort, RsyncOpt=RsyncOpt,
                 Priv=Priv, Dirs=Dirs, DirsExclude=DirsExclude, Frequency=Frequency, CleanDate=CleanDate,
                     Chmy=Chmy, MyDumpOpt=MyDumpOpt, DirsInc=DirsInc, DBex=DBex,
                         Desc=Desc, NodeName=NodeName )
@@ -478,8 +456,9 @@ def add():
 
 
 def Command(Serv, Args):
-    M.List(pattern={"Name": Serv})
+    M.List(pattern={"Name": Serv}, mute=True)
     try:
+        print tCommandHost + Name
         connect = "ssh -p{Port} {User}@{IP} ".format(
             Port=ServerPort, User=User, IP=ServerIP)
         cmd = connect + "\"" + Args + "\""
@@ -529,8 +508,9 @@ def help():
     \t""" + Text_Style("rm", color="WHITE") + """ or remove   \t\t- Remove host, example: """ + Text_Style("sbctl remove w1.host.com") + """
     \t""" + Text_Style("ho", color="WHITE") + """ or host     \t\t- Send command to remote host, example: """ + Text_Style("sbctl host w1.host.com \"ls -al /var/backup\"") + """
     \t""" + Text_Style("backup", color="WHITE") + """         \t\t- Start backup, example: """ + Text_Style("sbctl backup w1.host.com") + """
-    \t""" + Text_Style("update-sbcl", color="WHITE") + """    \t\t- Update clinet, example: sbctl update-sbcl
+    \t""" + Text_Style("update-sbcl", color="WHITE") + """    \t\t- Update client, example: sbctl update-sbcl
     \t""" + Text_Style("status", color="WHITE") + """         \t\t- Status update, example: """ + Text_Style("sbctl status w1.host.com Done/Disabled/needbackup") + """
+    \t""" + Text_Style("status all", color="WHITE") + """     \t\t- Update status for all nodes, example: """ + Text_Style("sbctl status all Done/Disabled/needbackup") + """
     \t   status Done         \t- Backup is done
     \t   status Disabled     \t- Turn backup off
     \t   status needbackup   \t- Need to backup
@@ -541,6 +521,8 @@ def help():
     \t""" + FindHelp() + """
     \t""" + Text_Style("node", color="WHITE") + """      \t\t- Print the nodes of cluster 
     \t\t""" + Text_Style("node name", color="WHITE") + """      \t- Print information just one node, example: """ + Text_Style("sbctl node mynode") + """
+    \t""" + Text_Style("rm-node", color="WHITE") + """      \t\t- Remove node
+    \t""" + Text_Style("move-host", color="WHITE") + """      \t\t- Move host to node, example: """ + Text_Style("sbctl move-host Host Node") + """
     \thelp              \t- Help
     \n"""
 
@@ -584,6 +566,11 @@ def main():
                 M.Nodeinfo()
         elif argv == "rm-node":
             M.RmNode(sys.argv[2])
+        elif argv == "move-host":
+            try:
+                M.MoveNode(sys.argv[2], sys.argv[3])
+            except:
+                tNoteNodeOrServer
         else:
             print help()
     except IndexError:

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # SysBackup module
-# Version 0.4.0
+# Version 0.4.6
 import ConfigParser
 import os
 
@@ -50,6 +50,7 @@ Port = config.get('Main', 'ListenPort')
 TimeCheck = int(config.get('Main', 'TimeCheck'))
 PublickKey = config.get('Main', 'PublickKey')
 
+t_skip_clean="Cleaning backup files has been skipped:"
 
 def MongoCon():
     from pymongo import MongoClient

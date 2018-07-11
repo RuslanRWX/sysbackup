@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # SySBackup deamon
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.3"
+Version = "0.4.10"
 
 
 import threading
@@ -10,7 +10,7 @@ import sys
 import time
 import datetime
 import os
-sys.path.append("lib/")
+#sys.path.append("lib/")
 import SB
 import daemon
 
@@ -38,6 +38,7 @@ def Q():
 
 def help():
     return """Help function: Basic Usage:\n
+    \tversion    - show version
     \tstart      - Start the sbd deamon
     \tstop       - Stop the sbd deamon
     \trestart    - Restart the sbd deamon
@@ -58,7 +59,7 @@ def Stop():
         f.close()
         SB.MongoCon()
         DateUp = {"Status": "Stopped"}
-        SB.coll.update({"Status": "running"}, {"$set": DateUp}, upsert=False)
+        SB.coll.update({"Status": "running"}, {"$set": DateUp}, upsert=False, multi=True)
         print "sbd is stopped"
     else:
         print "sbd is not running"
@@ -98,11 +99,13 @@ def main():
             name = sys.argv[2]
             if not os.path.exists(tmp):
                 os.makedirs(tmp)
-            Back = daemon.Backup(name, Not_check="YES")
+            Back = daemon.backup(name, 1)
             try:
                 Back.run()
             except:
                 print "Error: have not host like " + sys.argv[2] + " !"
+        elif sys.argv[1] == 'version':
+            print Version
         else:
             print help()
     except IndexError:

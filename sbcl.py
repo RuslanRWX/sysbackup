@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # cbcl - SySBackup client program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.2"
+Version = "0.4.3"
 
 import socket
 import os
@@ -12,92 +12,8 @@ import readline
 import bson
 import pickle
 import ConfigParser
-
-
-# main variables
-Pathini = "/etc/sbcl/sbcl.ini"
-MysqlOptDef = "--opt  --routines"
-PortDef = "22"
-UserDef = "root"
-RsyncOptDef = "-av"
-PrivDef = "20"
-DirsDef = "/etc,/var"
-DirIncDef = "/var/backup"
-DirExDef = "/etc/ssh,/var/log"
-FrequencyDef = "24"
-CleanDateDef = "7"
-DBexDef = "information_schema,performance_schema"
-
-
-# text
-tStart = "##########################\n"
-tServName = "Server name: "
-tServIP = "Server IP: "
-tUser = "User:"
-tServPort = "Server ssh port: "
-tPriy = "Priority: "
-tOpR = "Options of rsync: "
-tLastD = "Last backup start time: "
-tLastDN = "Last backup finish time: "
-tDirB = "Directories of backup "
-tDirBx = "Directories of exclude "
-tFB = "Frequency of backup, hours: "
-tCleanB = "Clean the backup server, days: "
-tAOS = "##########################"
-tHavenot = "Haven't got any host !\nBye "
-tCheckInf = "Check information\nName: "
-tDir = "Directory :"
-tDirEx = "Exclude directory :"
-tDataCor = "Data are correct? yes|no: "
-tBye = "\nBye!"
-tctrlD = "\nYou pressed Ctrl+C!\nBye!"
-tPlease = "Please respond with 'yes' or 'no'"
-tAddsshKey = "Add sshkey, please, prepare to enter a password of remote server of its first to connect"
-tDuD = 'Do you really want to delete host? '
-tDirBInc = "Mysqldump directory: "
-tDoUBackupMysql = "Do you want to backup MySQL? yes|no: "
-tResdf = "Result of \"df -h\" on your remote server"
-tInstClient = "Install a cleant for MySQL backuing "
-tDoUexdb = "Do you want to exclude any databases? yes|no: "
-tUdb = "Your databases: "
-tDBex = "Exclude databases: "
-tChmy = "Backup mysql: "
-tMyDumpOpt = "MySQL dump options: "
-tMysqlLog = "MysqlLog: "
-tSbcltext = "Add a job in /etc/crontab, default: [ "
-tSbclCron = "0 0    * * * root /usr/sbin/sbcl mysqldump"
-tSbcltext2 = " ] You can add other job, format for crontab file : "
-tDateStartMysql = "Mysqldump start localtime: "
-tDateStopMysql = "Mysqldump stop localtime: "
-tMysqlUpdate = "Do you want to configuration mysqldump on the remote host ? ['yes','no' or 'rm' (for remove) ]: "
-tNote = """Note that rsync must be installed on your remote server.
-If you using mysql backup, please, check that mysqldump is installed and a local configuration file ~/.my.cnf is configured """
-tCheckRsync = "Is the Rsync installed on your remote server ? ['yes' or 'no']: "
-tPlInR = "Please, install the rsync on your remote server !"
-tCheckMy = "Is the file ~/.my.cnf configured ?  ['yes' or 'no']: "
-tPlconfMy = "Please, configure the ~/.my.cnf for databases access "
-tDefMysqlOpt = " you can add --ignore-table=db.table [default: " + \
-    MysqlOptDef + " ]: "
-tdefExDb = "[default: information_schema,performance_schema]: "
-tDuDel = "Do you want to purge ['yes' or 'on']: "
-Defroot = "[default:" + UserDef + "] "
-Defport = "[default: " + str(PortDef) + " ] "
-Defop = "[default:" + RsyncOptDef + "] "
-Defpri = "[default: " + str(PrivDef) + " ] "
-DefFr = "[default: " + str(FrequencyDef) + "] "
-DefClean = "[default " + str(CleanDateDef) + "] "
-ExampleDir = "example[" + DirsDef + "] "
-ExampleDirEx = "example[" + DirExDef + "] "
-ExampleIncDir = "example[" + DirIncDef + "] "
-ExampleExDB = "example[" + DBexDef + "] "
-tStatus = "Status: "
-tDelCronResult = "Cron job sbcl has been removed on the remote host"
-tAddtoCron = " add to /etc/crontab"
-tEndofUpdate = "Configuration has been modified"
-tMysqlReady = "MySQLdump ready: "
-tDesc = "Description :"
-tDescrm = "Description [rm - for remove description]: "
-tNodeName = "Backup node name: "
+import variablessbcl
+from variablessbcl import *
 
 
 def signal_handler(signal, frame):
