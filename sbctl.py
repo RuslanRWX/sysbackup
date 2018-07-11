@@ -522,7 +522,7 @@ def help():
     \t""" + Text_Style("node", color="WHITE") + """      \t\t- Print the nodes of cluster 
     \t\t""" + Text_Style("node name", color="WHITE") + """      \t- Print information just one node, example: """ + Text_Style("sbctl node mynode") + """
     \t""" + Text_Style("rm-node", color="WHITE") + """      \t\t- Remove node
-    \t""" + Text_Style("move-host", color="WHITE") + """      \t\t- Move host to node, example: """ + Text_Style("sbctl move-host Host Node") + """
+    \t""" + Text_Style("move-host", color="WHITE") + """      \t\t- Move host to node, example: """ + Text_Style("sbctl move-host Host New_Server_Node_Name") + """
     \thelp              \t- Help
     \n"""
 
