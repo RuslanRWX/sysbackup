@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # sbctl - SySBackup management program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.10"
+Version = "0.4.11"
 
 
 import sys
@@ -161,8 +161,8 @@ class Mongo:
         List(allservers, mute=True)
         print tUpdateCl + Name
         cmd="scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=Name,
-                                                                                  port=ServerIP,
-                                                                                  ip=ServerPort)
+                                                                                  port=ServerPort,
+                                                                                  ip=ServerIP)
         os.system(cmd)
 
     def NodeList(self, ClusterData):
