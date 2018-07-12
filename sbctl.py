@@ -160,7 +160,7 @@ class Mongo:
         allservers = list(SB.coll.find({}))
         List(allservers, mute=True)
         print tUpdateCl + Name
-        cmd="scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=Name,
+        cmd="scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=User,
                                                                                   port=ServerPort,
                                                                                   ip=ServerIP)
         os.system(cmd)
