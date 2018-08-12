@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # cbcl - SySBackup client program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.3"
+Version = "0.4.4"
 
 import socket
 import os
@@ -15,7 +15,6 @@ import ConfigParser
 import variablessbcl
 from variablessbcl import *
 
-
 def signal_handler(signal, frame):
             print tctrlD
             sys.exit(0)
@@ -23,9 +22,11 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
+print Pathini
 
 config = ConfigParser.ConfigParser()
 config.read(Pathini)
+
 
 SERVER_ADDRESS = config.get("Main", "IP")
 SERVER_PORT = int(config.get("Main", "PORT"))

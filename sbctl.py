@@ -84,6 +84,7 @@ def List(allservers, mute=None):
     print tAOS, count
 
 
+
 class Mongo:
 #    def __init__(self, ):
 #        self.pattern=pattern
@@ -163,7 +164,12 @@ class Mongo:
             cmd = "scp -P{port} /usr/share/sbcl/sbcl {user}@{ip}:/usr/sbin/".format(user=R["User"],
                                                                                     port=R["ServerPort"],
                                                                                     ip=R["ServerIP"])
+            cmd_conf = "scp -P{port} /usr/share/sbcl/sbcl.ini {user}@{ip}:/etc/sbcl/".format(user=R["User"],
+                                                                                    port=R["ServerPort"],
+                                                                                    ip=R["ServerIP"])
             os.system(cmd)
+            os.system(cmd_conf)
+
 
     def NodeList(self, ClusterData):
         global count
@@ -414,7 +420,6 @@ def add():
             DirsInc = InCheck(
                 tDirBInc + DefaultNodeName, default=DirIncDef)
             cmdmk = connect + "\"mkdir -p {dir}\"".format(dir=DirsInc)
-            cmdmklog = connect + "\"mkdir -p /var/log/sbclient\""
             choice = InCheck(tDoUexdb).lower()
             if choice in yes:
                 cmd = connect + " \"mysql -e 'show databases;'\""
