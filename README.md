@@ -38,3 +38,24 @@ Cluster architecture requires two or more backup servers and a bunch of host ser
 In this case, daemons (*sysbackup*) have access to the same databases.
 
 
+
+### Step 1
+
+Installation 
+Install on Debian/Ubuntu
+To install the dependencies just execute the commands below: 
+
+```
+apt update
+apt install mongodb
+apt install git -y
+```  
+  
+If you didn’t get any errors your server ready to install sysbackup
+
+```
+git clone https://github.com/ruslansvs2/sysbackup.git
+cd sysbackup
+./install.sh  
+```
+
