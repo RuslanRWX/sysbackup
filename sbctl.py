@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # sbctl - SySBackup management program
 # Copyright (c) 2017 Ruslan Variushkin,  ruslan@host4.biz
-Version = "0.4.12"
+Version = "0.4.13"
 
 
 import sys
