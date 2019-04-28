@@ -155,7 +155,7 @@ Successfully added user: {
 ```
 
 #### Configuring the MongoDB file:
-By using the editor open the /etc/mongodb.conf file and change the following parameters:
+By using the editor open the */etc/mongodb.conf* file and change the following parameters:
 Uncommit or add: 
 
 *auth = true*
@@ -193,7 +193,7 @@ switched to db sysbackup
 ... )
 ```
 
-You should get this output:
+You should get output like this:
 
 ```
 Successfully added user: {
@@ -218,4 +218,84 @@ It my example I use vim
 
 ```
 vim /etc/sbd/sbd.ini 
+```
+
+I have *MongoDB* version 3.2 and changed their default authentication mechanism:
+
+*AuthMechanism:* to *SCRAM-SHA-1* 
+
+I have to change the password and backup directory for the daemon (*sdb*). The sbd will create the directory when it first starts.  
+
+
+Check your configuration:
+```
+grep AuthMechanism /etc/sbd/sbd.ini
+# AuthMechanism, DBUser and DBUserPass.
+AuthMechanism: SCRAM-SHA-1
+
+```
+
+### Step 3: Start and check daemon 
+
+To start the daemon just execute the following command:
+
+
+```
+systemctl start sbd
+```
+
+Then you can check sbd:
+```
+systemctl status  sbd
+● sbd.service - Start sbd
+   Loaded: loaded (/etc/systemd/system/sbd.service; disabled; vendor preset: enabled)
+   Active: active (running) since Fri 2019-03-22 13:16:17 CET; 15s ago
+ Main PID: 16041 (sbd)
+    Tasks: 7 (limit: 4915)
+   Memory: 21.5M
+      CPU: 235ms
+   CGroup: /system.slice/sbd.service
+           ├─16041 /usr/sbin/sbd start
+           └─16042 /usr/sbin/sbd start
+
+Mar 22 13:16:17 test.org systemd[1]: Started Start sbd.
+```
+
+Add sbd to default start
+``` 
+systemctl enable sbd
+```
+
+Congratulations! You have installed sysbackup!
+
+### Step 4: Configuring and adding host 
+
+To add and configure a host you should use the sbctl.  
+You can see all sbctl’s functions by executing the following command:
+
+```
+sbctl 
+
+Version :0.4.12
+    
+Help function: Basic Usage:
+    	add or addhost 	- Add host to backup
+    	l or list     		- List all hosts
+    	lmy or  list-my     	- List the backup hosts for only my node
+    	se or search   		- Search for the host name,. For example: sbctl search w1.host.com
+    	re or reconf   		- Reconfiguration of backup settings. For example: sbctl reconf w1.host.com
+    	rm or remove   		- Remove host. For example: sbctl remove w1.host.com
+    	ho or host     		- Send command to remote host. For example: sbctl host w1.host.com "ls -al /var/backup"
+    	backup         		- Start backup. For example: sbctl backup w1.host.com
+    	update-sbcl    		- Update client. For example: sbctl update-sbcl
+    	status         		- Status update. For example: sbctl status w1.host.com Done/Disabled/needbackup
+    	status all     		- Update status for all nodes. For example: sbctl status all Done/Disabled/needbackup
+    	   status Done         	- Backup is done
+    	   status Disabled     	- Turn backup off
+    	   status needbackup   	- Need to backup
+    	find           		- List the hosts matching parameters. For example: sbctl find Status "rsync error"
+    	find-not       		- List the hosts invert-matching parameters. For example: sbctl find-not Chmy YES
+    	find-regex     		- Use regular expression to find the hosts on their parameter. For example: sbctl find-regex Status error 
+    	find help     		- List all parameter keys. For example: sbctl find help 
+
 ```

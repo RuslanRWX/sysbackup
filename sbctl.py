@@ -507,27 +507,27 @@ def help():
     \nHelp function: Basic Usage:
     \t""" + Text_Style("add", color="WHITE") + """ or addhost \t\t- Add host to backup
     \t""" + Text_Style("l", color="WHITE") + """ or  list     \t\t- List all hosts
-    \t""" + Text_Style("lmy", color="WHITE") + """ or  list-my     \t- List the backup hosts only my node
-    \t""" + Text_Style("se", color="WHITE") + """ or search   \t\t- Search for the host name, example: """ + Text_Style("sbctl search w1.host.com") + """
-    \t""" + Text_Style("re", color="WHITE") + """ or reconf   \t\t- Reconfiguration of backup settings, example: """ + Text_Style("sbctl reconf w1.host.com") + """
-    \t""" + Text_Style("rm", color="WHITE") + """ or remove   \t\t- Remove host, example: """ + Text_Style("sbctl remove w1.host.com") + """
-    \t""" + Text_Style("ho", color="WHITE") + """ or host     \t\t- Send command to remote host, example: """ + Text_Style("sbctl host w1.host.com \"ls -al /var/backup\"") + """
-    \t""" + Text_Style("backup", color="WHITE") + """         \t\t- Start backup, example: """ + Text_Style("sbctl backup w1.host.com") + """
-    \t""" + Text_Style("update-sbcl", color="WHITE") + """    \t\t- Update client, example: sbctl update-sbcl
-    \t""" + Text_Style("status", color="WHITE") + """         \t\t- Status update, example: """ + Text_Style("sbctl status w1.host.com Done/Disabled/needbackup") + """
-    \t""" + Text_Style("status all", color="WHITE") + """     \t\t- Update status for all nodes, example: """ + Text_Style("sbctl status all Done/Disabled/needbackup") + """
+    \t""" + Text_Style("lmy", color="WHITE") + """ or  list-my     \t- List the backup hosts for only my node
+    \t""" + Text_Style("se", color="WHITE") + """ or search   \t\t- Search for the host name. For example: """ + Text_Style("sbctl search w1.host.com") + """
+    \t""" + Text_Style("re", color="WHITE") + """ or reconf   \t\t- Reconfiguration of backup settings. For example: """ + Text_Style("sbctl reconf w1.host.com") + """
+    \t""" + Text_Style("rm", color="WHITE") + """ or remove   \t\t- Remove host. For example: """ + Text_Style("sbctl remove w1.host.com") + """
+    \t""" + Text_Style("ho", color="WHITE") + """ or host     \t\t- Send command to remote host. For example: """ + Text_Style("sbctl host w1.host.com \"ls -al /var/backup\"") + """
+    \t""" + Text_Style("backup", color="WHITE") + """         \t\t- Start backup. For example: """ + Text_Style("sbctl backup w1.host.com") + """
+    \t""" + Text_Style("update-sbcl", color="WHITE") + """    \t\t- Update client. For example: sbctl update-sbcl
+    \t""" + Text_Style("status", color="WHITE") + """         \t\t- Status update. For example: """ + Text_Style("sbctl status w1.host.com Done/Disabled/needbackup") + """
+    \t""" + Text_Style("status all", color="WHITE") + """     \t\t- Update status for all nodes. For example: """ + Text_Style("sbctl status all Done/Disabled/needbackup") + """
     \t   status Done         \t- Backup is done
     \t   status Disabled     \t- Turn backup off
     \t   status needbackup   \t- Need to backup
-    \t""" + Text_Style("find", color="WHITE") + """           \t\t- List the hosts matching parameters, example: """ + Text_Style("sbctl find Status \"rsync error\"") + """
-    \t""" + Text_Style("find-not", color="WHITE") + """       \t\t- List the hosts invert-matching parameters, example: """ + Text_Style("sbctl find-not Chmy YES") + """
-    \t""" + Text_Style("find-regex", color="WHITE") + """     \t\t- Use regular expression to find the hosts on their parameter, example: """ + Text_Style("sbctl find-regex Status error") + """ 
-    \t""" + Text_Style("find help", color="WHITE") + """     \t\t- List all parameter keys, example: """ + Text_Style("sbctl find help") + """ 
+    \t""" + Text_Style("find", color="WHITE") + """           \t\t- List the hosts matching parameters. For example: """ + Text_Style("sbctl find Status \"rsync error\"") + """
+    \t""" + Text_Style("find-not", color="WHITE") + """       \t\t- List the hosts invert-matching parameters. For example: """ + Text_Style("sbctl find-not Chmy YES") + """
+    \t""" + Text_Style("find-regex", color="WHITE") + """     \t\t- Use regular expression to find the hosts on their parameter. For example: """ + Text_Style("sbctl find-regex Status error") + """ 
+    \t""" + Text_Style("find help", color="WHITE") + """     \t\t- List all parameter keys. For example: """ + Text_Style("sbctl find help") + """ 
     \t""" + FindHelp() + """
     \t""" + Text_Style("node", color="WHITE") + """      \t\t- Print the nodes of cluster 
-    \t\t""" + Text_Style("node name", color="WHITE") + """      \t- Print information just one node, example: """ + Text_Style("sbctl node mynode") + """
+    \t\t""" + Text_Style("node name", color="WHITE") + """      \t- Print information just one node. For example: """ + Text_Style("sbctl node mynode") + """
     \t""" + Text_Style("rm-node", color="WHITE") + """      \t\t- Remove node
-    \t""" + Text_Style("move-host", color="WHITE") + """      \t\t- Move host to node, example: """ + Text_Style("sbctl move-host Host New_Server_Node_Name") + """
+    \t""" + Text_Style("move-host", color="WHITE") + """      \t\t- Move host to node. For example: """ + Text_Style("sbctl move-host Host New_Server_Node_Name") + """
     \thelp              \t- Help
     \n"""
 
