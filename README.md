@@ -115,5 +115,44 @@ TimeCheck: 3600
 PublicKey: /root/.ssh/id_rsa.pub
 
 ```
+Sysbackup has been installed  
 
 ### Step 2: Configuration 
+
+Backup server has configuration file placed in /etc/sbd/sbd.ini; we have to configure it before using it. 
+
+#### Configuring MongoDB 
+
+For more security you have to use authentication; for more information you can refer to the official documentation.  https://docs.mongodb.com/manual/tutorial/enable-authentication/.
+
+Adding admin user and password for MongoDB:
+
+```
+# mongo
+MongoDB shell version: 3.2.11
+connecting to: test
+> use admin
+switched to db admin
+> db.createUser(
+... {
+... user: "root",
+... pwd: "test",
+... roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
+... }
+... )
+
+You should get this output:
+Successfully added user: {
+	"user" : "root",
+	"roles" : [
+		{
+			"role" : "userAdminAnyDatabase",
+			"db" : "admin"
+		},
+		"readWriteAnyDatabase"
+	]
+}
+```
+
+
+
