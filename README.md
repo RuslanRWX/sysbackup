@@ -1,11 +1,11 @@
-#Sysbackup
+# Sysbackup
 Sysbackup - is a free backup software with clusterization capabilities. 
 
 
 If you have a bunch of servers it can be useful to use Sysbackup.
 This software allows you keep backup files in different places and makes it easy to manage backup strategies.
 
-#####Benefits:
+##### Benefits:
 * Clusterizations 
 * Multi-backup, thread 
 * Security
