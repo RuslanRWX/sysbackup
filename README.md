@@ -154,5 +154,68 @@ Successfully added user: {
 }
 ```
 
+#### Configuring the MongoDB file:
+By using the editor open the /etc/mongodb.conf file and change the following parameters:
+Uncommit or add: 
+
+*auth = true*
+
+Change it if you want to use the cluster backup architecture 
+
+*bind_ip = 127.0.0.1* to *bind_ip = 0.0.0.0* 
+
+> NOTE: Don’t forget about firewall. Your firewall has to allow traffic to the 27017 port for your hosts and forbid for others.
 
 
+Restart MongoDB by following this command:
+
+```
+systemctl restart mongodb.service
+```
+
+Add MongoDB user for our database
+> Note: In our example we have installed MongoDB version 3.2 
+
+Go to the MongoDB Shell by using the admin password
+
+```
+mongo  --port 27017  -u "root" -p  --authenticationDatabase "admin"
+
+>  use sysbackup
+switched to db sysbackup
+> db.createUser(
+...   {
+...     user: "sysbackup",
+...     pwd: "test",
+...    roles: [ { role: "readWrite", db: "sysbackup" },
+...             { role: "read", db: "reporting" } ]
+...   }
+... )
+```
+
+You should get this output:
+
+```
+Successfully added user: {
+	"user" : "sysbackup",
+	"roles" : [
+		{
+			"role" : "readWrite",
+			"db" : "sysbackup"
+		},
+		{
+			"role" : "read",
+			"db" : "reporting"
+		}
+	]
+}
+```
+
+#### Configuring Sysbackup daemon 
+
+Using your favorite editor open the configuration file and edit it.
+It my example I use vim
+
+```
+vim /etc/sbd/sbd.ini 
+```
