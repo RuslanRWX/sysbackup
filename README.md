@@ -39,10 +39,8 @@ In this case, daemons (*sysbackup*) have access to the same databases.
 
 
 
-### Step 1
-
-Installation 
-Install on Debian/Ubuntu
+### Step 1: Installation 
+Install on Debian/Ubuntu<br/>
 To install the dependencies just execute the commands below: 
 
 ```
