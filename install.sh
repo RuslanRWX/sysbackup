@@ -3,7 +3,7 @@
 IP=`ip addr | grep -v -w "lo" | grep -Eo 'inet [0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' | awk '{ print $2 }' | head -1`
 host=$(hostname)
 
-read -p "	|->  Your Server IP: default [ "$IP" ]: " ServIP
+read -p "	|->  Your server IP: default [ "$IP" ]: " ServIP
  : ${ServIP:=$IP}
 
 read -p "	|->  You cluster name: default [ sysbackup cluster ]: " cluster
@@ -13,7 +13,7 @@ read -p "	|->  You node name: default [ "$host" ]: " node
  : ${node:=$host}
 
 
-echo "Start install Server backup "
+echo "Start installing the server backup"
 if [ ! -d /etc/sbd ]; then { mkdir -p /etc/sbd;  } fi 
 
 cp sbd.ini /etc/sbd/
@@ -41,7 +41,7 @@ sed -i "s/yourcluster/$cluster/" /etc/sbd/sbd.ini
 sed -i "s/hostname/$host/" /etc/sbd/sbd.ini
 
 
-echo "ServerBackup has been installed. You can start and stop by using systemd; systemctl status sbd "
+echo "Sysbackup has been installed. You can start and stop by using systemd; systemctl status sbd "
 echo "Configuration file: /etc/sbd/sbd.ini"
 echo "Your configuration parameters"
 mkdir /var/log/sbd

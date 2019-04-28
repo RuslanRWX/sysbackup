@@ -45,7 +45,7 @@ To install the dependencies just execute the commands below:
 
 ```
 apt update
-apt install mongodb
+apt install mongodb -y
 apt install git -y
 ```  
   
@@ -57,3 +57,63 @@ cd sysbackup
 ./install.sh  
 ```
 
+The output should look like this:
+```
+	|->  Your server IP: default [ 192.168.1.2 ]:                    - you can change your IP address
+	|->  You cluster name: default [ sysbackup cluster ]: test       - you can change your cluster name
+	|->  You node name: default [ test.host.org ]:                   - name of your backup server 
+
+Start installing the server backup 
+Install sbd
+install sbctl
+create systemd unit
+
+Sysbackup has been installed. You can start and stop by using systemd; systemctl status sbd
+Configuration file: /etc/sbd/sbd.ini
+Your configuration parameters
+[Main]
+# Backup cluster name
+NameCluster: sysbackup cluster
+# Name node
+Node: zabbix.kloomba.ua
+# Mongo connect
+MongoConnect: localhost:27017
+# Mongo database
+DBs: sysbackup
+# security authorization
+# If your MongoDB is started with access control you have to set the next three parameters
+# AuthMechanism, DBUser and DBUserPass.
+# authorization mechanism ( for MongoDB 3.0 or later )
+# SCRAM-SHA-1 is the default authentication mechanism for authentication with MongoDB 3.0 or later.
+# Before MongoDB 3.0 the default authentication mechanism was MONGODB-CR.
+# If your MongoDB is using another authentication mechanism you have to use the corresponding method.
+AuthMechanism: MONGODB-CR
+# Mongo user 
+DBUser: sysbackup
+# Mongo user's password
+DBUserPass: mypass
+# Number of threads of backup
+Num_thread: 2
+# Backup directory on server
+DirBackup: /var/backup
+# Pid file
+Pidfile: /var/run/sbd.pid
+# tmp directory 
+tmp: /tmp/sbd
+# Log directory 
+LogDir: /var/log/sbd
+# Log file
+Log: /var/log/sbd/sbd.log
+# Error log file
+LogError: /var/log/sbd/sbd.error.log
+# Listen IP address and port
+ListenIP: 185.151.247.112
+ListenPort: 29029
+# Timeout
+TimeCheck: 3600
+# Public key 
+PublicKey: /root/.ssh/id_rsa.pub
+
+```
+
+### Step 2: Configuration 
