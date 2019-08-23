@@ -481,13 +481,13 @@ Version :0.4.12
 Cluster :sysbackup cluster
 Node :test1.org
 Hosts of node test1.org : mysql.test.org
-amount of hosts  3
+number of hosts  3
 
 Node :test2.org
 Hosts of node test2.org : test2.node.org
-amount of hosts  1
+number of hosts  1
 
-amount of nodes  2
+number of nodes  2
 
 
 ```
