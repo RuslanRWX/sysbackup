@@ -355,10 +355,10 @@ Backup frequency, hours: [default: 24]
 Backup server cleaning frequency, days: [default 7]
 Are these data correct ? yes|no: yes
 To add sshkey, please, prepare to enter a password for a remote server when you connect for the first time
-The authenticity of host '62.149.29.5 (62.149.29.5)' can't be established.
+The authenticity of host '192.168.1.4 (192.168.1.4)' can't be established.
 ECDSA key fingerprint is SHA256:vehuLBL+2B9b6aORgnpNpj0FrKzW4/j9VX8CLXVKuKY.
 Are you sure you want to continue connecting (yes/no)? yes
-Warning: Permanently added '62.149.29.5' (ECDSA) to the list of known hosts.
+Warning: Permanently added '192.168.1.4' (ECDSA) to the list of known hosts.
 root@62.149.29.5's password:
 sbcl                                                                                                                100% 4242KB   9.8MB/s   00:00
 sbcl.ini                                                                                                            100%  176    12.2KB/s   00:00
@@ -384,14 +384,14 @@ admin_klumba
 mysql
 performance_schema
 test
-##############
+
 Exclude databases: [default: information_schema,performance_schema]: mysql,performance_schema,information_schema
 MySQL dump options:  you can add --ignore-table=db.table [default: --opt  --routines ]:
 Add a job in /etc/crontab, default: [ 0 0    * * * root /usr/sbin/sbcl mysqldump ] You can add another job and change the syntaxes in the crontab file : 0 0    * * * root /usr/sbin/sbcl mysqldump
 Description :my4 database server
 Backup node name:  [default is your hostname zabbix.kloomba.ua ]:
 A client for backing up MySQL has been installed to the remote host, sbcl
-##########################
+
 
 Server name: mysql.test.org
 Server IP: 192.168.1.4
@@ -418,7 +418,7 @@ Backup node name: test.org
 ##########################    amount of servers  1
 
 If you see this read message, it means we don’t have any information about Mysqldump start/end times. It will change after sbcl starts on your host (the server which we have added before). You can go to the host server and check your crontab file to be sure that sbcl is configured properly.
-###########
+
 root@mysql.test.org~ # cat /etc/crontab
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
