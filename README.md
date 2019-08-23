@@ -359,7 +359,7 @@ The authenticity of host '192.168.1.4 (192.168.1.4)' can't be established.
 ECDSA key fingerprint is SHA256:vehuLBL+2B9b6aORgnpNpj0FrKzW4/j9VX8CLXVKuKY.
 Are you sure you want to continue connecting (yes/no)? yes
 Warning: Permanently added '192.168.1.4' (ECDSA) to the list of known hosts.
-root@62.149.29.5's password:
+root@192.168.1.4's password:
 sbcl                                                                                                                100% 4242KB   9.8MB/s   00:00
 sbcl.ini                                                                                                            100%  176    12.2KB/s   00:00
 Do you want to backup MySQL? yes|no: yes
