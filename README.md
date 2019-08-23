@@ -416,9 +416,11 @@ Mysqldump stop localtime:
 Description :my4 database server
 Backup node name: test.org
 ##########################    amount of servers  1
+```
 
 If you see this read message, it means we don’t have any information about Mysqldump start/end times. It will change after sbcl starts on your host (the server which we have added before). You can go to the host server and check your crontab file to be sure that sbcl is configured properly.
 
+```
 root@mysql.test.org~ # cat /etc/crontab
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -437,4 +439,96 @@ MAILTO=root
 0 0    * * * root /usr/sbin/sbcl mysqldump
 
 ```
+
+How to use sbctl
+List of your servers
+
+```
+#Sbctl l
+Server name: mysql.test.org
+Server IP: 192.168.1.4
+
+User: root
+Server ssh port:  22
+Priority:  20
+Options of rsync: -av
+Status: Never
+Directory :/etc,/usr/local/etc,/var/lib
+Exclude directory :
+Frequency of backup, hours: 24
+Clean the backup server, days:  7
+Backup mysql:  NO
+Description :Mysql
+Backup node name: test.org
+##########################    amount of servers  1
+```
+
+Add  sysbackup node
+In order to add an additional backup server you should just install sysbackup and configure its configuration file /etc/sbd/sbd.ini
+Open the file by using your favorite editor and change parameters:
+MongoConnect: 192.168.1.2          --  IP address for your  MongoDB database
+AuthMechanism: SCRAM-SHA-1         -- for our example for MongoDB version 3.2
+DBUser: sysbackup                  -- User database
+DBUserPass: test                   -- password for database
+
+Node: Please, check all parameters and make changes if you needs to, for example: DirBackup (store directory)
+
+Check your cluster by executing the following command:
+
+```
+sbctl node
+Version :0.4.12
+Cluster :sysbackup cluster
+Node :test1.org
+Hosts of node test1.org : mysql.test.org
+amount of hosts  3
+
+Node :test2.org
+Hosts of node test2.org : test2.node.org
+amount of hosts  1
+
+amount of nodes  2
+
+
+```
+Start backup now
+```
+sbdctl start mysql.test.org
+```
+How to change host status to backup. The backup process will start after the timeout which is assigned to the configuration file (TimeCheck)
+```
+sbctl status  mysql.test.org needbackup
+```
+
+The most common commands:
+sbctl add      - add host
+sbctl l           - list of configuration of hosts
+sbctl se        -- search host
+Example:
+```
+sbctl se mysql
+
+##########################
+
+Server name: mysql.test.com
+Server IP: 192.168.1.3
+
+User: root
+Server ssh port:  22
+Priority:  20
+Options of rsync: -av
+Status: Done
+Last backup start time: 2018-03-24T02:44:30.256300
+Last backup finish time: 2018-03-24T02:44:33.538740
+Directory :/etc
+Exclude directory :
+Frequency of backup, hours: 24
+Clean the backup server, days:  60
+Backup mysql:  NO
+Description :
+Backup node name: test.com
+##########################    number of servers  1
+
+```
+You can see all of sbctl’s functionality when you execute sbctl or sbctl help. You can also execute on a host sbcl to get more information about its functionality.
 
