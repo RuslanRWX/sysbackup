@@ -415,7 +415,7 @@ Mysqldump stop localtime:
 
 Description :my4 database server
 Backup node name: test.org
-##########################    amount of servers  1
+##########################    number of servers  1
 ```
 
 If you see this read message, it means we don’t have any information about Mysqldump start/end times. It will change after sbcl starts on your host (the server which we have added before). You can go to the host server and check your crontab file to be sure that sbcl is configured properly.
@@ -460,7 +460,7 @@ Clean the backup server, days:  7
 Backup mysql:  NO
 Description :Mysql
 Backup node name: test.org
-##########################    amount of servers  1
+##########################    number of servers  1
 ```
 
 Add  sysbackup node
