@@ -524,8 +524,8 @@ def help():
     \t""" + Text_Style("find-regex", color="WHITE") + """     \t\t- Use regular expression to find the hosts on their parameter. For example: """ + Text_Style("sbctl find-regex Status error") + """ 
     \t""" + Text_Style("find help", color="WHITE") + """     \t\t- List all parameter keys. For example: """ + Text_Style("sbctl find help") + """ 
     \t""" + FindHelp() + """
-    \t""" + Text_Style("node", color="WHITE") + """      \t\t- Print the nodes of cluster 
-    \t\t""" + Text_Style("node name", color="WHITE") + """      \t- Print information just one node. For example: """ + Text_Style("sbctl node mynode") + """
+    \t""" + Text_Style("node", color="WHITE") + """      \t\t- Print the nodes of your cluster 
+    \t\t""" + Text_Style("node name", color="WHITE") + """      \t- Print information for just one node. For example: """ + Text_Style("sbctl node mynode") + """
     \t""" + Text_Style("rm-node", color="WHITE") + """      \t\t- Remove node
     \t""" + Text_Style("move-host", color="WHITE") + """      \t\t- Move host to node. For example: """ + Text_Style("sbctl move-host Host New_Server_Node_Name") + """
     \thelp              \t- Help

@@ -164,7 +164,7 @@ Change it if you want to use the cluster backup architecture
 
 *bind_ip = 127.0.0.1* to *bind_ip = 0.0.0.0* 
 
-> NOTE: Don’t forget about firewall. Your firewall has to allow traffic to the 27017 port for your hosts and forbid for others.
+> Note: Don’t forget about firewall. Your firewall has to allow traffic to the 27017 port for your hosts and forbid for others.
 
 
 Restart MongoDB by following this command:
@@ -298,4 +298,143 @@ Help function: Basic Usage:
     	find-regex     		- Use regular expression to find the hosts on their parameter. For example: sbctl find-regex Status error 
     	find help     		- List all parameter keys. For example: sbctl find help 
 
+	Using find/find-not/find-regex with keys
+    	Server name: 	Name
+    	Server IP: 	ServerIP
+    	User:		User
+    	Server ssh port: 	ServerPort
+    	Priority: 		Priv
+
+        sync options: 	RsyncOpt
+    	Status: 		Status
+    	Last backup start time: 	DateStart
+    	Last backup end time:       DateEnd 
+    	Backup directories:     	Dirs
+        Backup frequency, hours: 	Frequency
+    	Backup server cleaning frequency, days: CleanDate
+    	Back up MySQL: Chmy
+    	Mysqldump directory: 	DirsInc
+    	Excluded databases: 	DBex
+    	Mysqldump options:      MyDumpOpt
+    	Mysqldump ready:        MysqlReady
+    	MysqlLog file:          MysqlLog
+    	Mysqldump start localtime: 	DateStartMysql
+    	Mysqldump stop localtime: 	DateStopMySQL
+    	
+    	Examples: 
+    	list all servers with status rsync error: sbctl find Status "rsync error"
+    	list all servers with "Backup mysql: NO": sbctl find Chmy NO
+    	
+    	node         - Print the nodes of your cluster
+    	node name    - Print information for just one node, example: sbctl node mynode
+    	rm-node      - Remove node
+    	move-host    - Move host to node, example: sbctl move-host Host New_Server_Node_Name
+    	help         - Help
+    	
 ```
+
+Let’s add a host by executing the following command and answering the setup questions 
+
+
+```
+# sbctl add
+Note that rsync must be installed on your remote server.
+If you use mysql backup, please, check that mysqldump is installed and the local configuration file ~/.my.cnf is configured
+Is rsync installed on your remote server ? ['yes' or 'no']: yes
+
+Server name: mysql.test.org
+Server IP: 192.168.1.4
+User:[default:root]
+Server ssh port: [default: 22 ]
+Options of rsync: [default:-av]
+Priority: [default: 20 ]
+
+Backup directories example[/etc,/var] : /etc,/root
+Exclude Directories example[/etc/ssh,/var/log] :
+Backup frequency, hours: [default: 24]
+Backup server cleaning frequency, days: [default 7]
+Are these data correct ? yes|no: yes
+To add sshkey, please, prepare to enter a password for a remote server when you connect for the first time
+The authenticity of host '62.149.29.5 (62.149.29.5)' can't be established.
+ECDSA key fingerprint is SHA256:vehuLBL+2B9b6aORgnpNpj0FrKzW4/j9VX8CLXVKuKY.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '62.149.29.5' (ECDSA) to the list of known hosts.
+root@62.149.29.5's password:
+sbcl                                                                                                                100% 4242KB   9.8MB/s   00:00
+sbcl.ini                                                                                                            100%  176    12.2KB/s   00:00
+Do you want to backup MySQL? yes|no: yes
+Is the file ~/.my.cnf configured ?  ['yes' or 'no']: yes
+Result of "df -h" on your remote server
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/md126               1,8T  536G  1,2T  32% /
+devtmpfs                  48G     0   48G   0% /dev
+tmpfs                     48G  772K   48G   1% /dev/shm
+tmpfs                     48G  4,1G   44G   9% /run
+tmpfs                     48G     0   48G   0% /sys/fs/cgroup
+/dev/mapper/vgssd1-ssd1  459G  173G  263G  40% /ssd1
+/dev/md125               2,0G  147M  1,7G   8% /boot
+/dev/mapper/vgssd2-ssd2  459G  130G  308G  30% /ssd2
+tmpfs                    9,5G     0  9,5G   0% /run/user/0
+Mysqldump directory: [default is your hostname test.org] :/var/backup-mysql
+Do you want to exclude any databases? yes|no: yes
+Your databases:
+Database
+information_schema
+admin_klumba
+mysql
+performance_schema
+test
+##############
+Exclude databases: [default: information_schema,performance_schema]: mysql,performance_schema,information_schema
+MySQL dump options:  you can add --ignore-table=db.table [default: --opt  --routines ]:
+Add a job in /etc/crontab, default: [ 0 0    * * * root /usr/sbin/sbcl mysqldump ] You can add another job and change the syntaxes in the crontab file : 0 0    * * * root /usr/sbin/sbcl mysqldump
+Description :my4 database server
+Backup node name:  [default is your hostname zabbix.kloomba.ua ]:
+A client for backing up MySQL has been installed to the remote host, sbcl
+##########################
+
+Server name: mysql.test.org
+Server IP: 192.168.1.4
+
+User: root
+Server ssh port:  22
+Priority:  20
+Options of rsync: -av
+Status: Never
+Directory :/etc,/root
+Exclude directory :
+Frequency of backup, hours: 24
+Clean the backup server, days:  7         ****************
+Backup mysql:  YES
+Mysqldump directory: /var/backup-mysql
+Exclude databases: mysql,performance_schema,information_schema
+MySQL dump options: --opt  --routines
+MySQLdump ready: Empty
+Mysqldump start localtime:
+Mysqldump stop localtime:
+
+Description :my4 database server
+Backup node name: test.org
+##########################    amount of servers  1
+
+If you see this read message, it means we don’t have any information about Mysqldump start/end times. It will change after sbcl starts on your host (the server which we have added before). You can go to the host server and check your crontab file to be sure that sbcl is configured properly.
+###########
+root@mysql.test.org~ # cat /etc/crontab
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+
+# For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name  command to be executed
+0 0    * * * root /usr/sbin/sbcl mysqldump
+
+```
+
