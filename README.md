@@ -502,8 +502,8 @@ sbctl status  mysql.test.org needbackup
 
 The most common commands:
 sbctl add      - add host
-sbctl l           - list of configuration of hosts
-sbctl se        -- search host
+sbctl l        - list of configuration of hosts
+sbctl se       - search host
 Example:
 ```
 sbctl se mysql
