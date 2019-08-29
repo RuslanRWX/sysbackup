@@ -107,7 +107,7 @@ Log: /var/log/sbd/sbd.log
 # Error log file
 LogError: /var/log/sbd/sbd.error.log
 # Listen IP address and port
-ListenIP: 185.151.247.112
+ListenIP: 192.168.1.2
 ListenPort: 29029
 # Timeout
 TimeCheck: 3600
@@ -249,7 +249,7 @@ Then you can check sbd:
 systemctl status  sbd
 ● sbd.service - Start sbd
    Loaded: loaded (/etc/systemd/system/sbd.service; disabled; vendor preset: enabled)
-   Active: active (running) since Fri 2019-03-22 13:16:17 CET; 15s ago
+   Active: active (running) since Fri 2019-03-22 22:16:17 CET; 15s ago
  Main PID: 16041 (sbd)
     Tasks: 7 (limit: 4915)
    Memory: 21.5M
