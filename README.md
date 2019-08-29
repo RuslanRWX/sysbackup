@@ -258,7 +258,7 @@ systemctl status  sbd
            ├─16041 /usr/sbin/sbd start
            └─16042 /usr/sbin/sbd start
 
-Mar 22 13:16:17 test.org systemd[1]: Started Start sbd.
+Mar 22 22:16:17 test.org systemd[1]: Started Start sbd.
 ```
 
 Add sbd to default start
