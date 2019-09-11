@@ -528,6 +528,8 @@ def help():
     \t\t""" + Text_Style("node name", color="WHITE") + """      \t- Print information for just one node. For example: """ + Text_Style("sbctl node mynode") + """
     \t""" + Text_Style("rm-node", color="WHITE") + """      \t\t- Remove node
     \t""" + Text_Style("move-host", color="WHITE") + """      \t\t- Move host to node. For example: """ + Text_Style("sbctl move-host Host New_Server_Node_Name") + """
+    \t""" + Text_Style("more-then", color="WHITE") + """      \t\t- Backup errors, find days more than. For example: """ + Text_Style("sbctl more-than 1") + """
+
     \thelp              \t- Help
     \n"""
 
@@ -547,6 +549,8 @@ def main():
             Update(sys.argv[2])
         elif argv == 'remove' or argv == 'rm':
             M.Delete(sys.argv[2])
+        elif argv == 'more-than':
+            M.List(pattern={"DateStart":{'$lt':'new Date((new Date())-1000*3600*24*'+sys.argv[2]+').toJSON()'},"Status":{'$ne':"Disabled"}})
         elif argv == 'host' or argv == 'ho':
             Command(sys.argv[2], sys.argv[3])
         elif argv == "backup":

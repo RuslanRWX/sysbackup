@@ -32,6 +32,8 @@ def Q():
         t.start()
     for item in daemon.create_queue():
         q.put(item["Name"])
+   # for i in range(SB.Num_thread):
+  #      if not threads[i].isAlive():
     q.join()
 
 
