@@ -552,7 +552,7 @@ def main():
         elif argv == 'more-than':
             from datetime import datetime, timedelta
             ISODateStart = datetime.now() - timedelta(days=int(sys.argv[2]))
-            M.List(pattern={"DateStart":{'$lt':ISODateStart.isoformat(), "Status":{'$ne':"Disabled"}}})
+            M.List(pattern={"$and":[{"DateStart":{'$lt':ISODateStart.isoformat()}}, {"Status":{'$ne':"Disabled"}}]})
         elif argv == 'host' or argv == 'ho':
             Command(sys.argv[2], sys.argv[3])
         elif argv == "backup":
