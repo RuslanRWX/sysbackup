@@ -550,7 +550,9 @@ def main():
         elif argv == 'remove' or argv == 'rm':
             M.Delete(sys.argv[2])
         elif argv == 'more-than':
-            M.List(pattern={"DateStart":{'$lt':'new Date((new Date())-1000*3600*24*'+sys.argv[2]+').toJSON()'},"Status":{'$ne':"Disabled"}})
+            from datetime import datetime, timedelta
+            ISODateStart = datetime.now() - timedelta(days=sys.argv[2])
+            M.List(pattern={"DateStart":{'$lt':ISODateStart.isoformat(), "Status":{'$ne':"Disabled"}}})
         elif argv == 'host' or argv == 'ho':
             Command(sys.argv[2], sys.argv[3])
         elif argv == "backup":
