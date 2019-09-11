@@ -551,7 +551,7 @@ def main():
             M.Delete(sys.argv[2])
         elif argv == 'more-than':
             from datetime import datetime, timedelta
-            ISODateStart = datetime.now() - timedelta(days=int(sys.argv[2])
+            ISODateStart = datetime.now() - timedelta(days=int(sys.argv[2]))
             M.List(pattern={"DateStart":{'$lt':ISODateStart.isoformat(), "Status":{'$ne':"Disabled"}}})
         elif argv == 'host' or argv == 'ho':
             Command(sys.argv[2], sys.argv[3])
