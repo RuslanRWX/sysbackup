@@ -75,7 +75,7 @@ Your configuration parameters
 # Backup cluster name
 NameCluster: sysbackup cluster
 # Name node
-Node: zabbix.kloomba.ua
+Node: zabbix.host.com
 # Mongo connect
 MongoConnect: localhost:27017
 # Mongo database
@@ -389,7 +389,7 @@ Exclude databases: [default: information_schema,performance_schema]: mysql,perfo
 MySQL dump options:  you can add --ignore-table=db.table [default: --opt  --routines ]:
 Add a job in /etc/crontab, default: [ 0 0    * * * root /usr/sbin/sbcl mysqldump ] You can add another job and change the syntaxes in the crontab file : 0 0    * * * root /usr/sbin/sbcl mysqldump
 Description :my4 database server
-Backup node name:  [default is your hostname zabbix.kloomba.ua ]:
+Backup node name:  [default is your hostname zabbix.host.com ]:
 A client for backing up MySQL has been installed to the remote host, sbcl
 
 
