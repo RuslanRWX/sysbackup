@@ -24,7 +24,7 @@ global LogDirListen
 global IP
 global Port
 global TimeCheck
-global PublickKey
+global PublicKey
 global pid
 pid = str(os.getpid())
 
@@ -48,7 +48,7 @@ LogDir = config.get('Main', 'LogDir')
 IP = config.get('Main', 'ListenIP')
 Port = config.get('Main', 'ListenPort')
 TimeCheck = int(config.get('Main', 'TimeCheck'))
-PublickKey = config.get('Main', 'PublickKey')
+PublicKey = config.get('Main', 'PublicKey')
 
 t_skip_clean="Cleaning backup files has been skipped:"
 

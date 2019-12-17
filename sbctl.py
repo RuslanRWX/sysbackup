@@ -392,7 +392,7 @@ def add():
         # time.sleep(3)
         connect = "ssh -p{Port} {User}@{IP} ".format(
             Port=ServerPort, User=User, IP=ServerIP)
-        cmd = "cat " + SB.PublickKey + " | " + connect + \
+        cmd = "cat " + SB.PublicKey + " | " + connect + \
             " \"mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys\""
         cmdscp = "scp -P{Port} /usr/share/sbcl/sbcl {User}@{IP}:/usr/sbin/".format(Port=ServerPort,
                                                                                    User=User, IP=ServerIP)
