@@ -52,7 +52,7 @@ apt install git -y
 If you didn’t get any errors your server ready to install sysbackup
 
 ```
-git clone https://github.com/ruslansvs2/sysbackup.git
+git clone https://github.com/RuslanRWX/sysbackup.git
 cd sysbackup
 ./install.sh  
 ```
